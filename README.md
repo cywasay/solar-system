@@ -15,17 +15,29 @@ Implemented:
 - Real axial tilt per planet, including retrograde spin for Venus and Uranus
 - Textured spheres with graceful solid-colour fallback for missing texture files
 - Saturn's rings, in the equatorial plane with the tilt applied
-- Camera fly-to-focus from the `PlanetMenu` overlay, tracking each planet's live
+- Moons: Luna around Earth, Phobos and Deimos around Mars — nested in their planet's
+  orbital frame, selectable and camera-focusable like planets. Tidal locking comes free
+  from the hierarchy: the mesh rides its rotating pivot, so the same face points inward.
+  Phobos and Deimos render as stretched flat-shaded icosahedra, not spheres.
+- Camera fly-to-focus from the `PlanetMenu` overlay, tracking each body's live
   orbiting position (see [Camera focus](#camera-focus) below)
-- Sun lit as an unlit emissive body, planets lit from a point light at the origin
-- Procedural starfield background, orbital path rings
+- `InfoPanel` with real figures (diameter, AU distance, orbital period, solar-day
+  length) and a descriptive fact per body, from typed `facts` blocks in `data/planets.ts`
+- Optional per-planet normal maps, loaded linear (never sRGB) — paths are wired for
+  Earth and Mars, awaiting the files (see the textures README)
+- Space-like lighting: near-zero ambient, linear-falloff sunlight (Mercury visibly
+  brighter than Neptune), HDR Sun with bloom, ACES filmic tonemap, subtle vignette
+  (post chain via `@react-three/postprocessing`; kill switch `POST_PROCESSING` in
+  `Scene.tsx` for low-end GPUs)
+- Procedural starfield tuned for size variation and parallax depth, kept outside the
+  camera's maxDistance so the view can never exit it
 
 Not yet implemented:
 
 - Pause/play and a time-speed multiplier — `TimeControls` renders but is **not wired to
   the scene**; `isPaused` and `timeSpeed` are written by the UI and read by nothing
-- Real data in `InfoPanel` — it reflects the selection but still shows placeholder figures
-- Moons, elliptical orbits, Venus's atmosphere layer
+- Moons beyond Earth's and Mars's; moon textures; elliptical orbits; Venus's atmosphere
+  layer; roughness/specular maps
 - Fixed axis orientation in world space. Each planet's tilt group is a child of its orbital
   pivot, so the axis sweeps around with the orbit instead of staying fixed — meaning no
   seasons. Most visible on Uranus. Fixable by counter-rotating the tilt group against the
@@ -66,6 +78,10 @@ Earth's year runs ~63s and its day ~5.2s. Because the two families are compresse
 independently, per-planet day/year ratios are not preserved — Mercury's simulated day is
 longer than its year, where in reality it is shorter. Retune with the two constants.
 
+Moons are scaled by eye rather than by formula: real moon sizes and orbital distances are
+so small relative to their planet that any consistent scheme makes them invisible or puts
+them inside the planet. Their real figures live in `facts` blocks, which are display-only.
+
 ---
 
 ## Camera focus
@@ -87,6 +103,17 @@ Two regimes, in `components/cameraFocus.ts`:
    pinning the pivot to it. The relative offset is untouched, so whatever angle and zoom
    the user has dragged to survives and OrbitControls stays fully usable.
 
+User input always wins: any grab of the controls (drag, wheel, touch — OrbitControls'
+`start` event) interrupts an in-flight approach immediately instead of the lerp eroding
+the input each frame. The overview state settles too — after arriving (or after a user
+grab), free navigation, no rubber-band back to the home shot. Re-clicking the selected
+body (or Overview) re-flies to it via a focus nonce in the store. Zoom limits are
+constant (2..350) rather than per-selection: a selection-dependent `minDistance` was
+measured causing a 10-unit single-frame snap when deselecting zoomed-in, and the
+constant can never fight an animation — the tradeoff is that a determined user can push
+the camera inside a planet. Panning is disabled while a body is focused (the tracking
+re-pins the pivot every frame, so pan would rubber-band); rotate and zoom compose fine.
+
 The offset leans sunward rather than straight out along the orbital radius: the only light
 is at the origin, so parking outside the orbit would frame the unlit hemisphere.
 
@@ -100,8 +127,10 @@ Two related non-physical choices:
 
 - The Sun is held at ~2x Jupiter's radius (true ratio is ~10x) so it does not engulf
   Mercury's orbit.
-- The point light uses `decay={0}`, disabling inverse-square falloff. With real falloff
-  Neptune would be effectively unlit.
+- The sunlight uses `decay={1}` (linear falloff) rather than the physical inverse-square:
+  across the compressed 20..134-unit range, true inverse-square is a 45x brightness
+  spread no tonemap recovers, while zero falloff lit Neptune like Mercury and read flat.
+  Linear gives Mercury ~6.7x Neptune, which the ACES tonemap rolls off gracefully.
 
 ---
 
@@ -112,9 +141,12 @@ Here is a guide to the project's layout:
 ```text
 solar-system-3d/
 ├── app/
-│   ├── layout.tsx         # Configures HTML envelope, imports fonts, and sets global metadata
-│   ├── page.tsx           # Entry page rendering the full-screen Scene and overlay UI controls
-│   └── globals.css        # Tailwind directives and core variables
+│   ├── layout.tsx         # HTML envelope, Newsreader/JetBrains Mono fonts, global SiteNav
+│   ├── page.tsx           # Editorial landing page: hero, about, census, capabilities, footer
+│   ├── explore/page.tsx   # The simulation: full-screen Scene plus HUD overlays
+│   ├── planets/[slug]/page.tsx # Per-planet editorial pages, SSG'd from the simulation data
+│   ├── contact/page.tsx   # Static contact page
+│   └── globals.css        # Tailwind directives, theme variables, route-entry animation
 ├── components/
 │   ├── Scene.tsx          # R3F Canvas, camera framing, starfield, and the Suspense boundary
 │   ├── SolarSystem.tsx    # Maps the planet data to meshes; owns scene lighting
@@ -122,15 +154,20 @@ solar-system-3d/
 │   ├── Planet.tsx         # Textured sphere positioned at its scaled orbital distance
 │   ├── OrbitPath.tsx      # Renders one orbital ring, parameterized by radius
 │   ├── PlanetRing.tsx     # Saturn-style ring system; rewrites RingGeometry UVs to be radial
+│   ├── Moon.tsx           # A moon orbiting inside its planet's system group
 │   ├── useOptionalTexture.ts # Loads a texture, resolving to null rather than throwing
 │   ├── cameraFocus.ts     # Pure fly-to/tracking maths, free of React so it can be tested headlessly
 │   ├── CameraController.tsx # OrbitControls plus live fly-to-focus on the selected planet
+│   ├── FocusFromQuery.tsx # Deep-link bridge: /explore?focus=Mars pre-selects via the store's public action
+│   ├── site/
+│   │   └── SiteNav.tsx    # Site-wide slide-out navigation with staggered reveal
 │   └── ui/
 │       ├── PlanetMenu.tsx    # 2D overlay list; selecting a planet drives the camera focus
 │       ├── InfoPanel.tsx     # 2D glassmorphic overlay displaying selected planet metadata
 │       └── TimeControls.tsx  # 2D overlay controls to adjust simulation speed or pause time
 ├── data/
-│   └── planets.ts         # Holds the `Planet` TypeScript interface and list of planet config definitions
+│   ├── planets.ts         # Single source of truth: planet/moon config + real display facts
+│   └── planetEditorial.ts # Longform prose and display-only stats for the planet pages
 ├── store/
 │   └── useSimulationStore.ts # Zustand global state for camera target, selected planet, time scale, and pause/play
 ├── public/

@@ -3,6 +3,16 @@
 import { useEffect, useState } from 'react';
 import * as THREE from 'three';
 
+export interface UseOptionalTextureOptions {
+  /**
+   * Tag the texture SRGBColorSpace after load. Correct for colour/albedo maps, and the
+   * default. MUST be false for data textures — normal, roughness, bump — whose RGB
+   * values are vectors/scalars, not colours: an sRGB transfer function applied to a
+   * normal map visibly warps the lighting.
+   */
+  srgb?: boolean;
+}
+
 /**
  * Loads a texture, resolving to `null` when the file is absent instead of throwing.
  *
@@ -11,13 +21,22 @@ import * as THREE from 'three';
  * errors too, so every missing texture became a full-screen error toast. Swallowing the
  * failure at the loader keeps a missing file a non-event rather than a recoverable crash.
  *
- * Returns `null` on the first render and while loading, so callers must be able to draw
- * something without a texture.
+ * Accepts `null` for "this body has no such map", so callers with optional maps don't
+ * need conditional hook calls. Returns `null` on the first render and while loading, so
+ * callers must be able to draw something without a texture.
  */
-export default function useOptionalTexture(url: string): THREE.Texture | null {
+export default function useOptionalTexture(
+  url: string | null,
+  options?: UseOptionalTextureOptions
+): THREE.Texture | null {
+  const srgb = options?.srgb ?? true;
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
+    // No-op without a URL, and outside the browser (SSR, headless test renderers) —
+    // TextureLoader needs the DOM's Image.
+    if (!url || typeof window === 'undefined') return;
+
     let active = true;
     let loaded: THREE.Texture | undefined;
 
@@ -30,7 +49,7 @@ export default function useOptionalTexture(url: string): THREE.Texture | null {
           loadedTexture.dispose();
           return;
         }
-        loadedTexture.colorSpace = THREE.SRGBColorSpace;
+        if (srgb) loadedTexture.colorSpace = THREE.SRGBColorSpace;
         setTexture(loadedTexture);
       },
       undefined,
@@ -52,7 +71,7 @@ export default function useOptionalTexture(url: string): THREE.Texture | null {
       setTexture(null);
       loaded?.dispose();
     };
-  }, [url]);
+  }, [url, srgb]);
 
   return texture;
 }

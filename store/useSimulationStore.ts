@@ -4,6 +4,12 @@ import type { Object3D } from 'three';
 export interface SimulationState {
   /** Name of the focused planet, or null for the overview shot. */
   selectedPlanet: string | null;
+  /**
+   * Bumped on every focus request, even one re-selecting the current body. Lets the
+   * camera re-fly to a planet (or re-home to Overview) when the user clicks an entry
+   * that is already selected — a plain string compare would see no change.
+   */
+  focusNonce: number;
   isPaused: boolean;
   timeSpeed: number;
 
@@ -27,11 +33,13 @@ export interface SimulationState {
 
 export const useSimulationStore = create<SimulationState>((set, get) => ({
   selectedPlanet: null,
+  focusNonce: 0,
   isPaused: false,
   timeSpeed: 1.0,
   planetRefs: new Map(),
 
-  setSelectedPlanet: (planetName) => set({ selectedPlanet: planetName }),
+  setSelectedPlanet: (planetName) =>
+    set((state) => ({ selectedPlanet: planetName, focusNonce: state.focusNonce + 1 })),
   setIsPaused: (isPaused) => set({ isPaused }),
   setTimeSpeed: (speed) => set({ timeSpeed: speed }),
 

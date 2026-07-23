@@ -22,6 +22,24 @@ console naming the file it looked for.
 | `2k_uranus.jpg` | Uranus | present | `#9ee3e8` pale cyan |
 | `2k_neptune.jpg` | Neptune | present | `#3f54ba` deep blue |
 
+## Normal maps (wired up, files not yet present)
+
+The material pipeline supports an optional tangent-space normal map per planet. These two
+paths are referenced from `data/planets.ts` and resolve automatically once the files
+appear — until then the planets simply render without surface relief:
+
+| File | Body | Status |
+| --- | --- | --- |
+| `2k_earth_normal_map.jpg` | Earth | **missing** |
+| `2k_mars_normal_map.jpg` | Mars | **missing** |
+
+Two format warnings:
+
+- **Solar System Scope ships its normal maps as `.tif`, which browsers cannot decode.**
+  Convert to JPG or PNG before dropping them in, or source JPG versions elsewhere.
+- Normal maps are **data textures, not colour**: they are loaded linear and never tagged
+  sRGB. Export them raw — do not run them through colour-managed export presets.
+
 ## Present but deliberately not wired up
 
 These files are staged here and referenced by nothing. Each needs geometry that does not
@@ -34,8 +52,8 @@ exist yet, so adding them to a `map` prop would be wrong:
 
 ## Not yet supported
 
-Nothing reads these, so adding them has no effect: normal/bump maps, specular or
-roughness maps, night-lights maps, cloud maps for Earth, and skybox images. The starfield
+Nothing reads these, so adding them has no effect: specular or roughness maps,
+night-lights maps, cloud maps for Earth, moon textures, and skybox images. The starfield
 is generated procedurally by Drei's `<Stars />`, so no space texture is used.
 
 ## Format notes

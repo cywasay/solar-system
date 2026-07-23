@@ -27,7 +27,12 @@ const eslintConfig = defineConfig([
             "roughness",
             "metalness",
             "depthWrite",
-            "geometry"
+            "geometry",
+            "normalMap",
+            "normalScale",
+            "scale",
+            "flatShading",
+            "toneMapped"
           ]
         }
       ]

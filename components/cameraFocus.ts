@@ -5,8 +5,13 @@ import * as THREE from 'three';
  * headless test. CameraController is a thin wrapper over `stepFocus`.
  */
 
-/** Overview shot — frames the whole system. Matches Scene.tsx's initial camera. */
-export const OVERVIEW_POSITION = new THREE.Vector3(0, 80, 210);
+/**
+ * Overview shot — frames the whole system. Scene.tsx reads this for the initial camera,
+ * so the two can never drift apart. Elevation is ~15 deg rather than the previous ~21:
+ * a lower, more grazing angle reads as a cinematic establishing shot instead of a
+ * top-down diagram, and shows Saturn's rings at an angle instead of nearly face-on.
+ */
+export const OVERVIEW_POSITION = new THREE.Vector3(0, 55, 205);
 export const OVERVIEW_TARGET = new THREE.Vector3(0, 0, 0);
 
 /** Stand-off distance when focused, in planet radii. ~6r puts the planet at a comfortable
@@ -47,6 +52,17 @@ export function resetFocusState(state: FocusState): void {
   state.settled = false;
   state.hasLastPosition = false;
   state.hasOffsetDirection = false;
+}
+
+/**
+ * The user grabbed the controls (drag, wheel, touch — OrbitControls' 'start' event).
+ * Ends any in-flight approach immediately: the camera stays wherever the user takes it,
+ * and if a body is focused we skip straight to the rigid-tracking regime so the pivot
+ * still follows the planet. Without this, the approach lerp re-asserts itself every
+ * frame and erodes the user's input (measured: 2.40 rad of drag reduced to 0.09).
+ */
+export function interruptFocus(state: FocusState): void {
+  state.settled = true;
 }
 
 const _toSun = new THREE.Vector3();
@@ -133,9 +149,15 @@ export function stepFocus({
   lerpFactor = LERP_FACTOR,
 }: StepFocusParams): void {
   if (!planetPosition) {
-    resetFocusState(state);
+    // Settled overview = free navigation. Without this the return-lerp runs forever
+    // and rubber-bands every user drag back to the overview shot (measured: a camera
+    // parked 196 units away was dragged all the way home against the user's input).
+    if (state.settled) return;
     cameraPosition.lerp(OVERVIEW_POSITION, lerpFactor);
     controlsTarget.lerp(OVERVIEW_TARGET, lerpFactor);
+    if (cameraPosition.distanceTo(OVERVIEW_POSITION) < ARRIVE_EPSILON) {
+      state.settled = true;
+    }
     return;
   }
 
@@ -150,8 +172,11 @@ export function stepFocus({
   }
 
   if (state.settled) {
-    // Pin exactly, so no float error accumulates over a long session.
-    controlsTarget.copy(planetPosition);
+    // Ease any residual gap instead of copying: after a normal arrival the gap is ~0 and
+    // this pins the pivot (bounding co-moving float drift), but after a user interrupt
+    // mid-approach the pivot may still be short of the planet — a hard copy would
+    // teleport the view centre mid-drag, this glides it in over ~a second.
+    controlsTarget.lerp(planetPosition, lerpFactor);
   } else {
     if (!state.hasOffsetDirection) {
       focusOffsetDirection(planetPosition, state.offsetDirection);

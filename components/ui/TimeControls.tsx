@@ -4,29 +4,44 @@ import React from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
 
 export default function TimeControls() {
-  const { isPaused, timeSpeed, setIsPaused, setTimeSpeed } = useSimulationStore();
+  // Per-field selectors: this bar has no reason to re-render on selection changes.
+  const isPaused = useSimulationStore((state) => state.isPaused);
+  const timeSpeed = useSimulationStore((state) => state.timeSpeed);
+  const setIsPaused = useSimulationStore((state) => state.setIsPaused);
+  const setTimeSpeed = useSimulationStore((state) => state.setTimeSpeed);
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-slate-900/80 backdrop-blur-md text-white px-6 py-3 rounded-full border border-slate-800 shadow-2xl flex items-center gap-6 select-none">
+    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-stretch bg-[#09090B]/80 backdrop-blur-sm border border-[#27272A]/70 select-none font-mono">
       <button
+        type="button"
         onClick={() => setIsPaused(!isPaused)}
-        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors duration-200"
+        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-[#FAFAFA] border-r border-[#27272A]/70 transition-colors duration-300 hover:text-[#09090B]"
       >
-        {isPaused ? 'Play' : 'Pause'}
+        {/* Same rising-fill hover as the landing CTAs. */}
+        <span className="absolute inset-0 bg-[#FF4500] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
+        <span className="relative">{isPaused ? '[ Resume ]' : '[ Pause ]'}</span>
       </button>
-      
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-slate-400">Simulation Speed:</span>
+
+      <div className="flex items-center gap-4 px-5">
+        <label
+          htmlFor="time-speed"
+          className="text-[10px] uppercase tracking-[0.2em] text-[#71717A]"
+        >
+          Rate
+        </label>
         <input
+          id="time-speed"
           type="range"
           min="0.1"
           max="5.0"
           step="0.1"
           value={timeSpeed}
           onChange={(e) => setTimeSpeed(parseFloat(e.target.value))}
-          className="w-24 accent-indigo-500 cursor-pointer"
+          className="w-28 accent-[#FF4500] cursor-pointer"
         />
-        <span className="text-xs font-mono text-slate-300 w-8">{timeSpeed.toFixed(1)}x</span>
+        <span className="text-[11px] text-[#FAFAFA] w-10 text-right tabular-nums">
+          {timeSpeed.toFixed(1)}x
+        </span>
       </div>
     </div>
   );
