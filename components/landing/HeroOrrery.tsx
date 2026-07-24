@@ -20,10 +20,14 @@ export default function HeroOrrery() {
       aria-hidden
       className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[44%] w-[min(94vw,1060px)] aspect-square pointer-events-none select-none hidden md:block"
     >
-      {/* Faint solar glow, then the Sun itself. */}
+      {/* Faint solar glow, a pulsing corona, then the Sun itself. */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.22), transparent 65%)' }}
+      />
+      <div
+        className="sun-pulse absolute left-1/2 top-1/2 w-6 h-6 rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.9), transparent 70%)' }}
       />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#EA580C]" />
 
