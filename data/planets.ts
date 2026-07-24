@@ -62,7 +62,8 @@ export interface Moon {
   radius: number; // scene units, scaled by eye — see the moons note above
   distanceFromPlanet: number; // scene units from the planet's centre
   orbitSpeed: number; // radians/sec around the planet
-  fallbackColor: string; // moons are untextured this pass, so this is their colour
+  textureFile?: string; // optional colour map; falls back to fallbackColor when absent
+  fallbackColor: string; // used when textureFile is missing, or for untextured moons
   /** Irregular (non-spherical) bodies render as a stretched low-poly icosahedron. */
   irregular?: boolean;
   facts: BodyFacts;
@@ -182,6 +183,7 @@ export const planets: Planet[] = [
         radius: 0.25,
         distanceFromPlanet: 2.2,
         orbitSpeed: 0.55,
+        textureFile: '/textures/2k_moon.jpg',
         fallbackColor: '#b8b5ad',
         facts: {
           diameterKm: 3475,

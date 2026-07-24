@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Moon as MoonData } from '@/data/planets';
 import { useSimulationStore } from '@/store/useSimulationStore';
+import useOptionalTexture from './useOptionalTexture';
 
 /** Mirrors Planet.tsx — clamp wall-clock gaps after the tab is backgrounded. */
 const MAX_DELTA = 0.1;
@@ -28,11 +29,13 @@ export default function Moon({
   radius,
   distanceFromPlanet,
   orbitSpeed,
+  textureFile,
   fallbackColor,
   irregular,
 }: MoonProps) {
   const pivotRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
+  const map = useOptionalTexture(textureFile ?? null);
 
   const registerPlanetRef = useSimulationStore((state) => state.registerPlanetRef);
   const unregisterPlanetRef = useSimulationStore((state) => state.unregisterPlanetRef);
@@ -68,8 +71,13 @@ export default function Moon({
         ) : (
           <sphereGeometry args={[radius, 32, 16]} />
         )}
+        {/* Keyed so a texture arriving after compile rebuilds the material — R3F never
+            sets needsUpdate, so a late `map` assignment is otherwise a silent no-op.
+            Colour is white when textured, since three multiplies map by color. */}
         <meshStandardMaterial
-          color={fallbackColor}
+          key={map ? 'textured' : 'flat'}
+          map={map}
+          color={map ? '#ffffff' : fallbackColor}
           roughness={1}
           metalness={0}
           flatShading={Boolean(irregular)}

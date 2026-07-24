@@ -77,6 +77,74 @@ a {
   animation-play-state: paused;
 }
 
+/* Explore loader: a small orbital instrument, not a generic spinner. */
+@keyframes loader-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-probe {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-sun {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.35), 0 0 28px rgba(234, 88, 12, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 11px rgba(234, 88, 12, 0), 0 0 42px rgba(234, 88, 12, 0.85);
+  }
+}
+
+@keyframes loader-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+.explore-loader-grid {
+  background-image:
+    linear-gradient(rgba(30, 41, 59, 0.32) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.32) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+}
+
+.explore-loader-vignette {
+  background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.28) 46%, #020617 100%);
+}
+
+.explore-loader-orbit {
+  animation: loader-orbit 18s linear infinite;
+}
+
+.explore-loader-orbit:nth-child(2) {
+  animation-direction: reverse;
+  animation-duration: 12s;
+}
+
+.explore-loader-orbit:nth-child(3) {
+  animation-duration: 8s;
+}
+
+.explore-loader-probe-orbit {
+  animation: loader-probe 5s linear infinite;
+}
+
+.explore-loader-sun {
+  animation: loader-sun 2s ease-in-out infinite;
+}
+
+.explore-loader-progress {
+  animation: loader-progress 1.7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-in {
     animation: none;
@@ -86,6 +154,12 @@ a {
     animation: none !important;
   }
   .marquee-track {
+    animation: none;
+  }
+  .explore-loader-orbit,
+  .explore-loader-probe-orbit,
+  .explore-loader-sun,
+  .explore-loader-progress {
     animation: none;
   }
 }

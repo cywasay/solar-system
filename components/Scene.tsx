@@ -1,12 +1,13 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { Suspense, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import { Bloom, EffectComposer, ToneMapping, Vignette } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import SolarSystem from './SolarSystem';
 import CameraController from './CameraController';
+import Skybox from './Skybox';
 import { OVERVIEW_POSITION } from './cameraFocus';
 
 /**
@@ -15,7 +16,25 @@ import { OVERVIEW_POSITION } from './cameraFocus';
  */
 const POST_PROCESSING = true;
 
-export default function Scene() {
+const WARMUP_FRAMES = 12;
+
+function SceneWarmup({ onReady }: { onReady?: () => void }) {
+  const renderedFrames = useRef(0);
+  const reported = useRef(false);
+
+  useFrame(() => {
+    if (reported.current || !onReady) return;
+    renderedFrames.current += 1;
+    if (renderedFrames.current >= WARMUP_FRAMES) {
+      reported.current = true;
+      onReady();
+    }
+  });
+
+  return null;
+}
+
+export default function Scene({ onReady }: { onReady?: () => void }) {
   return (
     <div className="w-full h-full bg-black">
       <Canvas
@@ -33,6 +52,10 @@ export default function Scene() {
       >
         {/* Outside Suspense so camera controls stay live while textures load. */}
         <CameraController />
+        <SceneWarmup onReady={onReady} />
+
+        {/* Milky Way backdrop at radius 1000; procedural stars twinkle in front of it. */}
+        <Skybox textureFile="/textures/8k_stars_milky_way.jpg" />
 
         {/* Star shell OUTSIDE maxDistance (350, CameraController) so the camera can
             never exit the universe. depth spreads shells over 500..650 for parallax;

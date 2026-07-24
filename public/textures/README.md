@@ -21,6 +21,16 @@ console naming the file it looked for.
 | `2k_saturn.jpg` | Saturn | present | `#ead6b8` pale gold |
 | `2k_uranus.jpg` | Uranus | present | `#9ee3e8` pale cyan |
 | `2k_neptune.jpg` | Neptune | present | `#3f54ba` deep blue |
+| `2k_moon.jpg` | Luna (Earth's moon) | present | `#b8b5ad` pale grey |
+
+## Environment
+
+| File | Use | Status |
+| --- | --- | --- |
+| `8k_stars_milky_way.jpg` | Milky Way skybox — see `components/Skybox.tsx` | present |
+
+The skybox is a radius-1000 inverted sphere behind the procedural `<Stars />`, which
+still supply near-field parallax in front of it.
 
 ## Normal maps (wired up, files not yet present)
 
@@ -53,8 +63,8 @@ exist yet, so adding them to a `map` prop would be wrong:
 ## Not yet supported
 
 Nothing reads these, so adding them has no effect: specular or roughness maps,
-night-lights maps, cloud maps for Earth, moon textures, and skybox images. The starfield
-is generated procedurally by Drei's `<Stars />`, so no space texture is used.
+night-lights maps, and cloud maps for Earth. Procedural `<Stars />` render in front of
+the Milky Way skybox for near-field parallax.
 
 ## Format notes
 
