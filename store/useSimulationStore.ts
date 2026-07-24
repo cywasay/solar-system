@@ -12,6 +12,7 @@ export interface SimulationState {
   focusNonce: number;
   isPaused: boolean;
   timeSpeed: number;
+  showOrbitPaths: boolean;
 
   /**
    * Live scene-graph handles keyed by planet name, so CameraController can read a
@@ -26,6 +27,7 @@ export interface SimulationState {
   setSelectedPlanet: (planetName: string | null) => void;
   setIsPaused: (isPaused: boolean) => void;
   setTimeSpeed: (speed: number) => void;
+  setShowOrbitPaths: (showOrbitPaths: boolean) => void;
   registerPlanetRef: (name: string, object: Object3D) => void;
   unregisterPlanetRef: (name: string) => void;
   resetSimulation: () => void;
@@ -36,12 +38,14 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   focusNonce: 0,
   isPaused: false,
   timeSpeed: 1.0,
+  showOrbitPaths: true,
   planetRefs: new Map(),
 
   setSelectedPlanet: (planetName) =>
     set((state) => ({ selectedPlanet: planetName, focusNonce: state.focusNonce + 1 })),
   setIsPaused: (isPaused) => set({ isPaused }),
   setTimeSpeed: (speed) => set({ timeSpeed: speed }),
+  setShowOrbitPaths: (showOrbitPaths) => set({ showOrbitPaths }),
 
   registerPlanetRef: (name, object) => {
     get().planetRefs.set(name, object);
@@ -55,5 +59,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       selectedPlanet: null,
       isPaused: false,
       timeSpeed: 1.0,
+      showOrbitPaths: true,
     }),
 }));

@@ -1,203 +1,362 @@
+import React from 'react';
 import Link from 'next/link';
-import StarDrift from '@/components/landing/StarDrift';
-import FadeIn from '@/components/landing/FadeIn';
-import HeroParallax from '@/components/landing/HeroParallax';
+import { planets } from '@/data/planets';
+import { planetEditorial } from '@/data/planetEditorial';
+import HeroOrrery from '@/components/landing/HeroOrrery';
+import ScrollRail from '@/components/landing/ScrollRail';
+
+/* ---------------------------------------------------------------------------
+ * The landing page as an instrument. Every figure on it is pulled from the same
+ * data files that drive the simulation — the orrery spins at real compressed
+ * periods, the ledger lists the actual eight worlds, the rail measures scroll
+ * in AU. Chrome voice: system mono. Editorial voice: Newsreader.
+ * ------------------------------------------------------------------------- */
+
+const EASE = 'ease-[cubic-bezier(0.83,0,0.17,1)]';
+
+const auOf = (name: string) =>
+  parseFloat(planets.find((p) => p.name === name)!.facts.distance).toFixed(2);
+
+const velocityOf = (name: string) =>
+  planetEditorial[name].stats.find((s) => s.label === 'Orbital velocity')?.value ?? '';
+
+const capabilities = [
+  {
+    id: '01',
+    title: 'System topology',
+    line: 'Eight textured worlds, three moons and one star — placed, scaled and lit from a single dataset.',
+  },
+  {
+    id: '02',
+    title: 'Orbital motion',
+    line: 'Period ratios from sidereal data; Venus and Uranus genuinely turn backwards, every axis holds its published tilt.',
+  },
+  {
+    id: '03',
+    title: 'Target tracking',
+    line: 'The camera chases live positions, never snapshots — and yields the instant you grab the controls.',
+  },
+  {
+    id: '04',
+    title: 'Satellite systems',
+    line: 'Luna, Phobos and Deimos ride correctly nested orbits, tidally locked for free by the hierarchy.',
+  },
+  {
+    id: '05',
+    title: 'Render pipeline',
+    line: 'A high-dynamic-range sun that actually blooms, linear light falloff, ACES filmic grade.',
+  },
+  {
+    id: '06',
+    title: 'Time control',
+    line: 'Pause outright, or run the system anywhere from a tenth of speed to five times over.',
+  },
+];
+
+function SectionRule({ no, title }: { no: string; title: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-16">
+      <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#EA580C]">{no}</span>
+      <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+        {title}
+      </span>
+      <span aria-hidden className="flex-1 h-px bg-[#1E293B]" />
+    </div>
+  );
+}
+
+/** One run of the marquee content; rendered twice for a seamless -50% loop. */
+function MarqueeRun({ hidden }: { hidden?: boolean }) {
+  return (
+    <span aria-hidden={hidden} className="flex items-center gap-6 pr-6">
+      {planets.map((planet) => (
+        <React.Fragment key={planet.name}>
+          <span>
+            {planet.name.toUpperCase()} · {auOf(planet.name)} AU ·{' '}
+            {velocityOf(planet.name).toUpperCase()}
+          </span>
+          <span className="text-[#EA580C]">✦</span>
+        </React.Fragment>
+      ))}
+    </span>
+  );
+}
 
 export default function LandingPage() {
-  const capabilities = [
-    {
-      id: 'I',
-      title: 'Complete Planetary Topology',
-      description: 'A comprehensive mapping of all eight major planets, Earth’s moon, and the central star. Constructed using high-resolution textures and accurate dimensional scaling.',
-      details: '8 Major Planets — 1 Terrestrial Moon — Sun',
-    },
-    {
-      id: 'II',
-      title: 'Real-Time Orbital Mechanics',
-      description: 'Observe true elliptical trajectories. All celestial bodies adhere to their relative orbital velocities and distances, presenting a scientifically grounded view of our local system.',
-      details: 'Computed Trajectories — Scaled Distances',
-    },
-    {
-      id: 'III',
-      title: 'Cinematic Target Tracking',
-      description: 'Seamless camera transitions allow you to focus on any specific body. The viewport automatically locks onto and tracks the target through its continuous path across the void.',
-      details: 'Focus Interpolation — Auto-Tracking',
-    },
-    {
-      id: 'IV',
-      title: 'Temporal Acceleration',
-      description: 'Command the flow of time. Accelerate the simulation to observe macro orbital mechanics unfold rapidly, or pause to study specific planetary alignments.',
-      details: 'Up to 5.0x Speed — Precision Pause Control',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 selection:bg-orange-600 selection:text-white font-sans overflow-x-hidden">
-      
-      {/* Restrained Ambient Star Particles */}
-      <StarDrift />
-      
-      {/* Navigation Header */}
-      <nav className="relative z-20 flex justify-between items-center px-6 md:px-12 py-8 border-b border-slate-800/50">
-        <div className="font-serif text-lg tracking-wide text-slate-300">
-          Solar System <span className="italic text-slate-500">Observatory</span>
-        </div>
-        <Link 
+    <div className="min-h-screen bg-[#020617] text-[#F8FAFC] overflow-x-hidden selection:bg-[#EA580C] selection:text-white">
+      <ScrollRail />
+
+      {/* Masthead — broadsheet dateline */}
+      <nav className="relative z-20 flex justify-between items-center gap-6 px-6 md:px-12 lg:px-24 py-6 border-b border-[#1E293B] font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em]">
+        <span className="text-[#F8FAFC]">
+          Simulation.01 <span className="text-slate-500">— Orbital Mechanics</span>
+        </span>
+        <span className="hidden md:block text-slate-500">Ephemeris · Jul 2026</span>
+        <Link
           href="/explore"
-          className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-100 border border-slate-700 hover:border-slate-500 text-sm font-medium transition-[background-color,border-color,transform] duration-200 ease-out hover:scale-105"
+          className={`group relative overflow-hidden border border-[#F8FAFC]/25 px-5 py-2 transition-colors duration-300 hover:border-[#EA580C]`}
         >
-          Enter Simulation
+          <span
+            className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${EASE}`}
+          />
+          <span className="relative transition-colors duration-300 group-hover:text-[#020617]">
+            [ Init ]
+          </span>
         </Link>
       </nav>
 
-      {/* Hero Section with Parallax Drift */}
-      <main className="relative z-10 px-6 md:px-12 pt-32 pb-40">
-        <div className="max-w-screen-2xl mx-auto">
-          <HeroParallax speed={0.12}>
-            <FadeIn delay={50}>
-              <h1 className="font-serif text-6xl md:text-8xl lg:text-[10vw] leading-[0.9] tracking-tight mb-16 text-slate-100">
-                Discover the <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400 italic">Scale of Space</span>
-              </h1>
-            </FadeIn>
-            
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mt-24">
-              <div className="md:col-span-8 lg:col-span-6">
-                <FadeIn delay={200}>
-                  <p className="text-xl md:text-3xl font-light text-slate-300 leading-relaxed">
-                    A physically accurate, interactive 3D model of our solar system. 
-                    Experience celestial scale, orbital mechanics, and planetary motion directly in your browser.
-                  </p>
-                </FadeIn>
+      {/* SEC.01 — Hero: the masthead chart */}
+      <header className="relative min-h-[92vh] flex flex-col justify-between overflow-hidden border-b border-[#1E293B] px-6 md:px-12 lg:px-24 pt-16 md:pt-24 pb-10">
+        <HeroOrrery />
+
+        <div className="relative z-10">
+          <h1 className="font-serif uppercase leading-[0.82] tracking-tight">
+            <span className="block text-[16vw] md:text-[12.5vw]">Orbital</span>
+            <span className="block text-[16vw] md:text-[12.5vw] italic md:ml-[9vw]">
+              Mechanics<span className="text-[#EA580C] not-italic">.</span>
+            </span>
+          </h1>
+        </div>
+
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-10 items-end mt-16">
+          <div className="md:col-span-6 lg:col-span-5">
+            <p className="font-serif text-2xl md:text-3xl leading-snug text-slate-300">
+              Eight worlds, three moons and one star, running live at honest ratios — a
+              hand-built orrery for the browser.
+            </p>
+            <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+              Size · Distance · Time — compressed, order preserved
+            </p>
+          </div>
+
+          <div className="md:col-span-4 md:col-start-9 font-mono text-[10px] uppercase tracking-[0.2em] leading-loose text-slate-500 md:text-right">
+            <p>
+              Heliocentric frame
+              <br />
+              Ecliptic plane, top-down
+              <br />
+              09 bodies · 03 satellites
+              <br />
+              <span className="text-slate-300">Earth ringed in orange</span>
+            </p>
+          </div>
+        </div>
+
+        <p className="relative z-10 mt-10 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+          ↓ 30.07 AU to Neptune
+        </p>
+      </header>
+
+      {/* Telemetry marquee */}
+      <div className="marquee overflow-hidden border-b border-[#1E293B] py-3.5 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400 whitespace-nowrap">
+        <div className="marquee-track flex w-max">
+          <MarqueeRun />
+          <MarqueeRun hidden />
+        </div>
+      </div>
+
+      {/* SEC.02 — The ledger: the system itself as the page's main content */}
+      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32">
+        <SectionRule no="Sec. 02" title="Planetary ledger — read each entry" />
+
+        <ul>
+          {planets.map((planet, index) => {
+            const period = (2 * Math.PI) / planet.orbitSpeed;
+            const phase = ((index * 0.382) % 1) * period;
+            return (
+              <li key={planet.name}>
+                <Link
+                  href={`/planets/${planet.name.toLowerCase()}`}
+                  className="group flex items-center gap-5 md:gap-8 py-7 md:py-9 border-b border-[#1E293B] first:border-t transition-colors duration-300 hover:bg-[#F8FAFC]/[0.02]"
+                >
+                  {/* Live glyph: this planet's own colour, orbiting at its own rate. */}
+                  <span
+                    aria-hidden
+                    className="relative inline-block w-7 h-7 rounded-full border border-[#1E293B] shrink-0 group-hover:border-[#EA580C]/60 transition-colors duration-300"
+                  >
+                    <span
+                      className="orbit-arm absolute inset-0"
+                      style={{
+                        animation: `orbit-spin ${period.toFixed(1)}s linear infinite`,
+                        animationDelay: `-${phase.toFixed(1)}s`,
+                      }}
+                    >
+                      <span
+                        className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full"
+                        style={{ backgroundColor: planet.fallbackColor }}
+                      />
+                    </span>
+                  </span>
+
+                  <span className="font-mono text-[10px] text-slate-500 group-hover:text-[#EA580C] transition-colors duration-300 w-6">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+
+                  <span
+                    className={`font-serif text-4xl md:text-6xl tracking-tight leading-none flex-1 transition-transform duration-300 ${EASE} group-hover:translate-x-3`}
+                  >
+                    {planet.name}
+                  </span>
+
+                  <span className="hidden sm:block font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 w-24 text-right">
+                    {auOf(planet.name)} AU
+                  </span>
+                  <span className="hidden lg:block font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 w-28 text-right">
+                    {planet.facts.orbitalPeriod}
+                  </span>
+                  <span className="hidden lg:block font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 w-28 text-right">
+                    {velocityOf(planet.name)}
+                  </span>
+
+                  <span
+                    aria-hidden
+                    className={`font-mono text-lg text-[#EA580C] opacity-0 -translate-x-2 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
+                  >
+                    →
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* SEC.03 — Manifest with margin notes */}
+      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32 border-t border-[#1E293B]">
+        <SectionRule no="Sec. 03" title="Manifest" />
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+          <p className="md:col-span-7 font-serif text-3xl md:text-[2.6rem] leading-[1.35] tracking-tight text-slate-200">
+            Played at true scale, the solar system is unwatchable
+            <sup className="font-mono text-xs text-[#EA580C] ml-1">01</sup> — so this one
+            compresses size, distance and time along separate curves, keeping the ratios
+            honest<sup className="font-mono text-xs text-[#EA580C] ml-1">02</sup>. Everything
+            else is real: sidereal spin rates, axial tilts, retrograde worlds, a camera that
+            chases live positions<sup className="font-mono text-xs text-[#EA580C] ml-1">03</sup>.
+            It is less a diagram than an <span className="italic">instrument</span>.
+          </p>
+
+          <aside className="md:col-span-4 md:col-start-9 font-mono text-[10px] uppercase tracking-[0.15em] leading-loose text-slate-500 space-y-6">
+            <p>
+              <span className="text-[#EA580C]">01 — </span>At true scale, every planet is
+              smaller than one pixel.
+            </p>
+            <p>
+              <span className="text-[#EA580C]">02 — </span>Neptune&rsquo;s year runs 684×
+              longer than Mercury&rsquo;s; ordering is always preserved.
+            </p>
+            <p>
+              <span className="text-[#EA580C]">03 — </span>Positions are read from the scene
+              graph every frame, never cached.
+            </p>
+            <p className="pt-4 border-t border-[#1E293B] text-slate-600">
+              Data: NASA planetary fact sheets
+              <br />
+              Textures: Solar System Scope
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      {/* SEC.04 — Capabilities, specimen sheet */}
+      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32 border-t border-[#1E293B]">
+        <SectionRule no="Sec. 04" title="Capabilities" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+          {capabilities.map((capability) => (
+            <div key={capability.id} className="group border-t border-[#1E293B] pt-6">
+              <div className="flex items-baseline gap-4">
+                <span className="font-mono text-[10px] text-[#EA580C]">{capability.id}</span>
+                <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-slate-300 group-hover:text-[#F8FAFC] transition-colors duration-300">
+                  {capability.title}
+                </h3>
               </div>
-              
-              <div className="md:col-span-4 lg:col-span-3 lg:col-start-10 flex flex-col justify-end text-sm text-slate-500 font-light space-y-6">
-                <FadeIn delay={350}>
-                  <p>
-                    Powered by precise orbital data, providing a scientifically grounded perspective of our stellar neighborhood.
-                  </p>
-                  <div className="w-full h-[1px] bg-slate-800" />
-                  <p>
-                    Recommended: Desktop view for full target acquisition and cinematic panning capabilities.
-                  </p>
-                </FadeIn>
-              </div>
+              <p className="mt-4 font-serif italic text-lg leading-relaxed text-slate-400">
+                {capability.line}
+              </p>
             </div>
-          </HeroParallax>
-        </div>
-      </main>
-
-      {/* Capabilities Section - Asymmetric Layout with Scroll Reveals */}
-      <section className="relative z-10 px-6 md:px-12 py-32 bg-slate-950/60 backdrop-blur-sm border-t border-slate-900">
-        <div className="max-w-screen-2xl mx-auto">
-          <FadeIn>
-            <h2 className="text-sm font-semibold tracking-widest uppercase text-slate-500 mb-32">
-              Simulation Capabilities
-            </h2>
-          </FadeIn>
-          
-          <div className="flex flex-col gap-40">
-            
-            {/* Capability I - Massive Left Alignment */}
-            <FadeIn>
-              <div className="max-w-4xl">
-                <div className="font-serif italic text-6xl md:text-8xl text-slate-800 mb-8 select-none transition-colors duration-300 hover:text-slate-600">
-                  {capabilities[0].id}
-                </div>
-                <h3 className="font-serif text-4xl md:text-6xl mb-6 text-slate-200">{capabilities[0].title}</h3>
-                <p className="text-slate-400 text-xl md:text-2xl font-light leading-relaxed mb-8 max-w-2xl">
-                  {capabilities[0].description}
-                </p>
-                <p className="text-sm text-amber-500/80 tracking-widest uppercase font-semibold">
-                  {capabilities[0].details}
-                </p>
-              </div>
-            </FadeIn>
-
-            {/* Capability II - Right Aligned with offset */}
-            <FadeIn>
-              <div className="max-w-3xl self-end text-right ml-auto">
-                <div className="font-serif italic text-6xl md:text-8xl text-slate-800 mb-8 select-none transition-colors duration-300 hover:text-slate-600">
-                  {capabilities[1].id}
-                </div>
-                <h3 className="font-serif text-4xl md:text-5xl mb-6 text-slate-200">{capabilities[1].title}</h3>
-                <p className="text-slate-400 text-lg md:text-xl font-light leading-relaxed mb-8 ml-auto max-w-xl">
-                  {capabilities[1].description}
-                </p>
-                <p className="text-sm text-blue-400/80 tracking-widest uppercase font-semibold">
-                  {capabilities[1].details}
-                </p>
-              </div>
-            </FadeIn>
-
-            {/* Capability III - Indented / Centered Column */}
-            <FadeIn>
-              <div className="max-w-2xl mx-auto text-center mt-12">
-                <div className="font-serif italic text-5xl md:text-7xl text-slate-800 mb-6 select-none transition-colors duration-300 hover:text-slate-600">
-                  {capabilities[2].id}
-                </div>
-                <h3 className="font-serif text-3xl md:text-4xl mb-6 text-slate-200">{capabilities[2].title}</h3>
-                <p className="text-slate-400 text-lg font-light leading-relaxed mb-8">
-                  {capabilities[2].description}
-                </p>
-                <p className="text-sm text-orange-400/80 tracking-widest uppercase font-semibold">
-                  {capabilities[2].details}
-                </p>
-              </div>
-            </FadeIn>
-
-            {/* Capability IV - Full Width Bordered Box */}
-            <FadeIn>
-              <div className="w-full border border-slate-800/60 bg-[#020617]/80 backdrop-blur-md p-12 md:p-24 rounded-3xl mt-12 relative overflow-hidden group hover:border-slate-600 transition-colors duration-300">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-500/30 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
-                  <div>
-                    <div className="font-serif italic text-4xl text-slate-700 mb-4 select-none">
-                      {capabilities[3].id}
-                    </div>
-                    <h3 className="font-serif text-3xl md:text-5xl mb-4 text-slate-200">{capabilities[3].title}</h3>
-                    <p className="text-slate-400 text-lg font-light leading-relaxed max-w-xl">
-                      {capabilities[3].description}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-left md:text-right">
-                    <p className="text-3xl font-light text-slate-300 mb-2">Up to 5.0x Speed</p>
-                    <p className="text-sm text-slate-500 tracking-widest uppercase font-semibold">Precision Pause Control</p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* Giant CTA Section */}
-      <section className="relative w-full border-t border-slate-900 bg-[#020617] overflow-hidden">
-        {/* Deep, warm celestial glow from the bottom */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-full max-w-4xl h-[500px] bg-orange-600/10 blur-[120px] rounded-full pointer-events-none" />
-        
-        <FadeIn direction="none" delay={150}>
-          <div className="relative z-10 px-6 md:px-12 py-40 md:py-56 text-center flex flex-col items-center">
-            <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-12 text-slate-200">
-              Begin Observation
-            </h2>
-            <Link 
-              href="/explore" 
-              className="group inline-flex items-center gap-4 px-10 py-5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-100 border border-slate-700 hover:border-slate-500 text-lg font-medium transition-[background-color,border-color,transform] duration-200 ease-out hover:scale-105"
+      {/* Terminal CTA */}
+      <Link
+        href="/explore"
+        className="group relative block w-full border-t border-[#1E293B] overflow-hidden bg-[#020617]"
+      >
+        <div
+          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ${EASE}`}
+        />
+        <div className="relative px-6 md:px-12 lg:px-24 py-28 md:py-44 flex items-end justify-between gap-8">
+          <span className="font-serif uppercase text-[14vw] leading-[0.8] tracking-tighter text-[#F8FAFC] group-hover:text-[#020617] transition-colors duration-500 delay-100">
+            Initialize
+          </span>
+          <div className="flex flex-col items-end gap-5 mb-[1.5vw] shrink-0">
+            <span className="hidden md:block font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 group-hover:text-[#020617]/70 transition-colors duration-500 delay-100">
+              Ready when you are
+            </span>
+            <svg
+              className="w-[8vw] h-[8vw] text-[#F8FAFC] group-hover:text-[#020617] transition-colors duration-500 delay-100"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              Launch Interactive Simulation
-              <svg className="w-5 h-5 text-slate-400 group-hover:text-slate-100 transition-colors duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </div>
-        </FadeIn>
-      </section>
-      
+        </div>
+      </Link>
+
       {/* Footer */}
-      <footer className="relative z-10 py-8 text-center text-sm text-slate-600 bg-[#020617] border-t border-slate-900">
-        <p>© {new Date().getFullYear()} Solar System Observatory.</p>
+      <footer className="border-t border-[#1E293B] px-6 md:px-12 lg:px-24 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 font-mono text-[10px] uppercase tracking-[0.2em]">
+          <div className="md:col-span-4 space-y-2 text-slate-500">
+            <p className="text-[#F8FAFC]">Simulation.01</p>
+            <p>Orbital Mechanics</p>
+            <p className="pt-3">© 2026 — Open source</p>
+          </div>
+
+          <nav className="md:col-span-3 md:col-start-6" aria-label="Footer">
+            <p className="text-slate-600 mb-4">Index</p>
+            <ul className="space-y-2.5">
+              {[
+                { href: '/explore', label: 'Explore' },
+                { href: '/planets/mercury', label: 'Planetary ledger' },
+                { href: '/contact', label: 'Contact' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="hover:text-[#EA580C] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="md:col-span-4 md:col-start-9">
+            <p className="text-slate-600 mb-4">Bodies</p>
+            <p className="leading-loose text-slate-400 normal-case">
+              {planets.map((planet, i) => (
+                <span key={planet.name}>
+                  <Link
+                    href={`/planets/${planet.name.toLowerCase()}`}
+                    className="hover:text-[#EA580C] transition-colors duration-200"
+                  >
+                    {planet.name}
+                  </Link>
+                  {i < planets.length - 1 && <span className="text-[#1E293B]"> / </span>}
+                </span>
+              ))}
+            </p>
+            <p className="mt-6 text-slate-600 leading-relaxed">
+              Set in Newsreader. Rendered in WebGL. No analytics.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

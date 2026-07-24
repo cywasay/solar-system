@@ -5,8 +5,11 @@ import Sun from './Sun';
 import Planet from './Planet';
 import OrbitPath from './OrbitPath';
 import { planets } from '@/data/planets';
+import { useSimulationStore } from '@/store/useSimulationStore';
 
 export default function SolarSystem() {
+  const showOrbitPaths = useSimulationStore((state) => state.showOrbitPaths);
+
   return (
     <group>
       {/* Near-zero: space has nothing to bounce fill light off. Kept just above zero
@@ -26,7 +29,7 @@ export default function SolarSystem() {
 
       {planets.map((planet) => (
         <React.Fragment key={planet.name}>
-          <OrbitPath radius={planet.distanceFromSun} />
+          {showOrbitPaths && <OrbitPath radius={planet.distanceFromSun} />}
           <Planet {...planet} />
         </React.Fragment>
       ))}

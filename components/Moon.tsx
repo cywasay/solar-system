@@ -36,6 +36,8 @@ export default function Moon({
 
   const registerPlanetRef = useSimulationStore((state) => state.registerPlanetRef);
   const unregisterPlanetRef = useSimulationStore((state) => state.unregisterPlanetRef);
+  const isPaused = useSimulationStore((state) => state.isPaused);
+  const timeSpeed = useSimulationStore((state) => state.timeSpeed);
 
   // Same registry as planets, so camera focus needs no special-casing for moons.
   useEffect(() => {
@@ -46,7 +48,8 @@ export default function Moon({
   }, [name, registerPlanetRef, unregisterPlanetRef]);
 
   useFrame((_state, delta) => {
-    const step = Math.min(delta, MAX_DELTA);
+    if (isPaused) return;
+    const step = Math.min(delta * timeSpeed, MAX_DELTA);
     if (pivotRef.current) pivotRef.current.rotation.y += orbitSpeed * step;
   });
 

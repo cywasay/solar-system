@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Geist } from "next/font/google";
+import SiteNav from "@/components/site/SiteNav";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -30,6 +31,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#020617] text-[#F8FAFC] font-sans selection:bg-[#EA580C] selection:text-white">
         {children}
+        {/* Site-wide navigation: fixed [ Menu ] trigger bottom-right on every page. */}
+        <SiteNav />
       </body>
     </html>
   );

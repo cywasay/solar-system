@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { planets } from '@/data/planets';
 
-/** The house ease — same curve as every CTA sweep on the landing page. */
+/** The house ease — the same curve as every CTA sweep. */
 const EASE = 'ease-[cubic-bezier(0.83,0,0.17,1)]';
 
 const primaryLinks = [
@@ -15,22 +15,22 @@ const primaryLinks = [
 ];
 
 /**
- * Site-wide navigation: a fixed [ Menu ] trigger (bottom-right, the one corner no page
- * uses) opening a right-hand drawer. All motion is transform/opacity only. The panel
- * slide and the item reveals are choreographed separately: items rise and fade in a
- * 40ms stagger *after* the panel commits, and collapse instantly with it on close —
- * staggering a close just makes the UI feel slow to obey.
+ * Site-wide navigation. The trigger sits bottom-right — the one corner no page uses —
+ * and opens a full-screen curtain that rises from the trigger's edge. Motion is
+ * transform/opacity only. Content reveals are choreographed: primary destinations rise
+ * first, the planetary index follows in a tighter ripple, and everything collapses
+ * instantly with the curtain on close (a staggered close reads as disobedience).
  */
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Every link inside the drawer closes it on click (see `close` below) — more direct
-  // than watching pathname, and safe even for same-route clicks that don't navigate.
   const close = () => setOpen(false);
 
   useEffect(() => {
     if (!open) return;
+    closeButtonRef.current?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);
     };
@@ -43,164 +43,179 @@ export default function SiteNav() {
     };
   }, [open]);
 
-  /** Staggered rise-and-fade for drawer content; `index` positions it in the sequence. */
-  const reveal = (index: number) => ({
+  /** Staggered rise for curtain content; `step` positions it in the sequence. */
+  const reveal = (step: number) => ({
     className: `transition-[opacity,transform] duration-500 ${EASE} motion-reduce:transition-none ${
-      open ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      open ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
     }`,
-    style: { transitionDelay: open ? `${120 + index * 40}ms` : '0ms' },
+    style: { transitionDelay: open ? `${140 + step * 45}ms` : '0ms' },
   });
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
     <>
-      {/* Trigger — fades out under the backdrop when open; the panel's own [ Close ]
-          takes over as the single visible control. */}
+      {/* Trigger — hands over to the curtain's [ Close ] when open. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="site-nav-panel"
         aria-label="Open navigation"
-        className={`group fixed bottom-6 right-6 z-[90] overflow-hidden border border-[#27272A]/70 bg-[#09090B]/80 backdrop-blur-sm px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] transition-[color,opacity] duration-300 hover:text-[#09090B] ${
+        className={`group fixed bottom-6 right-6 z-[90] overflow-hidden border border-[#1E293B] bg-[#020617]/80 backdrop-blur-sm px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-[color,opacity] duration-300 hover:text-[#020617] ${
           open ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
       >
         <span
-          className={`absolute inset-0 bg-[#FF4500] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${EASE}`}
+          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${EASE}`}
         />
         <span className="relative">[ Menu ]</span>
       </button>
 
-      {/* Backdrop */}
+      {/* Curtain */}
       <div
-        aria-hidden
-        onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-[95] bg-[#09090B]/70 backdrop-blur-sm transition-opacity duration-500 motion-reduce:transition-none ${
-          open ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      />
-
-      {/* Panel */}
-      <aside
         id="site-nav-panel"
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
         inert={!open}
-        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[26rem] bg-[#09090B] border-l border-[#27272A] flex flex-col overflow-y-auto transition-transform duration-500 ${EASE} motion-reduce:transition-none ${
-          open ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed inset-0 z-[100] bg-[#020617] text-[#F8FAFC] flex flex-col overflow-y-auto transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
+          open ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
-        <div className="flex items-center justify-between px-8 pt-7 pb-6 border-b border-[#27272A]/70">
-          <span
-            {...reveal(0)}
-            // Nested span so the reveal transform doesn't fight the flex layout.
-          >
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#71717A]">
+        {/* Static echo of the hero orrery, bleeding off the top-right corner. */}
+        <div
+          aria-hidden
+          className="absolute -top-[24vmin] -right-[24vmin] w-[70vmin] aspect-square pointer-events-none select-none"
+        >
+          {[100, 68, 38].map((size) => (
+            <div
+              key={size}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1E293B]/70"
+              style={{ width: `${size}%`, height: `${size}%` }}
+            />
+          ))}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#EA580C]" />
+        </div>
+
+        <div className="relative flex items-center justify-between px-6 md:px-12 lg:px-24 pt-7 pb-6 border-b border-[#1E293B]">
+          <span {...reveal(0)}>
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
               Index
             </span>
           </span>
           <button
+            ref={closeButtonRef}
             type="button"
-            onClick={() => setOpen(false)}
-            className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] hover:text-[#FF4500] transition-colors duration-200"
+            onClick={close}
+            className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400 hover:text-[#EA580C] transition-colors duration-200"
           >
             [ Close ]
           </button>
         </div>
 
-        {/* Primary destinations */}
-        <nav className="px-8 pt-10 pb-8" aria-label="Primary">
-          <ul className="space-y-5">
-            {primaryLinks.map((link, i) => (
-              <li key={link.href} {...reveal(1 + i)}>
-                <Link
-                  href={link.href}
-                  onClick={close}
-                  className="group flex items-baseline gap-4"
-                  aria-current={isActive(link.href) ? 'page' : undefined}
-                >
-                  <span
-                    className={`font-mono text-[10px] transition-colors duration-200 ${
-                      isActive(link.href)
-                        ? 'text-[#FF4500]'
-                        : 'text-[#71717A] group-hover:text-[#FF4500]'
-                    }`}
-                  >
-                    {link.index}
-                  </span>
-                  <span
-                    className={`font-serif text-5xl leading-none tracking-tight transition-transform duration-300 ${EASE} group-hover:translate-x-2 ${
-                      isActive(link.href) ? 'text-[#FAFAFA] italic' : 'text-[#A1A1AA] group-hover:text-[#FAFAFA]'
-                    }`}
-                  >
-                    {link.label}
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`font-mono text-lg text-[#FF4500] opacity-0 -translate-x-2 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
-                  >
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Planetary index */}
-        <nav className="px-8 pt-6 pb-10 border-t border-[#27272A]/70 flex-1" aria-label="Planets">
-          <h2 {...reveal(4)}>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#71717A]">
-              Planetary Index
-            </span>
-          </h2>
-          <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3">
-            {planets.map((planet, i) => {
-              const href = `/planets/${planet.name.toLowerCase()}`;
-              const active = pathname === href;
-              return (
-                <li key={planet.name} {...reveal(5 + i)}>
+        <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 px-6 md:px-12 lg:px-24 py-12 lg:py-16">
+          {/* Primary destinations */}
+          <nav className="lg:col-span-7 flex flex-col justify-center" aria-label="Primary">
+            <ul className="space-y-6 md:space-y-8">
+              {primaryLinks.map((link, i) => (
+                <li key={link.href} {...reveal(1 + i)}>
                   <Link
-                    href={href}
+                    href={link.href}
                     onClick={close}
-                    aria-current={active ? 'page' : undefined}
-                    className="group flex items-baseline gap-2.5"
+                    aria-current={isActive(link.href) ? 'page' : undefined}
+                    className="group flex items-baseline gap-5"
                   >
                     <span
-                      className={`font-mono text-[10px] transition-colors duration-200 ${
-                        active ? 'text-[#FF4500]' : 'text-[#71717A] group-hover:text-[#FF4500]'
+                      className={`font-mono text-[11px] transition-colors duration-200 ${
+                        isActive(link.href)
+                          ? 'text-[#EA580C]'
+                          : 'text-slate-500 group-hover:text-[#EA580C]'
                       }`}
                     >
-                      {String(i + 1).padStart(2, '0')}
+                      {link.index}
                     </span>
                     <span
-                      className={`font-serif text-xl leading-tight transition-colors duration-200 ${
-                        active ? 'text-[#FAFAFA] italic' : 'text-[#A1A1AA] group-hover:text-[#FAFAFA]'
+                      className={`font-serif uppercase text-[clamp(3rem,8vw,6.5rem)] leading-[0.9] tracking-tight transition-transform duration-300 ${EASE} group-hover:translate-x-3 ${
+                        isActive(link.href)
+                          ? 'italic text-[#F8FAFC]'
+                          : 'text-slate-400 group-hover:text-[#F8FAFC]'
                       }`}
                     >
-                      {planet.name}
+                      {link.label}
+                    </span>
+                    <span
+                      aria-hidden
+                      className={`font-mono text-2xl text-[#EA580C] opacity-0 -translate-x-3 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
+                    >
+                      →
                     </span>
                   </Link>
                 </li>
-              );
-            })}
-          </ul>
-        </nav>
+              ))}
+            </ul>
+          </nav>
 
-        <div className="px-8 py-6 border-t border-[#27272A]/70">
-          <div
-            {...reveal(13)}
+          {/* Planetary index with dotted leaders — print-catalogue register. */}
+          <nav
+            className="lg:col-span-5 lg:border-l lg:border-[#1E293B] lg:pl-12 flex flex-col justify-center"
+            aria-label="Planets"
           >
-            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#71717A] flex justify-between">
-              <span>Simulation.01</span>
-              <span>Orbital Mechanics</span>
+            <h2 {...reveal(4)}>
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                Planetary index
+              </span>
+            </h2>
+            <ul className="mt-8 space-y-3.5">
+              {planets.map((planet, i) => {
+                const href = `/planets/${planet.name.toLowerCase()}`;
+                const active = pathname === href;
+                return (
+                  <li key={planet.name} {...reveal(5 + i * 0.6)}>
+                    <Link
+                      href={href}
+                      onClick={close}
+                      aria-current={active ? 'page' : undefined}
+                      className="group flex items-baseline"
+                    >
+                      <span
+                        className={`font-mono text-[10px] w-7 transition-colors duration-200 ${
+                          active ? 'text-[#EA580C]' : 'text-slate-500 group-hover:text-[#EA580C]'
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span
+                        className={`font-serif text-2xl tracking-tight transition-colors duration-200 ${
+                          active ? 'italic text-[#F8FAFC]' : 'text-slate-400 group-hover:text-[#F8FAFC]'
+                        }`}
+                      >
+                        {planet.name}
+                      </span>
+                      <span
+                        aria-hidden
+                        className="flex-1 border-b border-dotted border-[#1E293B] mx-4 -translate-y-1"
+                      />
+                      <span className="font-mono text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors duration-200">
+                        {parseFloat(planet.facts.distance).toFixed(2)} AU
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="relative px-6 md:px-12 lg:px-24 py-6 border-t border-[#1E293B]">
+          <div {...reveal(10)}>
+            <div className="flex flex-wrap justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-600">
+              <span>Simulation.01 — Orbital Mechanics</span>
+              <span>09 bodies · 03 satellites · No analytics</span>
             </div>
           </div>
         </div>
-      </aside>
+      </div>
     </>
   );
 }

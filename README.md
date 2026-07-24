@@ -142,7 +142,7 @@ Here is a guide to the project's layout:
 solar-system-3d/
 ├── app/
 │   ├── layout.tsx         # HTML envelope, Newsreader/JetBrains Mono fonts, global SiteNav
-│   ├── page.tsx           # Editorial landing page: hero, about, census, capabilities, footer
+│   ├── page.tsx           # Landing: live CSS orrery, AU scroll rail, planetary ledger, manifest
 │   ├── explore/page.tsx   # The simulation: full-screen Scene plus HUD overlays
 │   ├── planets/[slug]/page.tsx # Per-planet editorial pages, SSG'd from the simulation data
 │   ├── contact/page.tsx   # Static contact page

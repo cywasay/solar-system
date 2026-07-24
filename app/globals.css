@@ -37,3 +37,55 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+/* Route-entry rise-and-fade (used by /planets and /contact mains). */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-in {
+  animation: page-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Orrery arms: each carries a body-dot around its ring. Duration and phase are set
+   inline per arm, derived from the simulation's own orbitSpeed data. */
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Marquee: the track holds two identical runs; -50% loops seamlessly. */
+@keyframes marquee-run {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-run 56s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in {
+    animation: none;
+  }
+  /* !important intentionally outranks the inline animation shorthand on the arms. */
+  .orbit-arm {
+    animation: none !important;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}

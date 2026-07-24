@@ -43,6 +43,8 @@ export default function Planet({
 
   const registerPlanetRef = useSimulationStore((state) => state.registerPlanetRef);
   const unregisterPlanetRef = useSimulationStore((state) => state.unregisterPlanetRef);
+  const isPaused = useSimulationStore((state) => state.isPaused);
+  const timeSpeed = useSimulationStore((state) => state.timeSpeed);
 
   // Publish the live mesh so CameraController can read this planet's world position
   // without the two components referencing each other.
@@ -55,7 +57,8 @@ export default function Planet({
 
   // Mutating refs directly — this runs every frame and must not re-render.
   useFrame((_state, delta) => {
-    const step = Math.min(delta, MAX_DELTA);
+    if (isPaused) return;
+    const step = Math.min(delta * timeSpeed, MAX_DELTA);
     if (pivotRef.current) pivotRef.current.rotation.y += orbitSpeed * step;
     if (meshRef.current) meshRef.current.rotation.y += rotationSpeed * step;
   });
