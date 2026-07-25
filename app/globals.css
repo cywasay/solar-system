@@ -13,7 +13,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* No `scroll-behavior: smooth` — Lenis (components/landing/SmoothScroll.tsx) owns the
+     scroll easing on the landing page, and the two fight each other if both are on. */
   background-color: var(--background);
   color: var(--foreground);
 }
@@ -77,6 +78,14 @@ a {
   animation-play-state: paused;
 }
 
+/* Off-screen animation halt. Infinite CSS animations keep the compositor busy even when
+   their element has been scrolled far out of view; toggling this class from an
+   IntersectionObserver stops that work entirely. */
+.motion-idle,
+.motion-idle *{
+  animation-play-state: paused !important;
+}
+
 /* Landing motion ---------------------------------------------------------- */
 
 /* On-load staggered rise for the above-the-fold hero. Delay is set inline. */
@@ -94,6 +103,121 @@ a {
 .rise-in {
   opacity: 0;
   animation: rise-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Character reveal: each glyph rises out of an overflow-hidden slot, so the type
+   appears to be uncovered rather than merely faded in. Delay is set inline per char. */
+@keyframes char-rise {
+  /* Starts below the ENLARGED mask (see .char-slot padding) so the glyph is still fully
+     concealed at t=0 — 110% only cleared the old, tighter slot. */
+  from {
+    transform: translateY(150%) rotate(3deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+}
+
+.char-slot {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  /*
+   * The mask needs `overflow: hidden`, but the headline sets a line-height below 1 —
+   * which makes the line box SHORTER than the glyphs themselves, so serif capitals
+   * overshoot it and get sheared off top and bottom.
+   *
+   * Padding enlarges the clip region; the matching negative margin cancels it out of
+   * the layout, so spacing and the leading are unchanged. Values are in `em`, so they
+   * scale with the fluid display size.
+   */
+  padding: 0.3em 0 0.24em;
+  margin: -0.3em 0 -0.24em;
+}
+
+.char-rise {
+  display: inline-block;
+  animation: char-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* --- Orrery entrance: the system assembles outward from the star ------------
+   Composes with Tailwind's translate utilities, which v4 emits as the standalone
+   `translate:` property — so `transform` here is free to carry scale/rotate without
+   double-applying the centring offsets. */
+
+/* The star ignites first. */
+@keyframes sun-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sun-in {
+  animation: sun-in 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/*
+ * Each orbit then expands into place while rotating — the rotation is the dynamic part.
+ * The ring itself is a circle, so spinning it is invisible; but it carries the arm, so
+ * the PLANET sweeps a long arc and decelerates into its steady orbit, reading as the
+ * system spinning up rather than fading in. Sweep angle and delay are set inline.
+ */
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    transform: scale(0.45) rotate(var(--ring-sweep, -140deg));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.ring-in {
+  animation: ring-in 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The body pops in just after its orbit lands. */
+@keyframes body-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.body-in {
+  animation: body-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Starfield: a slow, offset twinkle so the depth layers never pulse in unison. */
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: var(--star-min, 0.25);
+  }
+  50% {
+    opacity: var(--star-max, 0.9);
+  }
+}
+
+.star-twinkle {
+  animation: star-twinkle var(--star-dur, 6s) ease-in-out infinite;
+  animation-delay: var(--star-delay, 0s);
 }
 
 /* Scroll-reveal: <Reveal> starts hidden, IntersectionObserver adds .is-visible. */
@@ -159,7 +283,8 @@ a {
     opacity: 1;
   }
   100% {
-    transform: translateY(34px);
+    /* Matches the cue line's height (h-7) so the dot lands exactly at its end. */
+    transform: translateY(28px);
     opacity: 0;
   }
 }
@@ -168,19 +293,24 @@ a {
   animation: cue-fall 2.1s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-/* Journey rail: the travelling marker breathes a soft solar glow. */
-@keyframes marker-glow {
+/* Journey rail: the travelling marker breathes a soft solar halo.
+   Animates transform + opacity ONLY. The previous version animated `box-shadow`, which
+   the compositor cannot handle — it forced a full repaint every frame, forever, on a
+   position:fixed element. A scaling halo ring is visually equivalent and free. */
+@keyframes marker-halo {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5), 0 0 10px 2px rgba(234, 88, 12, 0.45);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.55;
   }
   50% {
-    box-shadow: 0 0 0 5px rgba(234, 88, 12, 0), 0 0 18px 4px rgba(234, 88, 12, 0.85);
+    transform: translate(-50%, -50%) scale(2.3);
+    opacity: 0;
   }
 }
 
-.journey-marker {
-  animation: marker-glow 3.2s ease-in-out infinite;
+.journey-marker-halo {
+  animation: marker-halo 3.2s ease-in-out infinite;
 }
 
 /* Explore loader: a small orbital instrument, not a generic spinner. */
@@ -253,12 +383,21 @@ a {
 
 @media (prefers-reduced-motion: reduce) {
   .page-in,
-  .rise-in {
+  .rise-in,
+  .char-rise,
+  .star-twinkle,
+  .sun-in,
+  .ring-in,
+  .body-in {
     animation: none;
   }
   /* Reveal targets must not stay hidden when motion is disabled. */
   .rise-in,
-  .reveal {
+  .reveal,
+  .char-rise,
+  .sun-in,
+  .ring-in,
+  .body-in {
     opacity: 1;
     transform: none;
     transition: none;
@@ -268,7 +407,7 @@ a {
   .glow-breathe,
   .sun-pulse,
   .cue-fall,
-  .journey-marker {
+  .journey-marker-halo {
     animation: none !important;
   }
   .marquee-track {

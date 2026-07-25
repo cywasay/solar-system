@@ -62,7 +62,12 @@ export default function SiteNav() {
         aria-expanded={open}
         aria-controls="site-nav-panel"
         aria-label="Open navigation"
-        className={`group fixed bottom-6 right-6 z-[90] overflow-hidden border border-[#1E293B] bg-[#020617]/80 backdrop-blur-sm px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-[color,opacity] duration-300 hover:text-[#020617] ${
+        // NO backdrop-blur here. This element is `fixed`, and a fixed backdrop-filter
+        // makes the compositor re-sample and re-blur the page behind it on EVERY scroll
+        // frame — a permanent scroll-jank tax, worsened by smooth scrolling because the
+        // page is then in continuous motion. Against a near-black page an 80% overlay
+        // already reads as opaque, so the blur was buying nothing.
+        className={`group fixed bottom-6 right-6 z-[90] overflow-hidden border border-[#1E293B] bg-[#020617] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-[color,opacity] duration-300 hover:text-[#020617] ${
           open ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
       >

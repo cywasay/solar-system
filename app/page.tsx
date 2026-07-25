@@ -3,8 +3,12 @@ import Link from 'next/link';
 import { planets } from '@/data/planets';
 import { planetEditorial } from '@/data/planetEditorial';
 import HeroOrrery from '@/components/landing/HeroOrrery';
+import HeroStage from '@/components/landing/HeroStage';
+import SplitHeadline from '@/components/landing/SplitHeadline';
+import SmoothScroll from '@/components/landing/SmoothScroll';
 import Reveal from '@/components/landing/Reveal';
 import JourneyRail from '@/components/landing/JourneyRail';
+import IdleOffscreen from '@/components/landing/IdleOffscreen';
 
 /* ---------------------------------------------------------------------------
  * The landing page as an editorial front page. Every figure is pulled from the
@@ -85,6 +89,9 @@ function MarqueeRun({ hidden }: { hidden?: boolean }) {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#020617] text-[#F8FAFC] overflow-x-hidden selection:bg-[#EA580C] selection:text-white">
+      {/* Lerped scrolling — everything scroll-linked below inherits its smoothness. */}
+      <SmoothScroll />
+
       {/* Scroll-as-journey: depart the Sun, travel outward past each named world. */}
       <JourneyRail />
 
@@ -104,82 +111,102 @@ export default function LandingPage() {
         </Link>
       </nav>
 
-      {/* Hero */}
-      <header className="relative min-h-[92vh] flex flex-col justify-between overflow-hidden border-b border-[#1E293B] px-6 md:px-12 lg:px-24 pt-16 md:pt-24 pb-10">
-        {/* Ambient breathing glow, behind the orrery. */}
-        <div
-          aria-hidden
-          className="glow-breathe absolute left-[70%] top-1/2 w-[70vmin] h-[70vmin] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.12), transparent 60%)' }}
-        />
-        <HeroOrrery />
+      {/* Hero. HeroStage owns the depth: it publishes --mx/--my (pointer) and --sp
+          (scroll) as CSS variables, and each layer below consumes them at its own rate. */}
+      <HeroStage>
+        <>
+          {/* The composition's one real trick: ORBITAL sits IN FRONT of the orrery and
+              MECHANICS sits BEHIND it, so the rings sweep between the two words. Genuine
+              occlusion is what separates a layered scene from a flat poster. */}
+          <div className="relative">
+            {/* Display type is capped on BOTH axes: min(vw, vh). Sizing on vw alone
+                ignores viewport height, so wide-but-short laptops overflowed and pushed
+                the scroll cue off-screen. The vh term now governs on those screens. */}
+            <h1 className="font-serif uppercase leading-[0.92] tracking-[-0.02em]">
+              {/* Mobile caps at 13vw, not 15vw: "MECHANICS." measures ~5.94em, which at
+                  15vw exceeds the available width on EVERY phone size and was being
+                  silently clipped by the page's overflow-x-hidden. md+ is unchanged. */}
+              <SplitHeadline
+                text="Orbital"
+                delay={220}
+                stagger={38}
+                className="relative z-20 block text-[min(13vw,10.5vh)] md:text-[min(11vw,15vh)]"
+              />
+              <span className="relative z-0 block text-[min(13vw,10.5vh)] md:text-[min(11vw,15vh)] italic md:ml-[9vw]">
+                <SplitHeadline text="Mechanics" delay={430} stagger={34} />
+                <span
+                  className="rise-in text-[#EA580C] not-italic"
+                  style={{ animationDelay: '820ms' }}
+                >
+                  .
+                </span>
+              </span>
+            </h1>
+          </div>
 
-        <div className="relative z-10">
-          <h1 className="font-serif uppercase leading-[0.82] tracking-tight">
-            <span className="rise-in block text-[16vw] md:text-[12.5vw]" style={{ animationDelay: '80ms' }}>
-              Orbital
-            </span>
-            <span
-              className="rise-in block text-[16vw] md:text-[12.5vw] italic md:ml-[9vw]"
-              style={{ animationDelay: '200ms' }}
+          {/* Orrery between the two words. */}
+          <HeroOrrery className="z-10" />
+
+          <div
+            className="relative z-20 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-end mt-8 md:mt-10"
+            style={{
+              transform: 'translate3d(0, calc(var(--sp) * 60px), 0)',
+              opacity: 'calc(1 - var(--sp) * 1.4)',
+            }}
+          >
+            <div className="rise-in md:col-span-6 lg:col-span-5" style={{ animationDelay: '900ms' }}>
+              <p className="font-serif text-lg md:text-2xl leading-snug text-slate-200">
+                Eight worlds, three moons and one star, running live at honest ratios — a
+                hand-built orrery for the browser.
+              </p>
+              {/* Secondary detail; the first thing to go on a short viewport. */}
+              <p className="mt-4 text-sm leading-relaxed text-slate-500 max-w-md hidden sm:block">
+                Size, distance and time, each compressed along its own curve so the whole
+                system stays watchable — while the ordering stays true.
+              </p>
+            </div>
+
+            <div
+              className="rise-in md:col-span-4 md:col-start-9 md:text-right"
+              style={{ animationDelay: '1000ms' }}
             >
-              Mechanics<span className="text-[#EA580C] not-italic">.</span>
+              <p className="font-serif text-base md:text-lg italic text-slate-400 leading-relaxed">
+                Eight planets, turning at their true orbital ratios.
+              </p>
+              <p className="mt-1.5 text-sm text-slate-500">Earth marked in orange.</p>
+            </div>
+          </div>
+
+          {/* Live scroll cue */}
+          <div
+            className="rise-in relative z-20 mt-6 md:mt-8 flex items-center gap-3 text-sm text-slate-500"
+            style={{ animationDelay: '1120ms', opacity: 'calc(1 - var(--sp) * 2.2)' }}
+          >
+            <span className="relative block h-7 w-px bg-[#1E293B] overflow-hidden">
+              <span className="cue-fall absolute left-1/2 top-0 -translate-x-1/2 w-1 h-1 rounded-full bg-[#EA580C]" />
             </span>
-          </h1>
-        </div>
-
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-10 items-end mt-16">
-          <div
-            className="rise-in md:col-span-6 lg:col-span-5"
-            style={{ animationDelay: '360ms' }}
-          >
-            <p className="font-serif text-2xl md:text-3xl leading-snug text-slate-300">
-              Eight worlds, three moons and one star, running live at honest ratios — a
-              hand-built orrery for the browser.
-            </p>
-            <p className="mt-6 text-sm leading-relaxed text-slate-500 max-w-md">
-              Size, distance and time, each compressed along its own curve so the whole
-              system stays watchable — while the ordering stays true.
-            </p>
+            <span>Scroll to travel outward</span>
           </div>
-
-          <div
-            className="rise-in md:col-span-4 md:col-start-9 md:text-right"
-            style={{ animationDelay: '480ms' }}
-          >
-            <p className="font-serif text-xl italic text-slate-400 leading-relaxed">
-              Eight planets, drawn to their true orbital ratios.
-            </p>
-            <p className="mt-2 text-sm text-slate-500">Earth marked in orange.</p>
-          </div>
-        </div>
-
-        {/* Live scroll cue */}
-        <div
-          className="rise-in relative z-10 mt-10 flex items-center gap-3 text-sm text-slate-500"
-          style={{ animationDelay: '620ms' }}
-        >
-          <span className="relative block h-9 w-px bg-[#1E293B] overflow-hidden">
-            <span className="cue-fall absolute left-1/2 top-0 -translate-x-1/2 w-1 h-1 rounded-full bg-[#EA580C]" />
-          </span>
-          <span>Scroll to travel outward</span>
-        </div>
-      </header>
+        </>
+      </HeroStage>
 
       {/* Running masthead */}
-      <div className="marquee overflow-hidden border-b border-[#1E293B] py-4 whitespace-nowrap">
-        <div className="marquee-track flex w-max">
-          <MarqueeRun />
-          <MarqueeRun hidden />
+      <IdleOffscreen>
+        <div className="marquee overflow-hidden border-b border-[#1E293B] py-4 whitespace-nowrap">
+          <div className="marquee-track flex w-max">
+            <MarqueeRun />
+            <MarqueeRun hidden />
+          </div>
         </div>
-      </div>
+      </IdleOffscreen>
 
       {/* The ledger: the system itself as the page's main content */}
-      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32">
+      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24">
         <Reveal>
           <Eyebrow index="I">The eight worlds</Eyebrow>
         </Reveal>
 
+        <IdleOffscreen>
         <ul>
           {planets.map((planet, index) => {
             const period = (2 * Math.PI) / planet.orbitSpeed;
@@ -189,7 +216,7 @@ export default function LandingPage() {
                 <Reveal delay={index * 55}>
                   <Link
                     href={`/planets/${planet.name.toLowerCase()}`}
-                    className="group flex items-center gap-5 md:gap-8 py-7 md:py-9 border-b border-[#1E293B] first:border-t transition-colors duration-300 hover:bg-[#F8FAFC]/[0.02]"
+                    className="group flex items-center gap-5 md:gap-8 py-5 md:py-7 border-b border-[#1E293B] first:border-t transition-colors duration-300 hover:bg-[#F8FAFC]/[0.02]"
                   >
                     {/* Live glyph: this planet's own colour, orbiting at its own rate. */}
                     <span
@@ -215,7 +242,7 @@ export default function LandingPage() {
                     </span>
 
                     <span
-                      className={`font-serif text-4xl md:text-6xl tracking-tight leading-none flex-1 transition-transform duration-300 ${EASE} group-hover:translate-x-3`}
+                      className={`font-serif text-3xl md:text-5xl tracking-tight leading-none flex-1 transition-transform duration-300 ${EASE} group-hover:translate-x-3`}
                     >
                       {planet.name}
                     </span>
@@ -242,17 +269,18 @@ export default function LandingPage() {
             );
           })}
         </ul>
+        </IdleOffscreen>
       </section>
 
       {/* Manifest with margin notes */}
-      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32 border-t border-[#1E293B]">
+      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24 border-t border-[#1E293B]">
         <Reveal>
           <Eyebrow index="II">Manifest</Eyebrow>
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <Reveal className="md:col-span-7">
-            <p className="font-serif text-3xl md:text-[2.6rem] leading-[1.35] tracking-tight text-slate-200">
+            <p className="font-serif text-2xl md:text-[2.1rem] leading-[1.4] tracking-tight text-slate-200">
               Played at true scale, the solar system is unwatchable
               <sup className="font-serif not-italic text-base text-[#EA580C] ml-0.5">1</sup> — so
               this one compresses size, distance and time along separate curves, keeping the
@@ -287,7 +315,7 @@ export default function LandingPage() {
       </section>
 
       {/* Capabilities */}
-      <section className="px-6 md:px-12 lg:px-24 py-24 md:py-32 border-t border-[#1E293B]">
+      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24 border-t border-[#1E293B]">
         <Reveal>
           <Eyebrow index="III">What&rsquo;s inside</Eyebrow>
         </Reveal>
@@ -317,16 +345,16 @@ export default function LandingPage() {
         <div
           className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ${EASE}`}
         />
-        <div className="relative px-6 md:px-12 lg:px-24 py-28 md:py-44 flex items-end justify-between gap-8">
-          <span className="font-serif uppercase text-[14vw] leading-[0.8] tracking-tighter text-[#F8FAFC] group-hover:text-[#020617] transition-colors duration-500 delay-100">
+        <div className="relative px-6 md:px-12 lg:px-24 py-20 md:py-32 flex items-end justify-between gap-8">
+          <span className="font-serif uppercase text-[min(13vw,22vh)] leading-[0.8] tracking-tighter text-[#F8FAFC] group-hover:text-[#020617] transition-colors duration-500 delay-100">
             Begin
           </span>
-          <div className="flex flex-col items-end gap-5 mb-[1.5vw] shrink-0">
+          <div className="flex flex-col items-end gap-4 mb-[1.5vw] shrink-0">
             <span className="hidden md:block text-sm text-slate-500 group-hover:text-[#020617]/70 transition-colors duration-500 delay-100">
               Ready when you are
             </span>
             <svg
-              className="w-[8vw] h-[8vw] text-[#F8FAFC] group-hover:text-[#020617] transition-[color,transform] duration-500 delay-100 group-hover:translate-x-2"
+              className="w-[min(7vw,12vh)] h-[min(7vw,12vh)] text-[#F8FAFC] group-hover:text-[#020617] transition-[color,transform] duration-500 delay-100 group-hover:translate-x-2"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

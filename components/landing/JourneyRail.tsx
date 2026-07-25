@@ -13,15 +13,19 @@ const stops = planets.map((planet) => ({
 }));
 
 /**
- * The scroll-progress indicator, reimagined for the editorial redesign. Where the old
- * rail was a technical ruler — mono tick marks, an "AU" readout, a "System depth"
- * label — this is a journey: you depart the Sun at the top and travel outward past each
- * named world as you scroll, the passed planets lighting in turn. Same real-data story
- * (the terrestrial worlds crowd the first sliver of the track, the giants sprawl across
- * the rest — space is mostly empty), told in Newsreader instead of monospace.
+ * The scroll-progress indicator, as a journey rather than a readout: you depart the Sun
+ * at the top and travel outward past each named world, the passed planets lighting in
+ * turn. The stops sit at their true proportional distances, so the terrestrial worlds
+ * light almost at once and the giants sprawl — space is mostly empty.
  *
- * rAF-throttled ref mutations only: transform for the fill and marker, textContent for
- * the label, no React state and no layout-triggering properties.
+ * The label is set VERTICALLY along the rail. Horizontally it would run ~110px into the
+ * page's left column (which starts at 96px on lg) and collide with the headline; vertical
+ * type keeps the whole instrument inside a ~20px gutter, and reads as a deliberate
+ * editorial device rather than a HUD.
+ *
+ * PERFORMANCE: rAF-throttled, and every DOM write is guarded by a change check — the
+ * eight stop swatches were previously reassigned their colour on every single frame.
+ * An idle page now does no work at all.
  */
 export default function JourneyRail() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -32,39 +36,58 @@ export default function JourneyRail() {
   const stopRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
     let frame = 0;
     let lastLabel = '';
+    let lastProgress = NaN;
+    let lastReachedIndex = -2;
+    let lastFaded = '';
 
     const update = () => {
       frame = 0;
-      const root = rootRef.current;
       const track = trackRef.current;
       const fill = fillRef.current;
       const marker = markerRef.current;
       const label = labelRef.current;
-      if (!root || !track || !fill || !marker || !label) return;
+      if (!track || !fill || !marker || !label) return;
 
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-      const depthAu = p * MAX_AU;
+      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
 
-      fill.style.transform = `scaleY(${p.toFixed(4)})`;
-      marker.style.transform = `translateY(${(p * track.clientHeight).toFixed(1)}px)`;
+      // Sub-pixel changes are invisible; skip the write and its style invalidation.
+      if (Math.abs(progress - lastProgress) > 2e-4) {
+        fill.style.transform = `scaleY(${progress.toFixed(4)})`;
+        marker.style.transform = `translateY(${(progress * track.clientHeight).toFixed(1)}px)`;
+        lastProgress = progress;
+      }
 
-      // Light each stop the marker has reached; name the furthest one reached.
-      let reached = 'The Sun';
-      stopRefs.current.forEach((el, i) => {
-        const passed = stops[i].au <= depthAu;
-        if (el) el.style.backgroundColor = passed ? '#EA580C' : '#020617';
-        if (passed) reached = stops[i].name;
-      });
+      // Which stops have been passed changes rarely — recolour only on the transition.
+      const depthAu = progress * MAX_AU;
+      let reachedIndex = -1;
+      for (let i = 0; i < stops.length; i++) {
+        if (stops[i].au <= depthAu) reachedIndex = i;
+      }
+      if (reachedIndex !== lastReachedIndex) {
+        stopRefs.current.forEach((el, i) => {
+          if (el) el.style.backgroundColor = i <= reachedIndex ? '#EA580C' : '#020617';
+        });
+        lastReachedIndex = reachedIndex;
+      }
+
+      const reached = reachedIndex >= 0 ? stops[reachedIndex].name : 'The Sun';
       if (reached !== lastLabel) {
         label.textContent = reached;
         lastLabel = reached;
       }
 
       // Yield before the closing CTA fills the frame, so it never crowds the footer.
-      root.style.opacity = p > 0.9 ? String(Math.max(0, 1 - (p - 0.9) / 0.1)) : '1';
+      const faded = progress > 0.9 ? String(Math.max(0, 1 - (progress - 0.9) / 0.1)) : '1';
+      if (faded !== lastFaded) {
+        root.style.opacity = faded;
+        lastFaded = faded;
+      }
     };
 
     const schedule = () => {
@@ -85,13 +108,13 @@ export default function JourneyRail() {
     <div
       ref={rootRef}
       aria-hidden
-      className="fixed left-6 xl:left-10 inset-y-0 z-30 hidden lg:flex flex-col justify-center pointer-events-none select-none transition-opacity duration-300"
+      className="fixed left-5 xl:left-8 inset-y-0 z-30 hidden lg:flex flex-col justify-center pointer-events-none select-none transition-opacity duration-300"
     >
       <div ref={trackRef} className="relative h-[56vh] w-px bg-[#1E293B]">
         {/* Orange trail already travelled. */}
         <div
           ref={fillRef}
-          className="absolute top-0 left-0 w-px h-full bg-[#EA580C]/60 origin-top"
+          className="absolute top-0 left-0 w-px h-full bg-[#EA580C]/60 origin-top will-change-transform"
           style={{ transform: 'scaleY(0)' }}
         />
 
@@ -113,16 +136,23 @@ export default function JourneyRail() {
           />
         ))}
 
-        {/* Traveller: a glowing marker with the name of the world just reached. */}
+        {/* Traveller: a glowing marker, with the world just reached named vertically
+            beside it so the label stays clear of the page's left column. */}
         <div
           ref={markerRef}
           className="absolute top-0 left-0 w-full will-change-transform"
           style={{ transform: 'translateY(0px)' }}
         >
-          <span className="journey-marker absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#EA580C]" />
+          {/* Halo (animated: transform+opacity only) behind a static solid core. */}
+          <span className="journey-marker-halo absolute left-1/2 top-0 w-2.5 h-2.5 rounded-full bg-[#EA580C]" />
+          <span
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#EA580C]"
+            style={{ boxShadow: '0 0 10px 2px rgba(234,88,12,0.55)' }}
+          />
           <span
             ref={labelRef}
-            className="absolute left-6 -translate-y-1/2 whitespace-nowrap font-serif italic text-lg text-slate-300"
+            className="absolute left-3.5 -translate-y-1/2 whitespace-nowrap font-serif italic text-sm tracking-wide text-slate-400"
+            style={{ writingMode: 'vertical-rl' }}
           >
             The Sun
           </span>
