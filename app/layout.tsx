@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Geist } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteNav from "@/components/site/SiteNav";
 import "./globals.css";
 
@@ -33,6 +34,9 @@ export default function RootLayout({
         {children}
         {/* Site-wide navigation: fixed [ Menu ] trigger bottom-right on every page. */}
         <SiteNav />
+        {/* Vercel Speed Insights — collects Core Web Vitals from real visits. Renders
+            nothing and is inert outside Vercel deployments, so local dev is unaffected. */}
+        <SpeedInsights />
       </body>
     </html>
   );
