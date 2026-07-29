@@ -18,7 +18,7 @@ export async function generateMetadata({
   const planet = planets.find((p) => p.name.toLowerCase() === slug);
   if (!planet) return {};
   return {
-    title: `${planet.name} — Orbital Mechanics`,
+    title: `${planet.name} — Thessaris`,
     description: planet.facts.description,
   };
 }

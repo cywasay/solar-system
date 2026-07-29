@@ -41,9 +41,17 @@ export default function JourneyRail() {
 
     let frame = 0;
     let lastLabel = '';
-    let lastProgress = NaN;
+    let lastProgress = -1;
     let lastReachedIndex = -2;
     let lastFaded = '';
+    let trackHeight = 0;
+    let maxScroll = 0;
+
+    const measure = () => {
+      const track = trackRef.current;
+      trackHeight = track?.clientHeight || 0;
+      maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    };
 
     const update = () => {
       frame = 0;
@@ -53,13 +61,12 @@ export default function JourneyRail() {
       const label = labelRef.current;
       if (!track || !fill || !marker || !label) return;
 
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
 
       // Sub-pixel changes are invisible; skip the write and its style invalidation.
       if (Math.abs(progress - lastProgress) > 2e-4) {
         fill.style.transform = `scaleY(${progress.toFixed(4)})`;
-        marker.style.transform = `translateY(${(progress * track.clientHeight).toFixed(1)}px)`;
+        marker.style.transform = `translateY(${(progress * trackHeight).toFixed(1)}px)`;
         lastProgress = progress;
       }
 
@@ -94,12 +101,18 @@ export default function JourneyRail() {
       if (!frame) frame = requestAnimationFrame(update);
     };
 
+    const onResize = () => {
+      measure();
+      schedule();
+    };
+
+    measure();
     schedule();
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      window.removeEventListener('resize', onResize);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);

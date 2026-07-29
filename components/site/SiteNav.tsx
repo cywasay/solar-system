@@ -215,7 +215,7 @@ export default function SiteNav() {
         <div className="relative px-6 md:px-12 lg:px-24 py-6 border-t border-[#1E293B]">
           <div {...reveal(10)}>
             <div className="flex flex-wrap justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-600">
-              <span>Simulation.01 — Orbital Mechanics</span>
+              <span>Simulation.01 — Thessaris</span>
               <span>09 bodies · 03 satellites · No analytics</span>
             </div>
           </div>

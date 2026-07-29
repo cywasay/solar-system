@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Geist } from "next/font/google";
+import { Newsreader, Geist, Bebas_Neue } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteNav from "@/components/site/SiteNav";
 import "./globals.css";
@@ -15,8 +15,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas",
+  weight: "400",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Interactive Solar System",
+  title: "Thessaris — Interactive Solar System",
   description: "A physically accurate 3D planetary observatory.",
 };
 
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${geistSans.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${geistSans.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#020617] text-[#F8FAFC] font-sans selection:bg-[#EA580C] selection:text-white">
         {children}

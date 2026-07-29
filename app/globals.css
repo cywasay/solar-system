@@ -103,6 +103,7 @@ a {
 .rise-in {
   opacity: 0;
   animation: rise-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 /* Character reveal: each glyph rises out of an overflow-hidden slot, so the type
@@ -140,6 +141,7 @@ a {
 .char-rise {
   display: inline-block;
   animation: char-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 /* --- Orrery entrance: the system assembles outward from the star ------------

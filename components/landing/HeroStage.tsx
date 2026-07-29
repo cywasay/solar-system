@@ -81,47 +81,74 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
     let currentX = 0;
     let currentY = 0;
     let scrollProgress = 0;
-    let lastX = NaN;
-    let lastY = NaN;
-    let lastProgress = NaN;
+    let lastX = -999;
+    let lastY = -999;
+    let lastProgress = -1;
+    let rootHeight = root.offsetHeight || 1;
+    let winWidth = window.innerWidth || 1;
+    let winHeight = window.innerHeight || 1;
+
+    const measure = () => {
+      rootHeight = root.offsetHeight || 1;
+      winWidth = window.innerWidth || 1;
+      winHeight = window.innerHeight || 1;
+    };
 
     const onPointerMove = (event: PointerEvent) => {
-      targetX = (event.clientX / window.innerWidth) * 2 - 1;
-      targetY = (event.clientY / window.innerHeight) * 2 - 1;
+      targetX = (event.clientX / winWidth) * 2 - 1;
+      targetY = (event.clientY / winHeight) * 2 - 1;
+      if (visible && !frame) frame = requestAnimationFrame(tick);
     };
 
     // Leaving the window releases the parallax back to centre rather than freezing it.
     const onPointerLeave = () => {
       targetX = 0;
       targetY = 0;
+      if (visible && !frame) frame = requestAnimationFrame(tick);
     };
 
     const tick = () => {
       currentX += (targetX - currentX) * 0.06;
       currentY += (targetY - currentY) * 0.06;
 
-      const height = root.offsetHeight || 1;
-      const next = Math.min(1, Math.max(0, window.scrollY / height));
+      const next = Math.min(1, Math.max(0, window.scrollY / rootHeight));
       scrollProgress += (next - scrollProgress) * 0.12;
 
-      // Dead zone: below ~1/2000th of a unit nothing is visible on screen, so skip the
-      // write and the style invalidation it would trigger. A still page settles to zero
-      // work within a few frames instead of recalculating forever.
+      let changed = false;
       if (Math.abs(currentX - lastX) > 5e-4) {
         root.style.setProperty('--mx', currentX.toFixed(3));
         lastX = currentX;
+        changed = true;
       }
       if (Math.abs(currentY - lastY) > 5e-4) {
         root.style.setProperty('--my', currentY.toFixed(3));
         lastY = currentY;
+        changed = true;
       }
       if (Math.abs(scrollProgress - lastProgress) > 5e-4) {
         root.style.setProperty('--sp', scrollProgress.toFixed(3));
         lastProgress = scrollProgress;
+        changed = true;
       }
 
-      frame = visible ? requestAnimationFrame(tick) : 0;
+      const isMoving =
+        Math.abs(targetX - currentX) > 1e-4 ||
+        Math.abs(targetY - currentY) > 1e-4 ||
+        Math.abs(next - scrollProgress) > 1e-4;
+
+      frame = visible && (isMoving || changed) ? requestAnimationFrame(tick) : 0;
     };
+
+    const onScroll = () => {
+      if (visible && !frame) frame = requestAnimationFrame(tick);
+    };
+
+    const onResize = () => {
+      measure();
+      if (visible && !frame) frame = requestAnimationFrame(tick);
+    };
+
+    measure();
 
     // Once the hero is off-screen, stop BOTH the parallax loop and every infinite CSS
     // animation inside it (8 orbit arms, the star twinkle, the glow, the sun pulse, the
@@ -137,6 +164,8 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
     observer.observe(root);
 
     frame = requestAnimationFrame(tick);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
     if (finePointer) {
       window.addEventListener('pointermove', onPointerMove, { passive: true });
       document.addEventListener('pointerleave', onPointerLeave);
@@ -145,6 +174,8 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
     return () => {
       observer.disconnect();
       if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
       window.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerleave', onPointerLeave);
     };

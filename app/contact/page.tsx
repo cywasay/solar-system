@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Contact — Orbital Mechanics',
-  description: 'Get in touch about the Orbital Mechanics solar system simulation.',
+  title: 'Contact — Thessaris',
+  description: 'Get in touch about the Thessaris solar system simulation.',
 };
 
 const channels = [

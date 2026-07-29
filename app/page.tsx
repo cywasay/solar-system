@@ -9,6 +9,7 @@ import SmoothScroll from '@/components/landing/SmoothScroll';
 import Reveal from '@/components/landing/Reveal';
 import JourneyRail from '@/components/landing/JourneyRail';
 import IdleOffscreen from '@/components/landing/IdleOffscreen';
+import FooterFluidText from '@/components/landing/FooterFluidText';
 
 /* ---------------------------------------------------------------------------
  * The landing page as an editorial front page. Every figure is pulled from the
@@ -18,6 +19,8 @@ import IdleOffscreen from '@/components/landing/IdleOffscreen';
  * ------------------------------------------------------------------------- */
 
 const EASE = 'ease-[cubic-bezier(0.83,0,0.17,1)]';
+const EASE_OUT = 'ease-[cubic-bezier(0.16,1,0.3,1)]';
+const STAGGER_MS = 25;
 
 const auOf = (name: string) =>
   parseFloat(planets.find((p) => p.name === name)!.facts.distance).toFixed(2);
@@ -98,7 +101,7 @@ export default function LandingPage() {
       {/* Masthead */}
       <nav className="relative z-20 flex justify-between items-center px-6 md:px-12 lg:px-24 py-7">
         <Link href="/" className="font-serif text-lg md:text-xl tracking-tight text-slate-200">
-          Orbital Mechanics
+          Thessaris
         </Link>
         <Link
           href="/explore"
@@ -337,24 +340,64 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Closing call to action */}
+      {/*
+       * Closing CTA. Three rules make the letter roll read as fluid rather than jittery:
+       *
+       * 1. EASE_OUT, not the page's `EASE`. The house curve is an ease-IN-out — slow,
+       *    whip, slow — which is right for a single sweeping mass but wrong for a
+       *    stagger: five letters each doing sit/whip/sit at 25ms offsets read as five
+       *    separate jerks. An ease-out launches every letter immediately and lets them
+       *    glide into place, so the offsets blend into one wave.
+       * 2. The stagger applies on ENTRY ONLY (via --d, consumed only in group-hover).
+       *    A delay in the base state also delays the exit, so flicking the pointer away
+       *    left letters stranded mid-flight — the single biggest source of jank here.
+       * 3. The sweep and the letters finish together by construction:
+       *    LETTER_MS + (4 x STAGGER_MS) === SWEEP_MS. Otherwise the orange lands first
+       *    and you briefly see a filled panel with letters still missing.
+       */}
       <Link
         href="/explore"
         className="group relative block w-full border-t border-[#1E293B] overflow-hidden bg-[#020617]"
       >
         <div
-          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ${EASE}`}
+          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
         />
         <div className="relative px-6 md:px-12 lg:px-24 py-20 md:py-32 flex items-end justify-between gap-8">
-          <span className="font-serif uppercase text-[min(13vw,22vh)] leading-[0.8] tracking-tighter text-[#F8FAFC] group-hover:text-[#020617] transition-colors duration-500 delay-100">
-            Begin
+          {/* Not `flex`: flex items don't get letter-spacing, which silently dropped
+              `tracking-tighter` from the display type. Inline-block letters keep it. */}
+          <span className="font-serif uppercase text-[min(13vw,22vh)] leading-[0.95] tracking-tighter">
+            <span className="sr-only">Begin</span>
+            {'Begin'.split('').map((letter, i) => (
+              <span
+                key={i}
+                aria-hidden="true"
+                className="relative inline-block overflow-hidden align-bottom"
+                style={{ ['--d' as string]: `${i * STAGGER_MS}ms` }}
+              >
+                {/* Outgoing white letter. */}
+                <span
+                  className={`block text-[#F8FAFC] transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:-translate-y-full ${EASE_OUT}`}
+                >
+                  {letter}
+                </span>
+                {/* Incoming black letter, stacked exactly one line-box below. Absolute so
+                    it cannot contribute to the mask's height. */}
+                <span
+                  className={`absolute left-0 top-0 block text-[#020617] translate-y-full transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:translate-y-0 ${EASE_OUT}`}
+                >
+                  {letter}
+                </span>
+              </span>
+            ))}
           </span>
           <div className="flex flex-col items-end gap-4 mb-[1.5vw] shrink-0">
-            <span className="hidden md:block text-sm text-slate-500 group-hover:text-[#020617]/70 transition-colors duration-500 delay-100">
+            <span
+              className={`hidden md:block text-sm text-slate-500 group-hover:text-[#020617]/70 transition-colors duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
+            >
               Ready when you are
             </span>
             <svg
-              className="w-[min(7vw,12vh)] h-[min(7vw,12vh)] text-[#F8FAFC] group-hover:text-[#020617] transition-[color,transform] duration-500 delay-100 group-hover:translate-x-2"
+              className={`w-[min(7vw,12vh)] h-[min(7vw,12vh)] text-[#F8FAFC] group-hover:text-[#020617] group-hover:translate-x-4 group-hover:-translate-y-1 group-hover:rotate-[-45deg] group-hover:scale-110 transition-[color,translate,rotate,scale] duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -365,52 +408,9 @@ export default function LandingPage() {
         </div>
       </Link>
 
-      {/* Footer */}
-      <footer className="border-t border-[#1E293B] px-6 md:px-12 lg:px-24 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-          <div className="md:col-span-4 space-y-1.5">
-            <p className="font-serif text-lg text-slate-200">Orbital Mechanics</p>
-            <p className="text-sm text-slate-500">An interactive planetary observatory.</p>
-            <p className="pt-3 text-sm text-slate-600">© 2026 — Open source</p>
-          </div>
-
-          <nav className="md:col-span-3 md:col-start-6" aria-label="Footer">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-600 mb-4">Index</p>
-            <ul className="space-y-2.5 text-slate-400">
-              {[
-                { href: '/explore', label: 'Explore' },
-                { href: '/planets/mercury', label: 'The eight worlds' },
-                { href: '/contact', label: 'Contact' },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="hover:text-[#EA580C] transition-colors duration-200">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="md:col-span-4 md:col-start-9">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-600 mb-4">Bodies</p>
-            <p className="leading-loose text-slate-400">
-              {planets.map((planet, i) => (
-                <span key={planet.name}>
-                  <Link
-                    href={`/planets/${planet.name.toLowerCase()}`}
-                    className="hover:text-[#EA580C] transition-colors duration-200"
-                  >
-                    {planet.name}
-                  </Link>
-                  {i < planets.length - 1 && <span className="text-[#1E293B]"> · </span>}
-                </span>
-              ))}
-            </p>
-            <p className="mt-6 text-sm text-slate-600 leading-relaxed">
-              Set in Newsreader. Rendered in WebGL. No analytics.
-            </p>
-          </div>
-        </div>
+      <footer className="border-t border-[#1E293B] relative w-full h-[24vw] min-h-[120px] overflow-hidden">
+        <span className="sr-only">Thessaris</span>
+        <FooterFluidText />
       </footer>
     </div>
   );
