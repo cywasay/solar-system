@@ -100,8 +100,8 @@ export default function LandingPage() {
 
       {/* Masthead */}
       <nav className="relative z-20 flex justify-between items-center px-4 sm:px-6 md:px-12 lg:px-24 py-5 sm:py-7">
-        <Link href="/" className="font-serif text-lg md:text-xl tracking-tight text-slate-200">
-          Thessaris
+        <Link href="/" className="inline-block">
+          <img src="/logos/logo.png" alt="Thessaris" className="h-6 md:h-7 w-auto object-contain" />
         </Link>
         <MenuTrigger />
       </nav>
