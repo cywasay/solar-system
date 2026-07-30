@@ -1,0 +1,98 @@
+/*
+ * Admin design tokens.
+ *
+ * Scoped to `.admin-root` and imported only by the admin layout, so the marketing site
+ * never downloads or evaluates any of it. Two themes are defined as variable sets; the
+ * theme is chosen by a `data-admin-theme` attribute written before first paint (see
+ * ThemeScript), so there is no flash of the wrong theme.
+ *
+ * Palette is a neutral slate scale plus a single indigo accent and three semantic
+ * status colours. Deliberately NOT the marketing site's orange: a saturated brand
+ * colour used as dashboard chrome fights the data for attention.
+ */
+
+.admin-root {
+  --a-bg: #f7f8fa;
+  --a-surface: #ffffff;
+  --a-surface-2: #f2f4f7;
+  --a-border: #e3e6ea;
+  --a-border-strong: #d3d8de;
+
+  --a-text: #12161c;
+  --a-text-muted: #5a6472;
+  --a-text-subtle: #838d9b;
+
+  --a-accent: #4f46e5;
+  --a-accent-hover: #4338ca;
+  --a-accent-soft: #eef2ff;
+  --a-accent-text: #ffffff;
+
+  --a-success: #15803d;
+  --a-success-soft: #dcfce7;
+  --a-warning: #a16207;
+  --a-warning-soft: #fef3c7;
+  --a-danger: #b91c1c;
+  --a-danger-soft: #fee2e2;
+
+  --a-ring: #4f46e5;
+  --a-shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
+
+  background: var(--a-bg);
+  color: var(--a-text);
+  /* Reuses the font already loaded by the root layout — a dashboard-only webfont would
+     be a second network request for no legibility gain. */
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.admin-root[data-admin-theme='dark'],
+[data-admin-theme='dark'] .admin-root {
+  --a-bg: #0b0e13;
+  --a-surface: #12161d;
+  --a-surface-2: #171c25;
+  --a-border: #232936;
+  --a-border-strong: #333b4a;
+
+  --a-text: #e8ecf2;
+  --a-text-muted: #98a2b3;
+  --a-text-subtle: #6b7684;
+
+  --a-accent: #6366f1;
+  --a-accent-hover: #818cf8;
+  --a-accent-soft: #1e1b4b;
+  --a-accent-text: #ffffff;
+
+  --a-success: #4ade80;
+  --a-success-soft: #052e16;
+  --a-warning: #fbbf24;
+  --a-warning-soft: #2e1f02;
+  --a-danger: #f87171;
+  --a-danger-soft: #3b0a0a;
+
+  --a-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+/* Numbers in tables and stats must align column-wise. */
+.admin-root :where(table, .tnum) {
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-root :where(input, textarea, select, button) {
+  font: inherit;
+  color: inherit;
+}
+
+.admin-root :where(input, textarea):focus-visible,
+.admin-root :where(button, a)[data-focusable]:focus-visible {
+  outline: 2px solid var(--a-ring);
+  outline-offset: 1px;
+}
+
+/* Theme swap is instant by default. Transitioning every colour on a large DOM causes a
+   visible repaint storm, so only the shell surfaces animate, and never for a user who
+   has asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .admin-root :where(.a-surface, .a-sidebar) {
+    transition: background-color 120ms linear, border-color 120ms linear;
+  }
+}
