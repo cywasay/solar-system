@@ -28,6 +28,13 @@ export default function SiteNav() {
 
   const close = () => setOpen(false);
 
+  // Listen for external open triggers (e.g. from navbar menu button)
+  useEffect(() => {
+    const handleExternalOpen = () => setOpen(true);
+    window.addEventListener('open-site-nav', handleExternalOpen);
+    return () => window.removeEventListener('open-site-nav', handleExternalOpen);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     closeButtonRef.current?.focus();
@@ -55,27 +62,6 @@ export default function SiteNav() {
 
   return (
     <>
-      {/* Trigger — hands over to the curtain's [ Close ] when open. */}
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-expanded={open}
-        aria-controls="site-nav-panel"
-        aria-label="Open navigation"
-        // NO backdrop-blur here. This element is `fixed`, and a fixed backdrop-filter
-        // makes the compositor re-sample and re-blur the page behind it on EVERY scroll
-        // frame — a permanent scroll-jank tax, worsened by smooth scrolling because the
-        // page is then in continuous motion. Against a near-black page an 80% overlay
-        // already reads as opaque, so the blur was buying nothing.
-        className={`group fixed bottom-6 right-6 z-[90] overflow-hidden border border-[#1E293B] bg-[#020617] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-[color,opacity] duration-300 hover:text-[#020617] ${
-          open ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
-      >
-        <span
-          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${EASE}`}
-        />
-        <span className="relative">[ Menu ]</span>
-      </button>
 
       {/* Curtain */}
       <div
@@ -84,7 +70,7 @@ export default function SiteNav() {
         aria-modal="true"
         aria-label="Site navigation"
         inert={!open}
-        className={`fixed inset-0 z-[100] bg-[#020617] text-[#F8FAFC] flex flex-col overflow-y-auto transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
+        className={`fixed inset-0 z-[100] bg-[#020617] text-[#F8FAFC] flex flex-col overflow-y-auto scrollbar-none transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
           open ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -119,10 +105,10 @@ export default function SiteNav() {
           </button>
         </div>
 
-        <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 px-6 md:px-12 lg:px-24 py-12 lg:py-16">
+        <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 px-6 md:px-12 lg:px-24 py-8 lg:py-16">
           {/* Primary destinations */}
           <nav className="lg:col-span-7 flex flex-col justify-center" aria-label="Primary">
-            <ul className="space-y-6 md:space-y-8">
+            <ul className="space-y-4 md:space-y-8">
               {primaryLinks.map((link, i) => (
                 <li key={link.href} {...reveal(1 + i)}>
                   <Link
@@ -171,7 +157,7 @@ export default function SiteNav() {
                 Planetary index
               </span>
             </h2>
-            <ul className="mt-8 space-y-3.5">
+            <ul className="mt-5 lg:mt-8 space-y-2.5 lg:space-y-3.5">
               {planets.map((planet, i) => {
                 const href = `/planets/${planet.name.toLowerCase()}`;
                 const active = pathname === href;
@@ -210,6 +196,25 @@ export default function SiteNav() {
               })}
             </ul>
           </nav>
+        </div>
+
+        {/* Enter the Simulation CTA */}
+        <div className="relative px-6 md:px-12 lg:px-24 py-5 lg:py-8 border-t border-[#1E293B]">
+          <div {...reveal(9)}>
+            <Link
+              href="/explore"
+              onClick={close}
+              className={`group flex items-center justify-center gap-4 w-full py-5 border border-[#EA580C] hover:bg-[#EA580C] text-[#EA580C] hover:text-[#020617] font-mono text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE}`}
+            >
+              <span className="font-semibold">Enter the Simulation</span>
+              <span
+                aria-hidden
+                className={`text-lg transition-transform duration-300 ${EASE} group-hover:translate-x-2`}
+              >
+                →
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div className="relative px-6 md:px-12 lg:px-24 py-6 border-t border-[#1E293B]">

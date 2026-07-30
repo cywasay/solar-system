@@ -11,6 +11,7 @@ import JourneyRail from '@/components/landing/JourneyRail';
 import IdleOffscreen from '@/components/landing/IdleOffscreen';
 import BeginCta from '@/components/landing/BeginCta';
 import FooterFluidText from '@/components/landing/FooterFluidText';
+import MenuTrigger from '@/components/site/MenuTrigger';
 
 /* ---------------------------------------------------------------------------
  * The landing page as an editorial front page. Every figure is pulled from the
@@ -102,15 +103,7 @@ export default function LandingPage() {
         <Link href="/" className="font-serif text-lg md:text-xl tracking-tight text-slate-200">
           Thessaris
         </Link>
-        <Link
-          href="/explore"
-          className="group inline-flex flex-col items-end text-sm text-slate-300 hover:text-white transition-colors duration-300"
-        >
-          <span>Enter simulation</span>
-          <span
-            className={`mt-0.5 h-px w-full bg-[#EA580C] origin-right scale-x-0 group-hover:scale-x-100 group-hover:origin-left transition-transform duration-300 ${EASE}`}
-          />
-        </Link>
+        <MenuTrigger />
       </nav>
 
       {/* Hero. HeroStage owns the depth: it publishes --mx/--my (pointer) and --sp
