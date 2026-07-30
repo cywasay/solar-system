@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
  * construction logic silently has no effect until the dev server is fully restarted.
  * Bump this whenever makePrismaClient below changes.
  */
-const CLIENT_VERSION = 2;
+const CLIENT_VERSION = 3;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -34,12 +34,33 @@ function makePrismaClient() {
   });
 }
 
-const cached =
-  globalForPrisma.prismaVersion === CLIENT_VERSION ? globalForPrisma.prisma : undefined;
+function getClient(): PrismaClient {
+  if (globalForPrisma.prismaVersion === CLIENT_VERSION && globalForPrisma.prisma) {
+    return globalForPrisma.prisma;
+  }
 
-export const db = cached ?? makePrismaClient();
+  const client = makePrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = db;
-  globalForPrisma.prismaVersion = CLIENT_VERSION;
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = client;
+    globalForPrisma.prismaVersion = CLIENT_VERSION;
+  }
+
+  return client;
 }
+
+/*
+ * Lazily constructed. `next build` imports every route module to collect page data, so
+ * building the client at module scope made the BUILD require a live DATABASE_URL — and
+ * fail with "Failed to collect page data" wherever the database URL is a runtime-only
+ * secret. Behind this proxy nothing is constructed until the first real query, so
+ * importing the module is free and the connection is only opened when it is actually
+ * used. Callers still write `db.contactMessage.create(...)` unchanged.
+ */
+export const db = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getClient();
+    const value = Reflect.get(client, prop, client);
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});

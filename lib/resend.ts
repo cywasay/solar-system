@@ -1,25 +1,50 @@
 import { Resend } from 'resend';
 
+/*
+ * Email is OPT-IN and currently OFF.
+ *
+ * With no RESEND_API_KEY configured nothing is constructed and no request is ever
+ * attempted — the send functions return a "skipped" result rather than throwing, so
+ * contact submissions still save to the database and the admin console still works.
+ * Set RESEND_API_KEY to switch it on.
+ *
+ * Notifications additionally need CONTACT_NOTIFY_EMAIL: the address YOU want new
+ * messages delivered to. Without it there is nowhere to send them, so they are skipped.
+ */
 const resendApiKey = process.env.RESEND_API_KEY;
+const notifyAddress = process.env.CONTACT_NOTIFY_EMAIL;
 
-export const resend = resendApiKey ? new Resend(resendApiKey) : null;
+export const emailEnabled = Boolean(resendApiKey);
+
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
+
+/** Sender identity. `onboarding@resend.dev` is Resend's shared test sender and can only
+ *  deliver to the address that owns the API key — verify a domain to send anywhere. */
+const FROM_NOTIFY = 'Thessaris Contact <onboarding@resend.dev>';
+const FROM_REPLY = 'Thessaris Support <onboarding@resend.dev>';
+
+export type EmailResult = { sent: boolean; reason?: string };
+
+const skipped = (reason: string): EmailResult => ({ sent: false, reason });
 
 export async function sendNotificationEmail(contactData: {
   name: string;
   email: string;
   subject?: string;
   message: string;
-}) {
-  if (!resend) {
-    console.warn('[Resend] RESEND_API_KEY is not set. Email notification skipped.');
-    return { success: false, reason: 'RESEND_API_KEY missing' };
-  }
+}): Promise<EmailResult> {
+  if (!resend) return skipped('RESEND_API_KEY not configured — email disabled');
+  if (!notifyAddress) return skipped('CONTACT_NOTIFY_EMAIL not configured');
 
   try {
-    const data = await resend.emails.send({
-      from: 'Thessaris Contact <onboarding@resend.dev>',
-      to: [contactData.email], // Can be user email or your admin email
-      subject: `[Thessaris] ${contactData.subject || 'New Contact Submission'} from ${contactData.name}`,
+    await resend.emails.send({
+      from: FROM_NOTIFY,
+      // The site owner, NOT contactData.email. The previous version mailed the
+      // notification to whoever submitted the form, so the sender received their own
+      // message back and the site owner was never told anything had arrived.
+      to: [notifyAddress],
+      replyTo: contactData.email,
+      subject: `[Thessaris] ${contactData.subject || 'New contact submission'} from ${contactData.name}`,
       html: `
         <div style="font-family: monospace; background: #09090b; color: #fafafa; padding: 24px; border-radius: 8px;">
           <h2 style="color: #ff4500; margin-top: 0;">New Transmission Received</h2>
@@ -30,22 +55,24 @@ export async function sendNotificationEmail(contactData: {
         </div>
       `,
     });
-    return { success: true, data };
+    return { sent: true };
   } catch (error) {
-    console.error('[Resend Error]', error);
-    return { success: false, error };
+    console.error('[Resend] notification failed:', error);
+    return skipped(error instanceof Error ? error.message : String(error));
   }
 }
 
-export async function sendReplyEmail(to: string, recipientName: string, replyMessage: string, originalSubject?: string) {
-  if (!resend) {
-    console.warn('[Resend] RESEND_API_KEY is not set. Reply email skipped.');
-    return { success: false, reason: 'RESEND_API_KEY missing' };
-  }
+export async function sendReplyEmail(
+  to: string,
+  recipientName: string,
+  replyMessage: string,
+  originalSubject?: string
+): Promise<EmailResult> {
+  if (!resend) return skipped('RESEND_API_KEY not configured — email disabled');
 
   try {
-    const data = await resend.emails.send({
-      from: 'Thessaris Support <onboarding@resend.dev>',
+    await resend.emails.send({
+      from: FROM_REPLY,
       to: [to],
       subject: `Re: ${originalSubject || 'Your message to Thessaris'}`,
       html: `
@@ -57,9 +84,9 @@ export async function sendReplyEmail(to: string, recipientName: string, replyMes
         </div>
       `,
     });
-    return { success: true, data };
+    return { sent: true };
   } catch (error) {
-    console.error('[Resend Reply Error]', error);
-    return { success: false, error };
+    console.error('[Resend] reply failed:', error);
+    return skipped(error instanceof Error ? error.message : String(error));
   }
 }

@@ -139,7 +139,13 @@ export default function AdminPage() {
         throw new Error(data.error || 'Failed to send reply');
       }
 
-      setReplyStatus('Reply sent successfully via Resend email!');
+      // Report what actually happened: email is currently disabled, and claiming a
+      // reply was sent when nothing left the building is worse than saying so.
+      setReplyStatus(
+        data.emailSent
+          ? 'Reply sent successfully via Resend email.'
+          : 'Reply saved to the database. Email was not sent — delivery is disabled until RESEND_API_KEY is configured.'
+      );
       setReplyText('');
       
       // Refresh message list

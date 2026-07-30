@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
 
-    // 1. Send reply email via Resend
+    // 1. Attempt the reply email. Skipped entirely while email is disabled.
     const emailResult = await sendReplyEmail(
       message.email,
       message.name,
@@ -40,7 +40,8 @@ export async function POST(req: Request) {
       message.subject || undefined
     );
 
-    // 2. Update status in database
+    // 2. Record the reply regardless — the text is still worth keeping, and the admin
+    //    can send it by other means. The response says plainly whether mail went out.
     const updated = await db.contactMessage.update({
       where: { id },
       data: {
@@ -52,7 +53,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: updated,
-      emailSent: emailResult.success,
+      emailSent: emailResult.sent,
+      emailSkippedReason: emailResult.reason,
     });
   } catch (error) {
     console.error('Send Reply Error:', error);

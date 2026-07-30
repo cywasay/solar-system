@@ -25,8 +25,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // 2. Dispatch notification email using Resend (asynchronous / non-blocking)
-    sendNotificationEmail({
+    // 2. Notify the site owner. Non-blocking, and a no-op while email is disabled —
+    //    the submission is already saved, so mail must never affect this response.
+    void sendNotificationEmail({
       name: savedMessage.name,
       email: savedMessage.email,
       subject: savedMessage.subject || undefined,

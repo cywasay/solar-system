@@ -48,7 +48,8 @@ export default function ContactPage() {
         <div className="lg:col-span-6 space-y-8">
           <p className="font-serif text-xl md:text-2xl leading-relaxed text-[#A1A1AA]">
             Questions, corrections to the astronomy, or notes on the 3D rendering — the channel
-            is live. Submit a message directly below to be stored in our orbital database and emailed to mission control.
+            is live. Submit a message directly below and it will be logged to the orbital database
+            for mission control to review.
           </p>
 
           <ContactForm />
@@ -92,7 +93,8 @@ export default function ContactPage() {
               System Telemetry Notice
             </h3>
             <p className="font-mono text-[11px] leading-relaxed text-[#71717A]">
-              Transmissions are stored securely in Neon PostgreSQL. Email delivery managed by Resend API.
+              Transmissions are stored securely in Neon PostgreSQL. Email dispatch via Resend is
+              not yet active — messages are retained in the database until it is enabled.
             </p>
           </div>
         </div>
