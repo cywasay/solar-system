@@ -64,9 +64,9 @@ const capabilities = [
 /** Quiet editorial eyebrow — small sans caps, a number, a hairline. No mono, no brackets. */
 function Eyebrow({ index, children }: { index: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-4 mb-16">
-      <span className="font-serif italic text-lg text-[#EA580C]">{index}</span>
-      <span className="text-xs tracking-[0.18em] uppercase text-slate-400">{children}</span>
+    <div className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-16">
+      <span className="font-serif italic text-base sm:text-lg text-[#EA580C]">{index}</span>
+      <span className="text-[11px] sm:text-xs tracking-[0.18em] uppercase text-slate-400">{children}</span>
       <span aria-hidden className="flex-1 h-px bg-[#1E293B]" />
     </div>
   );
@@ -77,7 +77,7 @@ function MarqueeRun({ hidden }: { hidden?: boolean }) {
   return (
     <span
       aria-hidden={hidden}
-      className="flex items-center gap-8 pr-8 font-serif italic text-2xl md:text-3xl text-slate-400"
+      className="flex items-center gap-4 sm:gap-8 pr-4 sm:pr-8 font-serif italic text-lg sm:text-2xl md:text-3xl text-slate-400"
     >
       {planets.map((planet) => (
         <React.Fragment key={planet.name}>
@@ -99,7 +99,7 @@ export default function LandingPage() {
       <JourneyRail />
 
       {/* Masthead */}
-      <nav className="relative z-20 flex justify-between items-center px-6 md:px-12 lg:px-24 py-7">
+      <nav className="relative z-20 flex justify-between items-center px-4 sm:px-6 md:px-12 lg:px-24 py-5 sm:py-7">
         <Link href="/" className="font-serif text-lg md:text-xl tracking-tight text-slate-200">
           Thessaris
         </Link>
@@ -143,14 +143,14 @@ export default function LandingPage() {
           <HeroOrrery className="z-10" />
 
           <div
-            className="relative z-20 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-end mt-8 md:mt-10"
+            className="relative z-20 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 md:gap-10 items-end mt-6 sm:mt-8 md:mt-10"
             style={{
               transform: 'translate3d(0, calc(var(--sp) * 60px), 0)',
               opacity: 'calc(1 - var(--sp) * 1.4)',
             }}
           >
             <div className="rise-in md:col-span-6 lg:col-span-5" style={{ animationDelay: '900ms' }}>
-              <p className="font-serif text-lg md:text-2xl leading-snug text-slate-200">
+              <p className="font-serif text-base sm:text-lg md:text-2xl leading-snug text-slate-200">
                 Eight worlds, three moons and one star, running live at honest ratios — a
                 hand-built orrery for the browser.
               </p>
@@ -165,7 +165,7 @@ export default function LandingPage() {
               className="rise-in md:col-span-4 md:col-start-9 md:text-right"
               style={{ animationDelay: '1000ms' }}
             >
-              <p className="font-serif text-base md:text-lg italic text-slate-400 leading-relaxed">
+              <p className="font-serif text-sm sm:text-base md:text-lg italic text-slate-400 leading-relaxed">
                 Eight planets, turning at their true orbital ratios.
               </p>
               <p className="mt-1.5 text-sm text-slate-500">Earth marked in orange.</p>
@@ -174,7 +174,7 @@ export default function LandingPage() {
 
           {/* Live scroll cue */}
           <div
-            className="rise-in relative z-20 mt-6 md:mt-8 flex items-center gap-3 text-sm text-slate-500"
+            className="rise-in relative z-20 mt-4 sm:mt-6 md:mt-8 flex items-center gap-3 text-xs sm:text-sm text-slate-500"
             style={{ animationDelay: '1120ms', opacity: 'calc(1 - var(--sp) * 2.2)' }}
           >
             <span className="relative block h-7 w-px bg-[#1E293B] overflow-hidden">
@@ -196,7 +196,7 @@ export default function LandingPage() {
       </IdleOffscreen>
 
       {/* The ledger: the system itself as the page's main content */}
-      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24">
+      <section className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24">
         <Reveal>
           <Eyebrow index="I">The eight worlds</Eyebrow>
         </Reveal>
@@ -211,12 +211,12 @@ export default function LandingPage() {
                 <Reveal delay={index * 55}>
                   <Link
                     href={`/planets/${planet.name.toLowerCase()}`}
-                    className="group flex items-center gap-5 md:gap-8 py-5 md:py-7 border-b border-[#1E293B] first:border-t transition-colors duration-300 hover:bg-[#F8FAFC]/[0.02]"
+                    className="group flex items-center gap-3 sm:gap-5 md:gap-8 py-4 sm:py-5 md:py-7 border-b border-[#1E293B] first:border-t transition-colors duration-300 hover:bg-[#F8FAFC]/[0.02]"
                   >
                     {/* Live glyph: this planet's own colour, orbiting at its own rate. */}
                     <span
                       aria-hidden
-                      className="relative inline-block w-7 h-7 rounded-full border border-[#1E293B] shrink-0 group-hover:border-[#EA580C]/60 transition-colors duration-300"
+                      className="relative hidden sm:inline-block w-7 h-7 rounded-full border border-[#1E293B] shrink-0 group-hover:border-[#EA580C]/60 transition-colors duration-300"
                     >
                       <span
                         className="orbit-arm absolute inset-0"
@@ -237,7 +237,7 @@ export default function LandingPage() {
                     </span>
 
                     <span
-                      className={`font-serif text-3xl md:text-5xl tracking-tight leading-none flex-1 transition-transform duration-300 ${EASE} group-hover:translate-x-3`}
+                      className={`font-serif text-2xl sm:text-3xl md:text-5xl tracking-tight leading-none flex-1 transition-transform duration-300 ${EASE} group-hover:translate-x-3`}
                     >
                       {planet.name}
                     </span>
@@ -268,14 +268,14 @@ export default function LandingPage() {
       </section>
 
       {/* Manifest with margin notes */}
-      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24 border-t border-[#1E293B]">
+      <section className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-[#1E293B]">
         <Reveal>
           <Eyebrow index="II">Manifest</Eyebrow>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12">
           <Reveal className="md:col-span-7">
-            <p className="font-serif text-2xl md:text-[2.1rem] leading-[1.4] tracking-tight text-slate-200">
+            <p className="font-serif text-xl sm:text-2xl md:text-[2.1rem] leading-[1.4] tracking-tight text-slate-200">
               Played at true scale, the solar system is unwatchable
               <sup className="font-serif not-italic text-base text-[#EA580C] ml-0.5">1</sup> — so
               this one compresses size, distance and time along separate curves, keeping the
@@ -310,22 +310,22 @@ export default function LandingPage() {
       </section>
 
       {/* Capabilities */}
-      <section className="px-6 md:px-12 lg:px-24 py-20 md:py-24 border-t border-[#1E293B]">
+      <section className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-[#1E293B]">
         <Reveal>
           <Eyebrow index="III">What&rsquo;s inside</Eyebrow>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 sm:gap-y-12">
           {capabilities.map((capability, index) => (
             <Reveal key={capability.id} delay={(index % 2) * 90}>
               <div className="group border-t border-[#1E293B] pt-6">
                 <div className="flex items-baseline gap-4">
                   <span className="font-serif italic text-lg text-[#EA580C]">{capability.id}</span>
-                  <h3 className="font-serif text-2xl text-slate-200 group-hover:text-white transition-colors duration-300">
+                  <h3 className="font-serif text-xl sm:text-2xl text-slate-200 group-hover:text-white transition-colors duration-300">
                     {capability.title}
                   </h3>
                 </div>
-                <p className="mt-4 text-base leading-relaxed text-slate-400">{capability.line}</p>
+                <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-slate-400">{capability.line}</p>
               </div>
             </Reveal>
           ))}

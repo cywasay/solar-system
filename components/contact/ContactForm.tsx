@@ -45,15 +45,15 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="bg-[#121215] border border-[#27272A] p-6 md:p-8 rounded-xl relative overflow-hidden shadow-2xl">
-      <div className="flex items-center justify-between pb-6 mb-6 border-b border-[#27272A]/60">
+    <div className="bg-[#121215] border border-[#27272A] p-4 sm:p-6 md:p-8 rounded-xl relative overflow-hidden shadow-2xl">
+      <div className="flex items-center justify-between pb-4 sm:pb-6 mb-4 sm:mb-6 border-b border-[#27272A]/60">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#FF4500] animate-pulse"></span>
-          <span className="font-mono text-[11px] uppercase tracking-widest text-[#A1A1AA]">
+          <span className="font-mono text-[9px] sm:text-[11px] uppercase tracking-widest text-[#A1A1AA]">
             Direct Transmission Line
           </span>
         </div>
-        <span className="font-mono text-[10px] text-[#71717A]">CHANNEL // 04</span>
+        <span className="font-mono text-[9px] sm:text-[10px] text-[#71717A] hidden sm:inline">CHANNEL // 04</span>
       </div>
 
       {status === 'success' ? (
@@ -73,14 +73,14 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           {status === 'error' && (
             <div className="p-4 bg-red-950/40 border border-red-800/50 rounded text-red-200 text-xs font-mono">
               ⚠ {errorMessage}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label className="block font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA] mb-2">
                 Your Name <span className="text-[#FF4500]">*</span>
@@ -91,7 +91,7 @@ export default function ContactForm() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Commander Vance"
-                className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-4 py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
+                className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
               />
             </div>
 
@@ -105,7 +105,7 @@ export default function ContactForm() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="vance@station.space"
-                className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-4 py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
+                className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
               />
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function ContactForm() {
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               placeholder="Orbital Calculation Inquiry"
-              className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-4 py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
+              className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors"
             />
           </div>
 
@@ -129,18 +129,18 @@ export default function ContactForm() {
             </label>
             <textarea
               required
-              rows={5}
+              rows={4}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Enter details of your inquiry, render feedback, or astronomical query..."
-              className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-4 py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors resize-none"
+              className="w-full bg-[#09090B] border border-[#27272A] focus:border-[#FF4500] rounded px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none transition-colors resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={status === 'submitting'}
-            className="w-full py-3.5 bg-[#FF4500] hover:bg-[#FF571A] disabled:bg-[#71717A] text-[#FAFAFA] font-mono text-xs uppercase tracking-widest font-semibold rounded transition-all duration-200 shadow-lg shadow-[#FF4500]/20 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full py-3 sm:py-3.5 bg-[#FF4500] hover:bg-[#FF571A] disabled:bg-[#71717A] text-[#FAFAFA] font-mono text-[11px] sm:text-xs uppercase tracking-widest font-semibold rounded transition-all duration-200 shadow-lg shadow-[#FF4500]/20 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
           >
             {status === 'submitting' ? (
               <>

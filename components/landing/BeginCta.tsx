@@ -72,165 +72,194 @@ export default function BeginCta() {
     const pivot = pivotRef.current;
     if (!section || !arrow || !pivot) return;
 
-    // Pointer-driven, so only where there is a real pointer — and never against the
-    // visitor's stated motion preference.
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const finePointer = window.matchMedia('(pointer: fine)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    section.dataset.magnetic = 'on';
+    /*
+     * Wiring lives in a function because the conditions above are watched, not merely
+     * sampled at mount. Devtools device emulation reports "pointer: coarse", so a page
+     * loaded with emulation switched on used to bail here permanently — turning it back
+     * off left the cursor effect dead until a full reload. Watching the queries lets it
+     * attach and detach itself as the environment flips.
+     */
+    const attach = () => {
+      section.dataset.magnetic = 'on';
 
-    let frame = 0;
-    let active = false;
-    let rectDirty = true;
-    let rect = section.getBoundingClientRect();
+      let frame = 0;
+      let active = false;
+      let rectDirty = true;
+      let rect = section.getBoundingClientRect();
 
-    // Pointer, in section-local coordinates.
-    let pointerX = 0;
-    let pointerY = 0;
-    let lastPointerY = 0;
+      // Pointer, in section-local coordinates.
+      let pointerX = 0;
+      let pointerY = 0;
+      let lastPointerY = 0;
 
-    // Current and target transform, relative to the arrow's own layout position, so
-    // "home" is simply (0, 0) and the return trip costs no bookkeeping.
-    let x = 0;
-    let y = 0;
-    let scale = 1;
-    let tilt = 0;
+      // Current and target transform, relative to the arrow's own layout position, so
+      // "home" is simply (0, 0) and the return trip costs no bookkeeping.
+      let x = 0;
+      let y = 0;
+      let scale = 1;
+      let tilt = 0;
 
-    const measure = () => {
-      rect = section.getBoundingClientRect();
-      rectDirty = false;
-    };
+      const measure = () => {
+        rect = section.getBoundingClientRect();
+        rectDirty = false;
+      };
 
-    const tick = () => {
-      // Lenis scrolls continuously, so the section slides beneath a stationary pointer;
-      // the rect has to be refreshed or the arrow drifts away from the cursor.
-      if (rectDirty) measure();
+      const tick = () => {
+        // Lenis scrolls continuously, so the section slides beneath a stationary pointer;
+        // the rect has to be refreshed or the arrow drifts away from the cursor.
+        if (rectDirty) measure();
 
-      const home = offsetWithin(arrow, section);
-      const centreX = home.x + arrow.offsetWidth / 2;
-      const centreY = home.y + arrow.offsetHeight / 2;
+        const home = offsetWithin(arrow, section);
+        const centreX = home.x + arrow.offsetWidth / 2;
+        const centreY = home.y + arrow.offsetHeight / 2;
 
-      /*
-       * Confine the whole disc to the section. The section clips its overflow, so an
-       * unconstrained follow shears the disc in half at the boundary; clamping the
-       * disc's CENTRE by its own radius makes it slide along the edge and stay whole,
-       * while the real pointer carries on into the corner. Radius uses the live scale,
-       * so the limit grows with the disc as it arrives.
-       */
-      // Largest scale at which the disc still fits inside the section. Only bites on
-      // absurdly short viewports, but without it the clamp below has no valid range and
-      // the disc would spill however it was positioned.
-      const fitScale = Math.min(rect.width, rect.height) / (arrow.offsetWidth * RING_RATIO);
-      const radius = (arrow.offsetWidth * RING_RATIO * scale) / 2;
-      const cx = clamp(pointerX, radius, Math.max(radius, rect.width - radius));
-      const cy = clamp(pointerY, radius, Math.max(radius, rect.height - radius));
+        /*
+         * Confine the whole disc to the section. The section clips its overflow, so an
+         * unconstrained follow shears the disc in half at the boundary; clamping the
+         * disc's CENTRE by its own radius makes it slide along the edge and stay whole,
+         * while the real pointer carries on into the corner. Radius uses the live scale,
+         * so the limit grows with the disc as it arrives.
+         */
+        // Largest scale at which the disc still fits inside the section. Only bites on
+        // absurdly short viewports, but without it the clamp below has no valid range and
+        // the disc would spill however it was positioned.
+        const fitScale = Math.min(rect.width, rect.height) / (arrow.offsetWidth * RING_RATIO);
+        const radius = (arrow.offsetWidth * RING_RATIO * scale) / 2;
+        const cx = clamp(pointerX, radius, Math.max(radius, rect.width - radius));
+        const cy = clamp(pointerY, radius, Math.max(radius, rect.height - radius));
 
-      const targetX = active ? cx - centreX : 0;
-      const targetY = active ? cy - centreY : 0;
-      const targetScale = active ? Math.min(CURSOR_SCALE, fitScale) : 1;
+        const targetX = active ? cx - centreX : 0;
+        const targetY = active ? cy - centreY : 0;
+        const targetScale = active ? Math.min(CURSOR_SCALE, fitScale) : 1;
 
-      /*
-       * Heading is driven by VERTICAL travel alone, then clamped to +/-45deg. That is
-       * deliberate, not a shortcut: deriving the angle from atan2(vy, vx) and clamping
-       * it is unstable, because leftward travel sits at ~180deg — equidistant from both
-       * clamp limits — so a hair of vertical jitter flips the arrow between +45 and -45.
-       * Ignoring horizontal sign yields exactly the three headings asked for (right,
-       * top-right, bottom-right), can never point left, and cannot oscillate.
-       */
-      const velocityY = active ? pointerY - lastPointerY : 0;
-      const targetTilt = active
-        ? clamp((velocityY / TILT_SPEED_REF) * MAX_TILT, -MAX_TILT, MAX_TILT)
-        : 0;
-      lastPointerY = pointerY;
+        /*
+         * Heading is driven by VERTICAL travel alone, then clamped to +/-45deg. That is
+         * deliberate, not a shortcut: deriving the angle from atan2(vy, vx) and clamping
+         * it is unstable, because leftward travel sits at ~180deg — equidistant from both
+         * clamp limits — so a hair of vertical jitter flips the arrow between +45 and -45.
+         * Ignoring horizontal sign yields exactly the three headings asked for (right,
+         * top-right, bottom-right), can never point left, and cannot oscillate.
+         */
+        const velocityY = active ? pointerY - lastPointerY : 0;
+        const targetTilt = active
+          ? clamp((velocityY / TILT_SPEED_REF) * MAX_TILT, -MAX_TILT, MAX_TILT)
+          : 0;
+        lastPointerY = pointerY;
 
-      const follow = active ? FOLLOW_LERP : RETURN_LERP;
-      x += (targetX - x) * follow;
-      y += (targetY - y) * follow;
-      scale += (targetScale - scale) * SCALE_LERP;
-      // Also cap the in-flight value: the disc leaves home at scale 1 and would briefly
-      // exceed a very short section before the lerp brought it down.
-      if (active) scale = Math.min(scale, fitScale);
-      tilt += (targetTilt - tilt) * TILT_LERP;
+        const follow = active ? FOLLOW_LERP : RETURN_LERP;
+        x += (targetX - x) * follow;
+        y += (targetY - y) * follow;
+        scale += (targetScale - scale) * SCALE_LERP;
+        // Also cap the in-flight value: the disc leaves home at scale 1 and would briefly
+        // exceed a very short section before the lerp brought it down.
+        if (active) scale = Math.min(scale, fitScale);
+        tilt += (targetTilt - tilt) * TILT_LERP;
 
-      // Position and size on the wrapper; heading on an inner pivot, so the ring around
-      // the arrow stays upright rather than spinning with it.
-      arrow.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
-      pivot.style.transform = `rotate(${tilt.toFixed(2)}deg)`;
+        // Position and size on the wrapper; heading on an inner pivot, so the ring around
+        // the arrow stays upright rather than spinning with it.
+        arrow.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+        pivot.style.transform = `rotate(${tilt.toFixed(2)}deg)`;
 
-      const settled =
-        !active &&
-        Math.abs(x) < SETTLE_PX &&
-        Math.abs(y) < SETTLE_PX &&
-        Math.abs(1 - scale) < 0.002 &&
-        Math.abs(tilt) < 0.05;
+        const settled =
+          !active &&
+          Math.abs(x) < SETTLE_PX &&
+          Math.abs(y) < SETTLE_PX &&
+          Math.abs(1 - scale) < 0.002 &&
+          Math.abs(tilt) < 0.05;
 
-      if (settled) {
-        // Hand the arrow back to CSS entirely; no residual transform, no rAF.
+        if (settled) {
+          // Hand the arrow back to CSS entirely; no residual transform, no rAF.
+          arrow.style.transform = '';
+          pivot.style.transform = '';
+          frame = 0;
+          return;
+        }
+
+        frame = requestAnimationFrame(tick);
+      };
+
+      const start = () => {
+        if (!frame) frame = requestAnimationFrame(tick);
+      };
+
+      const onEnter = (event: PointerEvent) => {
+        measure();
+        pointerX = event.clientX - rect.left;
+        pointerY = event.clientY - rect.top;
+        lastPointerY = pointerY;
+        active = true;
+        start();
+      };
+
+      const onMove = (event: PointerEvent) => {
+        if (rectDirty) measure();
+        pointerX = event.clientX - rect.left;
+        pointerY = event.clientY - rect.top;
+        if (active) start();
+      };
+
+      const onLeave = () => {
+        active = false;
+        start(); // keep running until it has glided home
+      };
+
+      const onScroll = () => {
+        rectDirty = true;
+        if (active) start();
+      };
+
+      const onResize = () => {
+        rectDirty = true;
+        start();
+      };
+
+      section.addEventListener('pointerenter', onEnter);
+      section.addEventListener('pointermove', onMove, { passive: true });
+      section.addEventListener('pointerleave', onLeave);
+      section.addEventListener('pointercancel', onLeave);
+      // The pointer can leave without a pointerleave if the window loses focus.
+      window.addEventListener('blur', onLeave);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize);
+
+      return () => {
+        section.removeEventListener('pointerenter', onEnter);
+        section.removeEventListener('pointermove', onMove);
+        section.removeEventListener('pointerleave', onLeave);
+        section.removeEventListener('pointercancel', onLeave);
+        window.removeEventListener('blur', onLeave);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
+        if (frame) cancelAnimationFrame(frame);
+        delete section.dataset.magnetic;
         arrow.style.transform = '';
         pivot.style.transform = '';
-        frame = 0;
-        return;
+      };
+    };
+
+    let detach: (() => void) | null = null;
+
+    const sync = () => {
+      const enabled = finePointer.matches && !reducedMotion.matches;
+      if (enabled && !detach) {
+        detach = attach();
+      } else if (!enabled && detach) {
+        detach();
+        detach = null;
       }
-
-      frame = requestAnimationFrame(tick);
     };
 
-    const start = () => {
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-
-    const onEnter = (event: PointerEvent) => {
-      measure();
-      pointerX = event.clientX - rect.left;
-      pointerY = event.clientY - rect.top;
-      lastPointerY = pointerY;
-      active = true;
-      start();
-    };
-
-    const onMove = (event: PointerEvent) => {
-      if (rectDirty) measure();
-      pointerX = event.clientX - rect.left;
-      pointerY = event.clientY - rect.top;
-      if (active) start();
-    };
-
-    const onLeave = () => {
-      active = false;
-      start(); // keep running until it has glided home
-    };
-
-    const onScroll = () => {
-      rectDirty = true;
-      if (active) start();
-    };
-
-    const onResize = () => {
-      rectDirty = true;
-      start();
-    };
-
-    section.addEventListener('pointerenter', onEnter);
-    section.addEventListener('pointermove', onMove, { passive: true });
-    section.addEventListener('pointerleave', onLeave);
-    section.addEventListener('pointercancel', onLeave);
-    // The pointer can leave without a pointerleave if the window loses focus.
-    window.addEventListener('blur', onLeave);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
+    sync();
+    finePointer.addEventListener('change', sync);
+    reducedMotion.addEventListener('change', sync);
 
     return () => {
-      section.removeEventListener('pointerenter', onEnter);
-      section.removeEventListener('pointermove', onMove);
-      section.removeEventListener('pointerleave', onLeave);
-      section.removeEventListener('pointercancel', onLeave);
-      window.removeEventListener('blur', onLeave);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      if (frame) cancelAnimationFrame(frame);
-      delete section.dataset.magnetic;
-      arrow.style.transform = '';
-      pivot.style.transform = '';
+      finePointer.removeEventListener('change', sync);
+      reducedMotion.removeEventListener('change', sync);
+      detach?.();
     };
   }, []);
 
@@ -257,10 +286,10 @@ export default function BeginCta() {
       <div
         className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
       />
-      <div className="relative px-6 md:px-12 lg:px-24 py-20 md:py-32 flex items-end justify-between gap-8">
+      <div className="relative px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-32 flex items-end justify-between gap-4 sm:gap-8">
         {/* Not `flex`: flex items don't get letter-spacing, which silently dropped
             `tracking-tighter` from the display type. Inline-block letters keep it. */}
-        <span className="font-serif uppercase text-[min(13vw,22vh)] leading-[0.95] tracking-tighter">
+        <span className="font-serif uppercase text-[min(16vw,22vh)] sm:text-[min(13vw,22vh)] leading-[0.95] tracking-tighter">
           <span className="sr-only">Begin</span>
           {'Begin'.split('').map((letter, i) => (
             <span
@@ -339,7 +368,7 @@ export default function BeginCta() {
                 about a corner instead of its centre. */}
             <span ref={pivotRef} className="relative block">
               <svg
-                className="w-[min(7vw,12vh)] h-[min(7vw,12vh)]"
+                className="w-[min(10vw,12vh)] sm:w-[min(7vw,12vh)] h-[min(10vw,12vh)] sm:h-[min(7vw,12vh)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
