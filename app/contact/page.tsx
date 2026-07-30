@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import ContactForm from '@/components/contact/ContactForm';
 
 export const metadata: Metadata = {
   title: 'Contact — Thessaris',
@@ -26,25 +27,37 @@ export default function ContactPage() {
         <Link href="/" className="hover:text-[#FF4500] transition-colors duration-200 text-[#FAFAFA]">
           Simulation.01
         </Link>
-        <span>Comms</span>
+        <div className="flex items-center gap-6">
+          <span>Comms</span>
+          <Link href="/admin" className="hover:text-[#FF4500] transition-colors text-[10px] text-[#A1A1AA]">
+            Admin Access
+          </Link>
+        </div>
       </nav>
 
-      <header className="px-6 md:px-12 pt-16 md:pt-24 pb-12 border-b border-[#27272A]/40">
-        <p className="font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-[#71717A] mb-8">
+      <header className="px-6 md:px-12 pt-12 md:pt-16 pb-8 border-b border-[#27272A]/40">
+        <p className="font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-[#71717A] mb-4">
           Open channel
         </p>
-        <h1 className="font-serif uppercase text-[16vw] md:text-[13vw] leading-[0.82] tracking-tight">
+        <h1 className="font-serif uppercase text-[12vw] md:text-[8vw] leading-[0.85] tracking-tight">
           Contact<span className="text-[#FF4500]">.</span>
         </h1>
       </header>
 
-      <section className="px-6 md:px-12 py-16 md:py-24 grid grid-cols-1 md:grid-cols-12 gap-12">
-        <p className="md:col-span-6 font-serif text-2xl md:text-3xl leading-snug text-[#A1A1AA]">
-          Questions, corrections to the astronomy, or notes on the rendering — the channel
-          is open. The project is public, and the issue tracker is read.
-        </p>
+      <section className="px-6 md:px-12 py-12 md:py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="lg:col-span-6 space-y-8">
+          <p className="font-serif text-xl md:text-2xl leading-relaxed text-[#A1A1AA]">
+            Questions, corrections to the astronomy, or notes on the 3D rendering — the channel
+            is live. Submit a message directly below to be stored in our orbital database and emailed to mission control.
+          </p>
 
-        <div className="md:col-span-5 md:col-start-8">
+          <ContactForm />
+        </div>
+
+        <div className="lg:col-span-5 lg:col-start-8">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#71717A] mb-6">
+            Alternative Channels
+          </h2>
           <dl>
             {channels.map((channel) => (
               <div
@@ -74,9 +87,14 @@ export default function ContactPage() {
             ))}
           </dl>
 
-          <p className="mt-10 font-mono text-[10px] uppercase tracking-[0.15em] leading-relaxed text-[#71717A]">
-            No contact form. No mailing list. No analytics.
-          </p>
+          <div className="mt-10 p-5 bg-[#121215] border border-[#27272A]/80 rounded-lg">
+            <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF4500] mb-2">
+              System Telemetry Notice
+            </h3>
+            <p className="font-mono text-[11px] leading-relaxed text-[#71717A]">
+              Transmissions are stored securely in Neon PostgreSQL. Email delivery managed by Resend API.
+            </p>
+          </div>
         </div>
       </section>
     </main>
