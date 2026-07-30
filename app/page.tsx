@@ -9,6 +9,7 @@ import SmoothScroll from '@/components/landing/SmoothScroll';
 import Reveal from '@/components/landing/Reveal';
 import JourneyRail from '@/components/landing/JourneyRail';
 import IdleOffscreen from '@/components/landing/IdleOffscreen';
+import BeginCta from '@/components/landing/BeginCta';
 import FooterFluidText from '@/components/landing/FooterFluidText';
 
 /* ---------------------------------------------------------------------------
@@ -19,8 +20,6 @@ import FooterFluidText from '@/components/landing/FooterFluidText';
  * ------------------------------------------------------------------------- */
 
 const EASE = 'ease-[cubic-bezier(0.83,0,0.17,1)]';
-const EASE_OUT = 'ease-[cubic-bezier(0.16,1,0.3,1)]';
-const STAGGER_MS = 25;
 
 const auOf = (name: string) =>
   parseFloat(planets.find((p) => p.name === name)!.facts.distance).toFixed(2);
@@ -340,73 +339,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/*
-       * Closing CTA. Three rules make the letter roll read as fluid rather than jittery:
-       *
-       * 1. EASE_OUT, not the page's `EASE`. The house curve is an ease-IN-out — slow,
-       *    whip, slow — which is right for a single sweeping mass but wrong for a
-       *    stagger: five letters each doing sit/whip/sit at 25ms offsets read as five
-       *    separate jerks. An ease-out launches every letter immediately and lets them
-       *    glide into place, so the offsets blend into one wave.
-       * 2. The stagger applies on ENTRY ONLY (via --d, consumed only in group-hover).
-       *    A delay in the base state also delays the exit, so flicking the pointer away
-       *    left letters stranded mid-flight — the single biggest source of jank here.
-       * 3. The sweep and the letters finish together by construction:
-       *    LETTER_MS + (4 x STAGGER_MS) === SWEEP_MS. Otherwise the orange lands first
-       *    and you briefly see a filled panel with letters still missing.
-       */}
-      <Link
-        href="/explore"
-        className="group relative block w-full border-t border-[#1E293B] overflow-hidden bg-[#020617]"
-      >
-        <div
-          className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
-        />
-        <div className="relative px-6 md:px-12 lg:px-24 py-20 md:py-32 flex items-end justify-between gap-8">
-          {/* Not `flex`: flex items don't get letter-spacing, which silently dropped
-              `tracking-tighter` from the display type. Inline-block letters keep it. */}
-          <span className="font-serif uppercase text-[min(13vw,22vh)] leading-[0.95] tracking-tighter">
-            <span className="sr-only">Begin</span>
-            {'Begin'.split('').map((letter, i) => (
-              <span
-                key={i}
-                aria-hidden="true"
-                className="relative inline-block overflow-hidden align-bottom"
-                style={{ ['--d' as string]: `${i * STAGGER_MS}ms` }}
-              >
-                {/* Outgoing white letter. */}
-                <span
-                  className={`block text-[#F8FAFC] transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:-translate-y-full ${EASE_OUT}`}
-                >
-                  {letter}
-                </span>
-                {/* Incoming black letter, stacked exactly one line-box below. Absolute so
-                    it cannot contribute to the mask's height. */}
-                <span
-                  className={`absolute left-0 top-0 block text-[#020617] translate-y-full transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:translate-y-0 ${EASE_OUT}`}
-                >
-                  {letter}
-                </span>
-              </span>
-            ))}
-          </span>
-          <div className="flex flex-col items-end gap-4 mb-[1.5vw] shrink-0">
-            <span
-              className={`hidden md:block text-sm text-slate-500 group-hover:text-[#020617]/70 transition-colors duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
-            >
-              Ready when you are
-            </span>
-            <svg
-              className={`w-[min(7vw,12vh)] h-[min(7vw,12vh)] text-[#F8FAFC] group-hover:text-[#020617] group-hover:translate-x-4 group-hover:-translate-y-1 group-hover:rotate-[-45deg] group-hover:scale-110 transition-[color,translate,rotate,scale] duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </div>
-        </div>
-      </Link>
+      {/* Closing CTA. Client component: the arrow detaches and becomes the cursor. */}
+      <BeginCta />
 
       <footer className="border-t border-[#1E293B] relative w-full h-[24vw] min-h-[120px] overflow-hidden">
         <span className="sr-only">Thessaris</span>

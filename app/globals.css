@@ -78,6 +78,36 @@ a {
   animation-play-state: paused;
 }
 
+/* Magnetic CTA cursor. `data-magnetic` is set by BeginCta at runtime and only when the
+   effect is genuinely active (fine pointer, motion allowed), so a script that never runs
+   — or a touch device, or a reduced-motion preference — can never leave a visitor
+   without a cursor. Keyed on :hover so the cursor returns the instant the pointer exits. */
+[data-magnetic='on']:hover {
+  cursor: none;
+}
+
+[data-magnetic='on']:hover .cta-ready {
+  opacity: 0;
+}
+
+/* The ring around the arrow-cursor. Uses the standalone `scale:` property, NOT
+   `transform: scale()`, because the rAF loop owns `transform` on the ancestor and
+   Tailwind's centring utilities own `translate:` here — three separate properties that
+   compose cleanly instead of overwriting one another. */
+.cta-ring {
+  opacity: 0;
+  scale: 0.35;
+  transition:
+    opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    scale 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-magnetic='on']:hover .cta-ring {
+  opacity: 1;
+  scale: 1;
+  transition-duration: 740ms;
+}
+
 /* Off-screen animation halt. Infinite CSS animations keep the compositor busy even when
    their element has been scrolled far out of view; toggling this class from an
    IntersectionObserver stops that work entirely. */

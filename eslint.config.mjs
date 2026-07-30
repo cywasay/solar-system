@@ -32,7 +32,10 @@ const eslintConfig = defineConfig([
             "normalScale",
             "scale",
             "flatShading",
-            "toneMapped"
+            "toneMapped",
+            "vertexShader",
+            "fragmentShader",
+            "uniforms"
           ]
         }
       ]
