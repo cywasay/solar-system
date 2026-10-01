@@ -1,188 +1,283 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+
+import { useEffect, useMemo, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-// A single item in the trail
-type TrailPoint = {
-  x: number;
-  y: number;
-  age: number;
-};
+const CURSOR_SIZE = 87.4;
+// Match BeginCta's magnetic follow, return, and scale response at 60 Hz.
+const FOLLOW_LERP = 0.1;
+const RETURN_LERP = 0.17;
+const SCALE_LERP = 0.12;
 
-const TRAIL_LENGTH = 32;
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = vec4(position, 1.0);
+  }
+`;
 
-const FluidShader = {
-  uniforms: {
-    uTexture: { value: null },
-    uTrail: { value: new Array(TRAIL_LENGTH).fill(new THREE.Vector3(0, 0, 1)) }, // 1 means dead
-  },
-  vertexShader: `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      // Map exactly to screen space
-      gl_Position = vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform sampler2D uTexture;
-    uniform vec3 uTrail[${TRAIL_LENGTH}];
-    varying vec2 vUv;
-    
-    void main() {
-      vec2 uv = vUv;
-      vec2 force = vec2(0.0);
-      
-      // Calculate influence from mouse trail
-      for(int i = 0; i < ${TRAIL_LENGTH}; i++) {
-        vec3 point = uTrail[i];
-        if(point.z >= 1.0) continue; // dead point
-        
-        vec2 dir = uv - point.xy;
-        // Adjust distance for the 4:1 canvas aspect ratio so the distortion is roughly circular
-        dir.x *= 4.0;
-        
-        float dist = length(dir);
-        // The radius of the 'allergic' reaction
-        float radius = 0.25;
-        float intensity = smoothstep(radius, 0.0, dist);
-        
-        // Fade out as it ages
-        intensity *= (1.0 - point.z);
-        
-        // Easing out the force
-        float power = 0.015;
-        force += normalize(dir) * intensity * power;
+const fragmentShader = `
+  uniform sampler2D uTexture;
+  uniform sampler2D uBlackHole;
+  uniform vec2 uResolution;
+  uniform vec3 uHole;
+  uniform float uTime;
+  varying vec2 vUv;
+
+  void main() {
+    vec2 offset = (vUv - uHole.xy) * uResolution;
+    float distance = length(offset);
+    float influence = 1.0 - smoothstep(12.0, 95.0, distance);
+    vec2 radial = offset / max(distance, 1.0);
+    // Lens the scanlines around the rendered center, not the uneased pointer.
+    vec2 bend = radial * 19.0 + vec2(-radial.y, radial.x) * 4.0;
+    vec2 uv = vUv + bend * influence * influence * uHole.z / uResolution;
+    float mask = texture2D(uTexture, uv).a;
+    float line = abs(fract(uv.y * 40.0) - 0.5);
+    float edge = fwidth(uv.y * 40.0);
+    float scanline = 1.0 - smoothstep(0.075 - edge, 0.075 + edge, line);
+    float textAlpha = mask * scanline * 0.35;
+    vec3 textColor = vec3(248.0, 250.0, 252.0) / 255.0;
+
+    // Sample the wordmark beneath the black hole and around its rim. Radiance only
+    // appears when that footprint overlaps a letter, so empty space stays untouched.
+    vec2 probe = vec2(${(CURSOR_SIZE * 0.34).toFixed(3)}) * uHole.z / uResolution;
+    float contact = texture2D(uTexture, uHole.xy).a;
+    contact = max(contact, texture2D(uTexture, uHole.xy + vec2(probe.x, 0.0)).a);
+    contact = max(contact, texture2D(uTexture, uHole.xy - vec2(probe.x, 0.0)).a);
+    contact = max(contact, texture2D(uTexture, uHole.xy + vec2(0.0, probe.y)).a);
+    contact = max(contact, texture2D(uTexture, uHole.xy - vec2(0.0, probe.y)).a);
+    contact = smoothstep(0.08, 0.72, contact) * smoothstep(0.25, 0.9, uHole.z);
+    float lineRadiance = contact * influence;
+    vec3 glowColor = vec3(1.0, 0.29, 0.035);
+    textColor = mix(textColor, glowColor, lineRadiance * 0.42);
+    textAlpha = min(1.0, textAlpha * (1.0 + lineRadiance * 0.38));
+    vec4 hole = vec4(0.0);
+    if (uHole.z > 0.001) {
+      vec2 spriteUv = offset / (${CURSOR_SIZE.toFixed(1)} * max(uHole.z, 0.001)) + 0.5;
+      if (all(greaterThanEqual(spriteUv, vec2(0.0))) && all(lessThanEqual(spriteUv, vec2(1.0)))) {
+        hole = texture2D(uBlackHole, spriteUv);
+        // A restrained shimmer in the plasma; the silhouette never rotates.
+        float shimmer = sin(uTime * 1.3 + spriteUv.x * 9.0) * sin(uTime * 0.7 + spriteUv.y * 6.0);
+        hole.rgb *= 1.0 + shimmer * 0.035;
+        hole.a *= smoothstep(0.0, 0.7, uHole.z);
       }
-      
-      vec2 distortedUv = uv - force;
-      
-      // Sample the text mask
-      // The canvas text is white (alpha 1) on transparent (alpha 0)
-      float mask = texture2D(uTexture, distortedUv).a;
-      
-      // Generate scanlines based on the distorted Y
-      // 40 lines across the height
-      float lineCount = 40.0; 
-      
-      // We want a very thin line.
-      float scanline = step(0.85, fract(distortedUv.y * lineCount));
-      
-      // Color: slate-50 (#F8FAFC)
-      vec3 color = vec3(248.0/255.0, 250.0/255.0, 252.0/255.0);
-      
-      // Opacity: 0.35 max
-      float alpha = mask * scanline * 0.35;
-      
-      gl_FragColor = vec4(color * alpha, alpha);
     }
-  `
-};
+    float haloRadius = ${(CURSOR_SIZE * 0.78).toFixed(3)} * max(uHole.z, 0.001);
+    float halo = contact * exp(-pow(distance / haloRadius, 2.0)) * 0.14;
+    float underAlpha = textAlpha + halo * (1.0 - textAlpha);
+    vec3 underColor = textColor * textAlpha + glowColor * halo * (1.0 - textAlpha);
+    float alpha = hole.a + underAlpha * (1.0 - hole.a);
+    vec3 color = (hole.rgb * hole.a + underColor * (1.0 - hole.a)) / max(alpha, 0.0001);
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
 
-const FluidPlane = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const trailRef = useRef<TrailPoint[]>([]);
-  
-  // Create the canvas texture once the font is ready
-  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
-  
+function FluidPlane() {
+  const { gl, size, invalidate } = useThree();
+  const cursor = useRef({
+    active: false, ready: false, visible: true,
+    clientX: 0, clientY: 0, x: 0, y: 0, scale: 0, time: 0,
+  });
+  const material = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({
+    uTexture: { value: null as THREE.CanvasTexture | null },
+    uBlackHole: { value: null as THREE.Texture | null },
+    uResolution: { value: new THREE.Vector2(1, 1) },
+    uHole: { value: new THREE.Vector3(0, 0, 0) },
+    uTime: { value: 0 },
+  }), []);
+
   useEffect(() => {
-    let isMounted = true;
-    
-    // Ensure fonts are loaded before drawing.
-    document.fonts.ready.then(() => {
-      if (!isMounted) return;
-      
+    let disposed = false;
+    let texture: THREE.CanvasTexture | undefined;
+    const font = getComputedStyle(gl.domElement).getPropertyValue('--font-bebas').trim() || 'sans-serif';
+
+    // Explicitly load the canvas font; fonts.ready can resolve before it is requested.
+    document.fonts.load(`400 100px ${font}`).then(() => {
+      if (disposed) return;
       const canvas = document.createElement('canvas');
-      canvas.width = 4096; // 4:1 aspect ratio
+      canvas.width = 4096;
       canvas.height = 1024;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      
-      // Transparent background
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Canvas API doesn't support var() directly, we must read the computed value
-      const computedFont = getComputedStyle(document.documentElement).getPropertyValue('--font-bebas') || 'sans-serif';
-      
-      // Draw text to fill the canvas width
-      // 950px fits "THESSARIS" nicely within 4096 width for Bebas Neue
-      ctx.font = `400 950px ${computedFont}, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'white';
-      
-      // Bebas Neue baseline often needs slight manual tweaking
-      ctx.fillText('THESSARIS', canvas.width / 2, canvas.height / 2 + 50);
-      
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      setTexture(tex);
-    });
-    
-    return () => { isMounted = false; };
-  }, []);
 
-  useFrame((state, delta) => {
-    if (!materialRef.current) return;
-    
-    // Convert R3F pointer (-1 to 1) to UV space (0 to 1)
-    const uvX = (state.pointer.x + 1) / 2;
-    // R3F Y is positive up, UV Y is positive up.
-    const uvY = (state.pointer.y + 1) / 2;
-    
-    // Add point to trail if mouse moved
-    const lastPoint = trailRef.current[trailRef.current.length - 1];
-    if (!lastPoint || Math.abs(lastPoint.x - uvX) > 0.005 || Math.abs(lastPoint.y - uvY) > 0.005) {
-      trailRef.current.push({ x: uvX, y: uvY, age: 0 });
-    }
-    
-    // Age and prune trail
-    const speed = 1.2; // how fast the trail fades (1.0 = 1 second)
-    trailRef.current.forEach(p => p.age += delta * speed);
-    trailRef.current = trailRef.current.filter(p => p.age < 1.0);
-    
-    // Build uniform array
-    const uniformsArray = materialRef.current.uniforms.uTrail.value as THREE.Vector3[];
-    for (let i = 0; i < TRAIL_LENGTH; i++) {
-      if (i < trailRef.current.length) {
-        const p = trailRef.current[i];
-        uniformsArray[i].set(p.x, p.y, p.age);
-      } else {
-        uniformsArray[i].set(0, 0, 1); // dead
+      ctx.font = `400 800px ${font}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = 'white';
+      const text = 'THESSARIS';
+      const bounds = ctx.measureText(text);
+      const width = bounds.actualBoundingBoxLeft + bounds.actualBoundingBoxRight;
+      const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent;
+
+      // Fit the actual ink, keeping a small border around the full wordmark.
+      ctx.translate(canvas.width * 0.02, canvas.height * 0.06);
+      ctx.scale(canvas.width * 0.96 / width, canvas.height * 0.88 / height);
+      ctx.fillText(text, bounds.actualBoundingBoxLeft, bounds.actualBoundingBoxAscent);
+
+      texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+      if (material.current) material.current.uniforms.uTexture.value = texture;
+      invalidate();
+    });
+
+    return () => {
+      disposed = true;
+      texture?.dispose();
+    };
+  }, [gl, invalidate]);
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(pointer: fine)');
+    let disposed = false;
+    const state = cursor.current;
+    const enabled = () => finePointer.matches && !motion.matches;
+
+    const texture = new THREE.TextureLoader().load('/textures/black-hole-cursor.png', loaded => {
+      if (disposed) {
+        loaded.dispose();
+        return;
       }
-    }
+      if (material.current) material.current.uniforms.uBlackHole.value = loaded;
+      state.ready = true;
+      invalidate();
+    }, undefined, () => {
+      if (disposed) return;
+      state.ready = false;
+      state.active = false;
+      canvas.style.cursor = '';
+      invalidate();
+    });
+
+    const onMove = (event: PointerEvent) => {
+      if (!enabled() || event.pointerType === 'touch') return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      state.clientX = event.clientX;
+      state.clientY = event.clientY;
+      if (state.scale === 0) {
+        state.x = event.clientX - rect.left;
+        state.y = event.clientY - rect.top;
+      }
+      state.active = true;
+      invalidate();
+    };
+    const onLeave = () => {
+      state.active = false;
+      canvas.style.cursor = '';
+      invalidate();
+    };
+    const reset = () => {
+      state.scale = 0;
+      onLeave();
+    };
+    const onScroll = () => {
+      if (state.active) invalidate();
+    };
+    const onVisibility = () => {
+      if (document.hidden) reset();
+    };
+    const onContextLost = () => {
+      state.ready = false;
+      reset();
+    };
+    const onContextRestored = () => {
+      state.ready = Boolean(material.current?.uniforms.uBlackHole.value);
+      invalidate();
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      state.visible = entry.isIntersecting;
+      if (!state.visible) reset();
+    });
+    observer.observe(canvas);
+    canvas.addEventListener('pointerenter', onMove);
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerleave', onLeave);
+    canvas.addEventListener('pointercancel', onLeave);
+    canvas.addEventListener('webglcontextlost', onContextLost);
+    canvas.addEventListener('webglcontextrestored', onContextRestored);
+    window.addEventListener('blur', onLeave);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', onVisibility);
+    motion.addEventListener('change', reset);
+    finePointer.addEventListener('change', reset);
+    return () => {
+      disposed = true;
+      observer.disconnect();
+      texture.dispose();
+      state.ready = false;
+      state.active = false;
+      state.scale = 0;
+      canvas.style.cursor = '';
+      canvas.removeEventListener('pointerenter', onMove);
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerleave', onLeave);
+      canvas.removeEventListener('pointercancel', onLeave);
+      canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
+      window.removeEventListener('blur', onLeave);
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('visibilitychange', onVisibility);
+      motion.removeEventListener('change', reset);
+      finePointer.removeEventListener('change', reset);
+    };
+  }, [gl, invalidate]);
+
+  useFrame((_, delta) => {
+    if (!material.current) return;
+    const state = cursor.current;
+    // Use screen coordinates so smooth scrolling cannot detach the lens from the pointer.
+    const rect = gl.domElement.getBoundingClientRect();
+    const px = state.clientX - rect.left;
+    const py = state.clientY - rect.top;
+    if (px < 0 || py < 0 || px > rect.width || py > rect.height) state.active = false;
+    const active = state.active && state.ready && state.visible;
+    gl.domElement.style.setProperty('cursor', active ? 'none' : '');
+    const step = Math.min(delta, 0.05) * 60;
+    const follow = 1 - Math.pow(1 - (active ? FOLLOW_LERP : RETURN_LERP), step);
+    const easeScale = 1 - Math.pow(1 - SCALE_LERP, step);
+    state.scale += ((active ? 1 : 0) - state.scale) * easeScale;
+    if (!active && state.scale < 0.002) state.scale = 0;
+    const radius = CURSOR_SIZE * state.scale / 2;
+    const x = THREE.MathUtils.clamp(px, radius, Math.max(radius, size.width - radius));
+    const y = THREE.MathUtils.clamp(py, radius, Math.max(radius, size.height - radius));
+    state.x += (x - state.x) * follow;
+    state.y += (y - state.y) * follow;
+    state.x = THREE.MathUtils.clamp(state.x, radius, Math.max(radius, size.width - radius));
+    state.y = THREE.MathUtils.clamp(state.y, radius, Math.max(radius, size.height - radius));
+    state.time += Math.min(delta, 0.05);
+    material.current.uniforms.uResolution.value.set(size.width, size.height);
+    material.current.uniforms.uHole.value.set(state.x / size.width, 1 - state.y / size.height, state.scale);
+    material.current.uniforms.uTime.value = state.time;
+    if (active || state.scale > 0) invalidate();
   });
 
-  if (!texture) return null;
-
   return (
-    <mesh ref={meshRef}>
+    <mesh>
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
-        ref={materialRef}
-        vertexShader={FluidShader.vertexShader}
-        fragmentShader={FluidShader.fragmentShader}
-        uniforms={{
-          ...FluidShader.uniforms,
-          uTexture: { value: texture }
-        }}
-        transparent={true}
+        ref={material}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+        uniforms={uniforms}
+        transparent
         depthWrite={false}
       />
     </mesh>
   );
-};
+}
 
 export default function FooterFluidText() {
   return (
-    <div className="w-full h-full absolute inset-0 cursor-crosshair z-0">
-      <Canvas
-        gl={{ alpha: true, antialias: true }}
-      >
+    <div aria-hidden="true" className="absolute inset-0 z-0 h-full w-full cursor-default select-none">
+      <Canvas frameloop="demand" dpr={[1, 2]} gl={{ alpha: true, antialias: true }} style={{ touchAction: 'pan-y' }}>
         <FluidPlane />
       </Canvas>
     </div>
