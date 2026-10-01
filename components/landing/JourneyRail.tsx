@@ -42,10 +42,12 @@ export default function JourneyRail() {
     let frame = 0;
     let lastLabel = '';
     let lastProgress = -1;
+    let lastMarkerProgress = -1;
     let lastReachedIndex = -2;
     let lastFaded = '';
     let trackHeight = 0;
     let maxScroll = 0;
+    let preview: { index: number; name: string; au: string } | null = null;
 
     const measure = () => {
       const track = trackRef.current;
@@ -64,10 +66,17 @@ export default function JourneyRail() {
       const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
 
       // Sub-pixel changes are invisible; skip the write and its style invalidation.
+      const displayProgress = preview
+        ? Math.min(1, Math.max(0, stops[preview.index].au / MAX_AU))
+        : progress;
+
       if (Math.abs(progress - lastProgress) > 2e-4) {
         fill.style.transform = `scaleY(${progress.toFixed(4)})`;
-        marker.style.transform = `translateY(${(progress * trackHeight).toFixed(1)}px)`;
         lastProgress = progress;
+      }
+      if (Math.abs(displayProgress - lastMarkerProgress) > 2e-4) {
+        marker.style.transform = `translateY(${(displayProgress * trackHeight).toFixed(1)}px)`;
+        lastMarkerProgress = displayProgress;
       }
 
       // Which stops have been passed changes rarely — recolour only on the transition.
@@ -76,14 +85,19 @@ export default function JourneyRail() {
       for (let i = 0; i < stops.length; i++) {
         if (stops[i].au <= depthAu) reachedIndex = i;
       }
-      if (reachedIndex !== lastReachedIndex) {
+      const colorState = reachedIndex * 100 + (preview?.index ?? -1);
+      if (colorState !== lastReachedIndex) {
         stopRefs.current.forEach((el, i) => {
-          if (el) el.style.backgroundColor = i <= reachedIndex ? '#EA580C' : '#020617';
+          if (!el) return;
+          el.style.backgroundColor = i <= reachedIndex || i === preview?.index ? '#EA580C' : '#020617';
+          el.style.boxShadow = i === preview?.index ? '0 0 10px 2px rgba(234,88,12,0.65)' : 'none';
         });
-        lastReachedIndex = reachedIndex;
+        lastReachedIndex = colorState;
       }
 
-      const reached = reachedIndex >= 0 ? stops[reachedIndex].name : 'The Sun';
+      const reached = preview
+        ? `${preview.name} · ${preview.au} AU`
+        : reachedIndex >= 0 ? stops[reachedIndex].name : 'The Sun';
       if (reached !== lastLabel) {
         label.textContent = reached;
         lastLabel = reached;
@@ -106,13 +120,21 @@ export default function JourneyRail() {
       schedule();
     };
 
+    const onPlanetPreview = (event: Event) => {
+      preview = (event as CustomEvent<typeof preview>).detail;
+      lastMarkerProgress = -1;
+      schedule();
+    };
+
     measure();
     schedule();
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', onResize);
+    window.addEventListener('thessaris:planet-preview', onPlanetPreview);
     return () => {
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('thessaris:planet-preview', onPlanetPreview);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
@@ -153,7 +175,7 @@ export default function JourneyRail() {
             beside it so the label stays clear of the page's left column. */}
         <div
           ref={markerRef}
-          className="absolute top-0 left-0 w-full will-change-transform"
+          className="absolute top-0 left-0 w-full will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ transform: 'translateY(0px)' }}
         >
           {/* Halo (animated: transform+opacity only) behind a static solid core. */}
