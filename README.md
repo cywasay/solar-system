@@ -5,8 +5,9 @@ An interactive 3D solar system simulation built with **Next.js (App Router)**, *
 ## Current status: animated scene
 
 All eight planets revolve around the Sun and spin on their own tilted axes, with working
-camera controls (drag to rotate, scroll to zoom, right-drag to pan). Motion runs
-continuously — there is no pause or speed control yet.
+camera controls (drag to rotate, scroll to zoom, right-drag to pan) and pause / speed
+controls. Around the simulation sits a landing page, per-planet pages, a contact form, and
+an admin console (see [Backend & admin](#backend--admin) below).
 
 Implemented:
 
@@ -31,11 +32,12 @@ Implemented:
   `Scene.tsx` for low-end GPUs)
 - Procedural starfield tuned for size variation and parallax depth, kept outside the
   camera's maxDistance so the view can never exit it
+- Pause/play and a 0.1x–5x time-speed multiplier (`TimeControls`), read by every planet
+  and moon's `useFrame`. The per-frame wall-clock delta is clamped *before* the speed is
+  applied, so the slider stays linear even at low frame rates
 
 Not yet implemented:
 
-- Pause/play and a time-speed multiplier — `TimeControls` renders but is **not wired to
-  the scene**; `isPaused` and `timeSpeed` are written by the UI and read by nothing
 - Moons beyond Earth's and Mars's; moon textures; elliptical orbits; Venus's atmosphere
   layer; roughness/specular maps
 - Fixed axis orientation in world space. Each planet's tilt group is a child of its orbital
@@ -145,7 +147,14 @@ solar-system-3d/
 │   ├── page.tsx           # Landing: live CSS orrery, AU scroll rail, planetary ledger, manifest
 │   ├── explore/page.tsx   # The simulation: full-screen Scene plus HUD overlays
 │   ├── planets/[slug]/page.tsx # Per-planet editorial pages, SSG'd from the simulation data
-│   ├── contact/page.tsx   # Static contact page
+│   ├── contact/page.tsx   # Contact page (ContactForm → /api/contact)
+│   ├── admin/             # Admin console: dashboard, messages inbox, settings
+│   ├── api/
+│   │   ├── contact/route.ts         # Public: validate, throttle, save, notify owner
+│   │   └── admin/
+│   │       ├── session/route.ts     # POST password → session cookie; DELETE signs out
+│   │       ├── messages/route.ts    # GET inbox, PATCH status (session required)
+│   │       └── reply/route.ts       # POST reply email + record it (session required)
 │   └── globals.css        # Tailwind directives, theme variables, route-entry animation
 ├── components/
 │   ├── Scene.tsx          # R3F Canvas, camera framing, starfield, and the Suspense boundary
@@ -161,6 +170,8 @@ solar-system-3d/
 │   ├── FocusFromQuery.tsx # Deep-link bridge: /explore?focus=Mars pre-selects via the store's public action
 │   ├── site/
 │   │   └── SiteNav.tsx    # Site-wide slide-out navigation with staggered reveal
+│   ├── admin/             # AdminProvider (session + inbox cache), ProtectedShell (lock screen), UI kit
+│   ├── contact/ContactForm.tsx # Contact form, with a hidden honeypot field for bots
 │   └── ui/
 │       ├── PlanetMenu.tsx    # 2D overlay list; selecting a planet drives the camera focus
 │       ├── InfoPanel.tsx     # 2D glassmorphic overlay displaying selected planet metadata
@@ -170,6 +181,13 @@ solar-system-3d/
 │   └── planetEditorial.ts # Longform prose and display-only stats for the planet pages
 ├── store/
 │   └── useSimulationStore.ts # Zustand global state for camera target, selected planet, time scale, and pause/play
+├── lib/
+│   ├── db.ts              # Lazily constructed Prisma client (Neon adapter), so builds need no DATABASE_URL
+│   ├── adminAuth.ts       # Password check + signed session cookies
+│   ├── rateLimit.ts       # In-memory per-IP throttle used by login and the contact form
+│   ├── contactLimits.ts   # Field length limits shared by the form and the API
+│   └── resend.ts          # Opt-in email (owner notifications, admin replies), HTML-escaped
+├── prisma/schema.prisma   # ContactMessage model
 ├── public/
 │   └── textures/          # Assets folder for textures
 │       └── README.md      # Documentation explaining what texture assets are expected here
@@ -190,6 +208,79 @@ no code changes needed.
 Filenames follow [Solar System Scope's](https://www.solarsystemscope.com/textures/) own
 `2k_*` naming so files drop in without renaming. The full list, which bodies are currently
 textured, and sourcing links are in the [textures README](public/textures/README.md).
+
+---
+
+## Backend & admin
+
+Contact submissions are stored in Neon Postgres via Prisma and, optionally, emailed to the
+site owner through Resend. `/admin` is a single-user console for reading and replying to them.
+
+### Environment variables
+
+Put these in `.env.local` for development and in the Vercel project settings for production.
+[`.env.example`](.env.example) lists every variable with generation commands.
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | yes | Neon Postgres connection string |
+| `ADMIN_PASSWORD` | for `/admin` | At least 12 characters. There is **no default**: without it (or with the old published `admin123secret`) admin sign-in is refused |
+| `ADMIN_SESSION_SECRET` | recommended | Long random string mixed into session signing, so a stolen cookie can't be used to brute-force the password offline |
+| `RESEND_API_KEY` | no | Turns email on. Without it no email is sent (see "Replying" below) |
+| `CONTACT_NOTIFY_EMAIL` | no | Where new-message notifications go |
+| `RESEND_FROM_EMAIL` | for replies | Sender address on a domain you've verified in Resend. The default `onboarding@resend.dev` is Resend's test sender and can only email the account owner, so **customer replies are rejected** until this is set |
+| `TRUST_PROXY` | no | Set to `1` only behind your own reverse proxy that overwrites `x-forwarded-for` (Vercel is trusted automatically). See "Contact form protections" |
+
+### Replying to messages
+
+A message is marked **Replied** only when the email was actually sent. If it can't be (email
+not configured, or Resend rejects it), nothing is recorded and the admin console shows the
+real reason. It then offers **Mark replied without emailing** for the case where you answer
+by another channel — an explicit choice, never a silent default. Reply drafts are kept per
+message, so text typed for one person can't be sent to another.
+
+### Security headers
+
+`next.config.ts` sends a CSP, HSTS, `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy` and COOP on every response, `no-store` on
+`/api/admin/*`, and `noindex` on `/admin`. The framework header is removed. The CSP allows
+inline scripts and styles because a nonce-based policy would force every page to render
+dynamically and drop the statically generated planet pages; it still blocks third-party
+scripts, framing, `<base>` hijacking and cross-origin form posts. If you add a third-party
+script, image or API host, add it to the policy there or it will be blocked.
+
+### How admin auth works
+
+- The lock screen posts the password once to `POST /api/admin/session`. The comparison is
+  constant-time, and an IP gets 5 failed attempts per 15 minutes.
+- On success the server sets `thessaris_admin_session`: a signed, `httpOnly`,
+  `SameSite=Strict` cookie, scoped to `/api/admin`, that expires after 12 hours. The
+  password is never stored in the browser, and page scripts can't read the cookie.
+- The signing key is derived from `ADMIN_PASSWORD`, so **changing the password signs every
+  session out**. Sessions are stateless, so that is also the only way to revoke one early.
+- To change the password, update the variable and redeploy. There is no in-app password
+  change, because the password lives in the server environment.
+
+### Contact form protections
+
+`/api/contact` type-checks and length-limits every field (`lib/contactLimits.ts`, shared
+with the form's `maxLength`), validates the email shape, silently drops submissions that
+fill the hidden honeypot field, and allows 5 requests per IP per 10 minutes. Errors returned
+to the browser are generic, and full detail is only written to the server log. Every value
+is HTML-escaped before it is inserted into an email.
+
+**Caveats:**
+
+- Both throttles live in server memory. On serverless hosting they reset on cold starts and
+  aren't shared between instances, so the real ceiling is the limit times the number of warm
+  instances. They stop one client hammering the site, not a distributed attack. A shared
+  store such as Upstash Redis is the upgrade path; until then the 12+ character admin
+  password is what actually protects login.
+- Limits key on the client IP, but `x-forwarded-for` is only believed on Vercel (or with
+  `TRUST_PROXY=1`), because any client can send that header. Anywhere else all visitors
+  share **one** bucket: spoofed headers can't dodge the limit, but anyone who fails five
+  logins also locks the real admin out for 15 minutes, and the contact form allows five
+  submissions per 10 minutes in total.
 
 ---
 

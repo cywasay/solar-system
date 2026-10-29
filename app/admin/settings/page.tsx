@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useAdmin } from '@/components/admin/AdminProvider';
-
 export default function SettingsPage() {
-  const { token, signIn } = useAdmin();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [mounted, setMounted] = useState(false);
@@ -15,13 +12,9 @@ export default function SettingsPage() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [profileMsg, setProfileMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  // Password state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordMsg, setPasswordMsg] = useState<{ ok: boolean; text: string } | null>(null);
-
+  // Profile lives in localStorage, which can only be read after hydration.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only source
     setMounted(true);
 
     const savedName = localStorage.getItem('thessaris_admin_name');
@@ -73,36 +66,6 @@ export default function SettingsPage() {
     localStorage.setItem('thessaris_admin_email', adminEmail.trim());
     dispatchProfileUpdate();
     setProfileMsg({ ok: true, text: 'Profile details saved.' });
-  };
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordMsg(null);
-
-    if (token && currentPassword.trim() !== token) {
-      setPasswordMsg({ ok: false, text: 'Current password is incorrect.' });
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setPasswordMsg({ ok: false, text: 'New password must be at least 6 characters.' });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordMsg({ ok: false, text: 'New passwords do not match.' });
-      return;
-    }
-
-    const updated = await signIn(newPassword.trim());
-    if (updated) {
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setPasswordMsg({ ok: true, text: 'Admin password changed successfully!' });
-    } else {
-      setPasswordMsg({ ok: false, text: 'Failed to update password.' });
-    }
   };
 
   if (!mounted) return null;
@@ -183,42 +146,15 @@ export default function SettingsPage() {
         </form>
       </div>
 
-      {/* Password Change Section */}
-      <div className="p-6 md:p-8 rounded-2xl bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] shadow-lg space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold text-white">Security & Authentication</h3>
-          <p className="text-sm text-slate-400 mt-1">Update your master admin password to secure dashboard access.</p>
-        </div>
-
-        {passwordMsg && (
-          <div className={`p-4 rounded-xl text-sm font-medium border ${passwordMsg.ok ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
-            {passwordMsg.text}
-          </div>
-        )}
-
-        <form onSubmit={handleChangePassword} className="space-y-6">
-          <div className="space-y-2 max-w-md">
-            <label className="block text-sm font-medium text-slate-300">Current Admin Password</label>
-            <input type="password" required value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••••••" className="w-full px-4 py-2.5 bg-[#020617]/50 border border-[#1E293B] rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-300">New Password</label>
-              <input type="password" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••••••" className="w-full px-4 py-2.5 bg-[#020617]/50 border border-[#1E293B] rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-300">Confirm New Password</label>
-              <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••••••" className="w-full px-4 py-2.5 bg-[#020617]/50 border border-[#1E293B] rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <button type="submit" className="px-6 py-2.5 bg-[#1E293B] hover:bg-[#2A3441] text-white text-sm font-medium rounded-xl border border-slate-600 transition-all cursor-pointer">
-              Change Password
-            </button>
-          </div>
-        </form>
+      {/* Security Section. The password is a server environment variable, so it can't be
+          changed from the browser — the old form here only ever failed. */}
+      <div className="p-6 md:p-8 rounded-2xl bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] shadow-lg space-y-4">
+        <h3 className="text-lg font-semibold text-white">Security & Authentication</h3>
+        <p className="text-sm text-slate-400 leading-relaxed">
+          The admin password is the <code className="px-1.5 py-0.5 rounded-md font-mono text-[11px] bg-[#020617] border border-[#1E293B] text-slate-300">ADMIN_PASSWORD</code> environment
+          variable (12+ characters). To change it, update the variable in Vercel and redeploy — every
+          signed-in session is revoked automatically. Sessions otherwise expire after 12 hours.
+        </p>
       </div>
 
       {/* Email Delivery Info */}

@@ -4,22 +4,23 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useAdmin } from '@/components/admin/AdminProvider';
 import {
-  Card,
-  SectionTitle,
   StatusBadge,
   relativeDate,
-  Button,
   SkeletonStatCard,
   SkeletonTableRows,
+  LoadErrorNotice,
 } from '@/components/admin/ui';
 
 export default function AdminDashboard() {
-  const { messages, loading, refresh, setStatus } = useAdmin();
+  const { messages, loading, loadError, refresh, setStatus } = useAdmin();
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'REPLIED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{ day: string; count: number; x: number; y: number } | null>(null);
 
+  // Failed load with nothing cached: show dashes, not zeros. "0 inquiries" would read as
+  // good news when it actually means "we don't know".
+  const unavailable = Boolean(loadError) && messages.length === 0;
   const total = messages.length;
   const unread = messages.filter((m) => m.status === 'UNREAD').length;
   const replied = messages.filter((m) => m.status === 'REPLIED').length;
@@ -108,6 +109,10 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {loadError && (
+        <LoadErrorNotice message={loadError} onRetry={() => void refresh()} busy={loading} />
+      )}
+
       {/* Professional KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {loading ? (
@@ -130,7 +135,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-3xl font-semibold text-white tracking-tight">
-                {total}
+                {unavailable ? '—' : total}
               </div>
               <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
                 <span className="text-slate-300 font-medium">All portal submissions</span>
@@ -148,7 +153,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-3xl font-semibold text-amber-400 tracking-tight">
-                {unread}
+                {unavailable ? '—' : unread}
               </div>
               <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -167,7 +172,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-3xl font-semibold text-emerald-400 tracking-tight">
-                {replied}
+                {unavailable ? '—' : replied}
               </div>
               <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
                 <span className="text-emerald-400 font-medium">Completed responses</span>
@@ -185,7 +190,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-3xl font-semibold text-cyan-400 tracking-tight">
-                {responseRate}%
+                {unavailable ? '—' : `${responseRate}%`}
               </div>
               <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
                 <span className="text-cyan-400 font-medium">Overall resolution rate</span>
@@ -365,7 +370,9 @@ export default function AdminDashboard() {
             <SkeletonTableRows rows={5} />
           ) : recent.length === 0 ? (
             <div className="p-12 text-center text-xs text-slate-400">
-              No inquiries found matching your criteria.
+              {unavailable
+                ? 'Messages could not be loaded.'
+                : 'No inquiries found matching your criteria.'}
             </div>
           ) : (
             <div className="overflow-x-auto">

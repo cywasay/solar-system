@@ -58,7 +58,9 @@ export default function Planet({
   // Mutating refs directly — this runs every frame and must not re-render.
   useFrame((_state, delta) => {
     if (isPaused) return;
-    const step = Math.min(delta * timeSpeed, MAX_DELTA);
+    // Clamp the wall-clock delta BEFORE applying the speed multiplier. Clamping the
+    // product capped the effective speed instead: at 30fps everything above ~3x ran the same.
+    const step = Math.min(delta, MAX_DELTA) * timeSpeed;
     if (pivotRef.current) pivotRef.current.rotation.y += orbitSpeed * step;
     if (meshRef.current) meshRef.current.rotation.y += rotationSpeed * step;
   });

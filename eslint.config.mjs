@@ -35,7 +35,10 @@ const eslintConfig = defineConfig([
             "toneMapped",
             "vertexShader",
             "fragmentShader",
-            "uniforms"
+            "uniforms",
+            // styled-jsx: <style jsx> / <style jsx global>, built into Next.js
+            "jsx",
+            "global"
           ]
         }
       ]

@@ -2,20 +2,36 @@
 
 import React, { useState } from 'react';
 import { useAdmin, ContactMessage } from '@/components/admin/AdminProvider';
-import { Card, StatusBadge, Button, Field, inputClass, EmptyState, formatDate, SkeletonInboxList } from '@/components/admin/ui';
+import { StatusBadge, formatDate, SkeletonInboxList, LoadErrorNotice } from '@/components/admin/ui';
+import { CONTACT_LIMITS } from '@/lib/contactLimits';
 
 export default function MessagesPage() {
-  const { messages, loading, refresh, setStatus, sendReply } = useAdmin();
-  
+  const { messages, loading, loadError, refresh, setStatus, sendReply } = useAdmin();
+
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ' | 'REPLIED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
+  /*
+   * Drafts are kept PER MESSAGE. A single shared textarea value meant that text typed for
+   * one person was still there after clicking another, and Send would mail it to them.
+   */
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sendingReply, setSendingReply] = useState(false);
-  const [replyNote, setReplyNote] = useState<{ ok: boolean; text: string } | null>(null);
+  // Tagged with the message it belongs to, so an outcome never shows under a different one.
+  const [replyNote, setReplyNote] = useState<{
+    id: string;
+    ok: boolean;
+    text: string;
+    emailFailed?: boolean;
+  } | null>(null);
 
   const selectedMessage = messages.find((m) => m.id === selectedId) || null;
+  const replyText = selectedId ? (drafts[selectedId] ?? '') : '';
+  const setReplyText = (text: string) => {
+    if (selectedId) setDrafts((prev) => ({ ...prev, [selectedId]: text }));
+  };
+  const visibleNote = replyNote && replyNote.id === selectedId ? replyNote : null;
 
   const filteredMessages = messages.filter((msg) => {
     if (filter !== 'ALL' && msg.status !== filter) return false;
@@ -33,24 +49,35 @@ export default function MessagesPage() {
 
   const handleSelect = (msg: ContactMessage) => {
     setSelectedId(msg.id);
-    setReplyNote(null);
     if (msg.status === 'UNREAD') {
       setStatus(msg.id, 'READ');
     }
   };
 
-  const handleSendReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedMessage || !replyText.trim()) return;
+  const submitReply = async (recordOnly: boolean) => {
+    if (!selectedMessage || !replyText.trim() || sendingReply) return;
+
+    // Captured now: the admin may click another message while the request is in flight.
+    const { id } = selectedMessage;
+    const text = replyText.trim();
 
     setSendingReply(true);
     setReplyNote(null);
-    const result = await sendReply(selectedMessage.id, replyText.trim());
-    setReplyNote({ ok: result.ok, text: result.note });
+    const result = await sendReply(id, text, { recordOnly });
+    setReplyNote({ id, ok: result.ok, text: result.note, emailFailed: result.emailFailed });
     if (result.ok) {
-      setReplyText('');
+      setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     }
     setSendingReply(false);
+  };
+
+  const handleSendReply = (e: React.FormEvent) => {
+    e.preventDefault();
+    void submitReply(false);
   };
 
   return (
@@ -88,10 +115,10 @@ export default function MessagesPage() {
           </div>
 
           <div className="flex items-center gap-1 p-1 rounded-xl bg-[#0f172a] border border-[#1E293B] text-xs font-medium">
-            {['ALL', 'UNREAD', 'READ', 'REPLIED'].map((f) => (
+            {(['ALL', 'UNREAD', 'READ', 'REPLIED'] as const).map((f) => (
               <button
                 key={f}
-                onClick={() => setFilter(f as any)}
+                onClick={() => setFilter(f)}
                 className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer ${
                   filter === f
                     ? 'bg-[#1E293B] text-white shadow-sm'
@@ -105,10 +132,19 @@ export default function MessagesPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-[#1E293B]">
+          {loadError && (
+            <div className="p-4">
+              <LoadErrorNotice message={loadError} onRetry={() => void refresh()} busy={loading} />
+            </div>
+          )}
           {loading && messages.length === 0 ? (
             <SkeletonInboxList count={6} />
           ) : filteredMessages.length === 0 ? (
-            <div className="p-8 text-center text-[13px]" style={{ color: 'var(--a-text-subtle)' }}>No messages found.</div>
+            // On a failed load the notice above explains why the list is empty; saying
+            // "No messages found" as well would be a second, false, statement.
+            !loadError && (
+              <div className="p-8 text-center text-[13px]" style={{ color: 'var(--a-text-subtle)' }}>No messages found.</div>
+            )
           ) : (
             filteredMessages.map((msg) => {
               const isSelected = selectedId === msg.id;
@@ -245,7 +281,7 @@ export default function MessagesPage() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Previous Reply Sent
+                  Reply on record
                 </div>
                 <p className="whitespace-pre-wrap leading-relaxed opacity-90">{selectedMessage.replyText}</p>
               </div>
@@ -262,15 +298,16 @@ export default function MessagesPage() {
                 </span>
               </div>
 
-              {replyNote && (
+              {visibleNote && (
                 <div
+                  role={visibleNote.ok ? 'status' : 'alert'}
                   className={`p-3 rounded-lg text-xs font-medium mb-4 border ${
-                    replyNote.ok 
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                    visibleNote.ok
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                       : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                   }`}
                 >
-                  {replyNote.text}
+                  {visibleNote.text}
                 </div>
               )}
 
@@ -278,15 +315,28 @@ export default function MessagesPage() {
                 <textarea
                   rows={4}
                   required
+                  maxLength={CONTACT_LIMITS.reply}
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder={`Write your response to ${selectedMessage.name}...`}
                   className="w-full p-4 bg-[#020617]/50 border border-[#1E293B] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none"
                 />
 
-                <div className="flex items-center justify-end">
-                  <button 
-                    type="submit" 
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                  {/* Only offered after the email has failed. Recording without sending is
+                      a deliberate act ("I'll reply some other way"), never a silent default. */}
+                  {visibleNote?.emailFailed && (
+                    <button
+                      type="button"
+                      disabled={sendingReply || !replyText.trim()}
+                      onClick={() => void submitReply(true)}
+                      className="px-4 py-2.5 rounded-xl border border-[#334155] text-sm font-medium text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      Mark replied without emailing
+                    </button>
+                  )}
+                  <button
+                    type="submit"
                     disabled={sendingReply} 
                     className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:-translate-y-0 cursor-pointer"
                   >

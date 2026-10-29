@@ -52,7 +52,8 @@ export default function Moon({
 
   useFrame((_state, delta) => {
     if (isPaused) return;
-    const step = Math.min(delta * timeSpeed, MAX_DELTA);
+    // Clamp before multiplying, as in Planet.tsx, so the speed slider stays linear.
+    const step = Math.min(delta, MAX_DELTA) * timeSpeed;
     if (pivotRef.current) pivotRef.current.rotation.y += orbitSpeed * step;
   });
 

@@ -18,14 +18,32 @@ export const emailEnabled = Boolean(resendApiKey);
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-/** Sender identity. `onboarding@resend.dev` is Resend's shared test sender and can only
- *  deliver to the address that owns the API key — verify a domain to send anywhere. */
-const FROM_NOTIFY = 'Thessaris Contact <onboarding@resend.dev>';
-const FROM_REPLY = 'Thessaris Support <onboarding@resend.dev>';
+/**
+ * Sender address. The default, `onboarding@resend.dev`, is Resend's shared test sender and
+ * can ONLY deliver to the address that owns the API key — owner notifications work, but
+ * replies to customers are rejected. To reply to anyone, verify a domain in Resend and set
+ * RESEND_FROM_EMAIL to an address on it (e.g. support@yourdomain.com).
+ */
+const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const FROM_NOTIFY = `Thessaris Contact <${fromAddress}>`;
+const FROM_REPLY = `Thessaris Support <${fromAddress}>`;
 
 export type EmailResult = { sent: boolean; reason?: string };
 
 const skipped = (reason: string): EmailResult => ({ sent: false, reason });
+
+/**
+ * Every user-supplied value goes through this before it touches the HTML templates.
+ * Unescaped, a contact submission could inject its own markup — fake links, hidden
+ * text, a lookalike "reset your password" button — into the owner's inbox.
+ */
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 export async function sendNotificationEmail(contactData: {
   name: string;
@@ -48,10 +66,10 @@ export async function sendNotificationEmail(contactData: {
       html: `
         <div style="font-family: monospace; background: #09090b; color: #fafafa; padding: 24px; border-radius: 8px;">
           <h2 style="color: #ff4500; margin-top: 0;">New Transmission Received</h2>
-          <p><strong>From:</strong> ${contactData.name} (&lt;${contactData.email}&gt;)</p>
-          <p><strong>Subject:</strong> ${contactData.subject || 'N/A'}</p>
+          <p><strong>From:</strong> ${escapeHtml(contactData.name)} (&lt;${escapeHtml(contactData.email)}&gt;)</p>
+          <p><strong>Subject:</strong> ${escapeHtml(contactData.subject || 'N/A')}</p>
           <hr style="border: 0; border-top: 1px solid #27272a; margin: 16px 0;" />
-          <div style="white-space: pre-wrap; line-height: 1.6; color: #a1a1aa;">${contactData.message}</div>
+          <div style="white-space: pre-wrap; line-height: 1.6; color: #a1a1aa;">${escapeHtml(contactData.message)}</div>
         </div>
       `,
     });
@@ -78,8 +96,8 @@ export async function sendReplyEmail(
       html: `
         <div style="font-family: sans-serif; background: #09090b; color: #fafafa; padding: 24px; border-radius: 8px;">
           <h3 style="color: #ff4500; margin-top: 0;">Transmission from Thessaris Command</h3>
-          <p>Hello ${recipientName},</p>
-          <div style="white-space: pre-wrap; line-height: 1.6; color: #e4e4e7; margin: 16px 0; padding: 16px; background: #18181b; border-left: 3px solid #ff4500;">${replyMessage}</div>
+          <p>Hello ${escapeHtml(recipientName)},</p>
+          <div style="white-space: pre-wrap; line-height: 1.6; color: #e4e4e7; margin: 16px 0; padding: 16px; background: #18181b; border-left: 3px solid #ff4500;">${escapeHtml(replyMessage)}</div>
           <p style="color: #71717a; font-size: 12px; margin-top: 24px;">This is a reply to your inquiry sent via Thessaris Solar System Simulation.</p>
         </div>
       `,

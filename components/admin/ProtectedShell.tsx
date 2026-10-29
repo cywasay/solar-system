@@ -327,7 +327,7 @@ function LoginScreen() {
 }
 
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
-  const { ready, token, signOut } = useAdmin();
+  const { ready, authenticated, signOut } = useAdmin();
   const pathname = usePathname();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -342,6 +342,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
     const savedTheme = localStorage.getItem('thessaris_admin_theme');
     if (savedTheme === 'light' || savedTheme === 'dark') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only source
       setTheme(savedTheme);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
@@ -376,7 +377,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     return <div className="min-h-screen admin-root flex items-center justify-center text-[13px] text-zinc-500" style={{ background: 'var(--a-bg)' }}>Loading...</div>;
   }
 
-  if (!token) {
+  if (!authenticated) {
     return <div className="admin-root"><LoginScreen /></div>;
   }
 

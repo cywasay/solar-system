@@ -154,6 +154,43 @@ export function EmptyState({ title, body }: { title: string; body: string }) {
   );
 }
 
+/**
+ * Shown when the inbox could not be loaded. Without it a database outage was
+ * indistinguishable from "no messages yet" — both rendered an empty list.
+ */
+export function LoadErrorNotice({
+  message,
+  onRetry,
+  busy = false,
+  className = '',
+}: {
+  message: string;
+  onRetry: () => void;
+  busy?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      role="alert"
+      className={`rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-[13px] text-rose-300 ${className}`}
+    >
+      <p className="font-semibold text-rose-200">Couldn&rsquo;t load messages</p>
+      <p className="mt-1 leading-relaxed opacity-90">
+        {message}. Anything shown here may be missing or out of date &mdash; an empty list does not
+        mean there are no messages.
+      </p>
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={busy}
+        className="mt-3 rounded-lg border border-rose-400/40 px-3 py-1.5 text-xs font-medium text-rose-100 transition-colors hover:bg-rose-500/20 disabled:opacity-50 cursor-pointer"
+      >
+        {busy ? 'Retrying…' : 'Try again'}
+      </button>
+    </div>
+  );
+}
+
 /** Shimmer box primitive */
 export function SkeletonBlock({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
   return (
