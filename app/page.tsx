@@ -26,9 +26,9 @@ import CapabilitiesInstrument from '@/components/landing/CapabilitiesInstrument'
 function Eyebrow({ index, children }: { index: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-16">
-      <span className="font-serif italic text-base sm:text-lg text-[#EA580C]">{index}</span>
-      <span className="text-[11px] sm:text-xs tracking-[0.18em] uppercase text-slate-400">{children}</span>
-      <span aria-hidden className="flex-1 h-px bg-[#1E293B]" />
+      <span className="font-serif italic text-base sm:text-lg text-accent">{index}</span>
+      <span className="text-[11px] sm:text-xs tracking-[0.18em] uppercase text-muted">{children}</span>
+      <span aria-hidden className="flex-1 h-px bg-line" />
     </div>
   );
 }
@@ -38,12 +38,12 @@ function MarqueeRun({ hidden }: { hidden?: boolean }) {
   return (
     <span
       aria-hidden={hidden}
-      className="flex items-center gap-4 sm:gap-8 pr-4 sm:pr-8 font-serif italic text-lg sm:text-2xl md:text-3xl text-slate-400"
+      className="flex items-center gap-4 sm:gap-8 pr-4 sm:pr-8 font-serif italic text-lg sm:text-2xl md:text-3xl text-muted"
     >
       {planets.map((planet) => (
         <React.Fragment key={planet.name}>
           <span>{planet.name}</span>
-          <span className="text-[#EA580C]/70 not-italic text-base">✦</span>
+          <span className="text-accent/70 not-italic text-base">✦</span>
         </React.Fragment>
       ))}
     </span>
@@ -52,7 +52,7 @@ function MarqueeRun({ hidden }: { hidden?: boolean }) {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#020617] text-[#F8FAFC] overflow-x-hidden selection:bg-[#EA580C] selection:text-white">
+    <div className="min-h-screen bg-ink text-fg overflow-x-hidden selection:bg-accent selection:text-fg">
       {/* Lerped scrolling — everything scroll-linked below inherits its smoothness. */}
       <SmoothScroll />
 
@@ -91,7 +91,7 @@ export default function LandingPage() {
               <span className="relative z-0 block text-[min(13vw,10.5vh)] md:text-[min(11vw,15vh)] italic md:ml-[9vw]">
                 <SplitHeadline text="Mechanics" delay={430} stagger={34} />
                 <span
-                  className="rise-in text-[#EA580C] not-italic"
+                  className="rise-in text-accent not-italic"
                   style={{ animationDelay: '820ms' }}
                 >
                   .
@@ -111,12 +111,12 @@ export default function LandingPage() {
             }}
           >
             <div className="rise-in md:col-span-6 lg:col-span-5" style={{ animationDelay: '900ms' }}>
-              <p className="font-serif text-base sm:text-lg md:text-2xl leading-snug text-slate-200">
+              <p className="font-serif text-base sm:text-lg md:text-2xl leading-snug text-soft">
                 Eight worlds, three moons and one star, running live at honest ratios — a
                 hand-built orrery for the browser.
               </p>
               {/* Secondary detail; the first thing to go on a short viewport. */}
-              <p className="mt-4 text-sm leading-relaxed text-slate-500 max-w-md hidden sm:block">
+              <p className="mt-4 text-sm leading-relaxed text-quiet max-w-md hidden sm:block">
                 Size, distance and time, each compressed along its own curve so the whole
                 system stays watchable — while the ordering stays true.
               </p>
@@ -126,20 +126,20 @@ export default function LandingPage() {
               className="rise-in md:col-span-4 md:col-start-9 md:text-right"
               style={{ animationDelay: '1000ms' }}
             >
-              <p className="font-serif text-sm sm:text-base md:text-lg italic text-slate-400 leading-relaxed">
+              <p className="font-serif text-sm sm:text-base md:text-lg italic text-muted leading-relaxed">
                 Eight planets, turning at their true orbital ratios.
               </p>
-              <p className="mt-1.5 text-sm text-slate-500">Earth marked in orange.</p>
+              <p className="mt-1.5 text-sm text-quiet">Earth marked in orange.</p>
             </div>
           </div>
 
           {/* Live scroll cue */}
           <div
-            className="rise-in relative z-20 mt-4 sm:mt-6 md:mt-8 flex items-center gap-3 text-xs sm:text-sm text-slate-500"
+            className="rise-in relative z-20 mt-4 sm:mt-6 md:mt-8 flex items-center gap-3 text-xs sm:text-sm text-quiet"
             style={{ animationDelay: '1120ms', opacity: 'calc(1 - var(--sp) * 2.2)' }}
           >
-            <span className="relative block h-7 w-px bg-[#1E293B] overflow-hidden">
-              <span className="cue-fall absolute left-1/2 top-0 -translate-x-1/2 w-1 h-1 rounded-full bg-[#EA580C]" />
+            <span className="relative block h-7 w-px bg-line overflow-hidden">
+              <span className="cue-fall absolute left-1/2 top-0 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
             </span>
             <span>Scroll to travel outward</span>
           </div>
@@ -148,7 +148,7 @@ export default function LandingPage() {
 
       {/* Running masthead */}
       <IdleOffscreen>
-        <div className="marquee overflow-hidden border-b border-[#1E293B] py-4 whitespace-nowrap">
+        <div className="marquee overflow-hidden border-b border-line py-4 whitespace-nowrap">
           <div className="marquee-track flex w-max">
             <MarqueeRun />
             <MarqueeRun hidden />
@@ -168,7 +168,7 @@ export default function LandingPage() {
       </section>
 
       {/* Manifest with margin notes */}
-      <section id="manifest" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-[#1E293B]">
+      <section id="manifest" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-line">
         <Reveal>
           <Eyebrow index="II">Manifest</Eyebrow>
         </Reveal>
@@ -177,7 +177,7 @@ export default function LandingPage() {
       </section>
 
       {/* Capabilities */}
-      <section id="instrument" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-[#1E293B]">
+      <section id="instrument" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-line">
         <Reveal>
           <Eyebrow index="III">What&rsquo;s inside</Eyebrow>
         </Reveal>
@@ -188,7 +188,7 @@ export default function LandingPage() {
       {/* Closing CTA. Client component: the arrow detaches and becomes the cursor. */}
       <BeginCta />
 
-      <footer className="border-t border-[#1E293B] relative w-full h-[24vw] min-h-[120px] overflow-hidden">
+      <footer className="border-t border-line relative w-full h-[24vw] min-h-[120px] overflow-hidden">
         <span className="sr-only">Thessaris</span>
         <FooterFluidText />
       </footer>

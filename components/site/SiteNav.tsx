@@ -181,7 +181,7 @@ export default function SiteNav() {
         aria-modal="true"
         aria-label="Site navigation"
         inert={!open}
-        className={`fixed inset-0 z-[100] bg-[#020617] text-[#F8FAFC] flex flex-col overflow-y-auto scrollbar-none transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
+        className={`fixed inset-0 z-[100] bg-ink text-fg flex flex-col overflow-y-auto scrollbar-none transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
           open ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -200,7 +200,7 @@ export default function SiteNav() {
           ].map(({ size, dur }) => (
             <div
               key={size}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1E293B]/70"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/70"
               style={{
                 width: `${size}%`,
                 height: `${size}%`,
@@ -210,7 +210,7 @@ export default function SiteNav() {
           ))}
           {/* Pulsing sun dot */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#EA580C]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent"
             style={{
               boxShadow: '0 0 12px 4px rgba(234,88,12,0.5), 0 0 30px 8px rgba(234,88,12,0.2)',
               animation: 'pulse-glow 2s ease-in-out infinite',
@@ -226,15 +226,15 @@ export default function SiteNav() {
             }}
           >
             <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-slate-300"
+              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-soft"
               style={{ boxShadow: '0 0 6px 2px rgba(248,250,252,0.3)' }}
             />
           </div>
         </div>
 
-        <div className="relative flex items-center justify-between px-6 md:px-12 lg:px-24 pt-7 pb-6 border-b border-[#1E293B]">
+        <div className="relative flex items-center justify-between px-6 md:px-12 lg:px-24 pt-7 pb-6 border-b border-line">
           <span {...reveal(0)}>
-            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+            <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
               Index
             </span>
           </span>
@@ -242,7 +242,7 @@ export default function SiteNav() {
             ref={closeButtonRef}
             type="button"
             onClick={close}
-            className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400 hover:text-[#EA580C] transition-colors duration-200 cursor-pointer group"
+            className="font-sans text-[11px] uppercase tracking-[0.25em] text-muted hover:text-accent transition-colors duration-200 cursor-pointer group"
           >
             <span className="group-hover:tracking-[0.35em] transition-all duration-300">[ Close ]</span>
           </button>
@@ -274,8 +274,8 @@ export default function SiteNav() {
                     <span
                       className={`font-mono text-[11px] transition-all duration-300 ${
                         isActive(link.href)
-                          ? 'text-[#EA580C]'
-                          : 'text-slate-500 group-hover:text-[#EA580C]'
+                          ? 'text-accent'
+                          : 'text-quiet group-hover:text-accent'
                       } ${hoveredLink === link.href ? 'translate-x-1' : ''}`}
                     >
                       {link.index}
@@ -283,8 +283,8 @@ export default function SiteNav() {
                     <span
                       className={`font-serif uppercase text-[clamp(2.2rem,5vw,4.5rem)] leading-[0.95] tracking-tight transition-all duration-300 ${EASE} group-hover:translate-x-3 ${
                         isActive(link.href)
-                          ? 'italic text-[#F8FAFC]'
-                          : 'text-slate-400 group-hover:text-[#F8FAFC]'
+                          ? 'italic text-fg'
+                          : 'text-muted group-hover:text-fg'
                       }`}
                       style={{
                         textShadow: hoveredLink === link.href
@@ -297,7 +297,7 @@ export default function SiteNav() {
                     </span>
                     <span
                       aria-hidden
-                      className={`font-mono text-xl text-[#EA580C] opacity-0 -translate-x-3 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
+                      className={`font-sans text-xl text-accent opacity-0 -translate-x-3 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
                     >
                       →
                     </span>
@@ -309,11 +309,11 @@ export default function SiteNav() {
 
           {/* Planetary index with dotted leaders — print-catalogue register. */}
           <nav
-            className="lg:col-span-5 lg:border-l lg:border-[#1E293B] lg:pl-10 flex flex-col justify-center"
+            className="lg:col-span-5 lg:border-l lg:border-line lg:pl-10 flex flex-col justify-center"
             aria-label="Planets"
           >
             <h2 {...reveal(4)}>
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+              <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
                 Planetary index
               </span>
             </h2>
@@ -332,27 +332,27 @@ export default function SiteNav() {
                       {/* Scanning highlight bar on hover */}
                       <span
                         aria-hidden
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#EA580C]/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"
                       />
                       <span
-                        className={`font-mono text-[10px] w-6 transition-all duration-200 ${
-                          active ? 'text-[#EA580C]' : 'text-slate-500 group-hover:text-[#EA580C]'
+                        className={`font-mono text-[11px] w-6 transition-all duration-200 ${
+                          active ? 'text-accent' : 'text-quiet group-hover:text-accent'
                         }`}
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span
                         className={`font-serif text-xl tracking-tight transition-all duration-200 group-hover:translate-x-1 ${
-                          active ? 'italic text-[#F8FAFC]' : 'text-slate-400 group-hover:text-[#F8FAFC]'
+                          active ? 'italic text-fg' : 'text-muted group-hover:text-fg'
                         }`}
                       >
                         {planet.name}
                       </span>
                       <span
                         aria-hidden
-                        className="flex-1 border-b border-dotted border-[#1E293B] mx-3 -translate-y-1 group-hover:border-[#334155] transition-colors duration-300"
+                        className="flex-1 border-b border-dotted border-line mx-3 -translate-y-1 group-hover:border-line-strong transition-colors duration-300"
                       />
-                      <span className="font-mono text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors duration-200">
+                      <span className="font-mono text-[11px] text-quiet group-hover:text-soft transition-colors duration-200">
                         {parseFloat(planet.facts.distance).toFixed(2)} AU
                       </span>
                     </Link>
@@ -364,12 +364,12 @@ export default function SiteNav() {
         </div>
 
         {/* Enter the Simulation CTA */}
-        <div className="relative px-6 md:px-12 lg:px-24 py-3 lg:py-4 border-t border-[#1E293B] shrink-0">
+        <div className="relative px-6 md:px-12 lg:px-24 py-3 lg:py-4 border-t border-line shrink-0">
           <div {...reveal(9)}>
             <Link
               href="/explore"
               onClick={close}
-              className={`group relative flex items-center justify-center gap-4 w-full py-3.5 border border-[#EA580C] hover:bg-[#EA580C] text-[#EA580C] hover:text-[#020617] font-mono text-xs sm:text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE} overflow-hidden`}
+              className={`group relative flex items-center justify-center gap-4 w-full py-3.5 border border-accent hover:bg-accent text-accent hover:text-ink font-sans text-xs sm:text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE} overflow-hidden`}
               style={{
                 boxShadow: '0 0 20px rgba(234,88,12,0.1), inset 0 0 20px rgba(234,88,12,0.03)',
               }}
@@ -383,7 +383,7 @@ export default function SiteNav() {
               {/* Sweeping shimmer on hover */}
               <span
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-fg/[0.06] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"
               />
               <span className="font-semibold relative z-10">Enter the Simulation</span>
               <span
@@ -396,9 +396,9 @@ export default function SiteNav() {
           </div>
         </div>
 
-        <div className="relative px-6 md:px-12 lg:px-24 py-4 border-t border-[#1E293B] shrink-0">
+        <div className="relative px-6 md:px-12 lg:px-24 py-4 border-t border-line shrink-0">
           <div {...reveal(10)}>
-            <div className="flex flex-wrap justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-600">
+            <div className="flex flex-wrap justify-between gap-2 font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
               <span>Simulation.01 — Thessaris</span>
               <span>09 bodies · 03 satellites · No analytics</span>
             </div>

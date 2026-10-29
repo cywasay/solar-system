@@ -94,23 +94,23 @@ export default function CapabilitiesInstrument() {
               onFocus={() => setActiveIndex(index)}
               onClick={() => setActiveIndex(index)}
               aria-pressed={selected}
-              className={`group relative block w-full border-t border-[#1E293B] py-5 text-left transition-colors duration-500 last:border-b focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#EA580C] sm:py-6 ${selected ? 'bg-[#F8FAFC]/[0.025]' : ''}`}
+              className={`group relative block w-full border-t border-line py-5 text-left transition-colors duration-500 last:border-b focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent sm:py-6 ${selected ? 'bg-fg/[0.025]' : ''}`}
             >
-              <span className={`absolute inset-y-0 left-0 w-px origin-center bg-[#EA580C] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${selected ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-50'}`} />
+              <span className={`absolute inset-y-0 left-0 w-px origin-center bg-accent transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${selected ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-50'}`} />
               <span className="flex items-baseline gap-4 px-3 sm:px-5">
-                <span className={`font-serif text-lg italic transition-colors duration-300 ${selected ? 'text-[#EA580C]' : 'text-slate-600'}`}>
+                <span className={`font-serif text-lg italic transition-colors duration-300 ${selected ? 'text-accent' : 'text-quiet'}`}>
                   {capability.id}
                 </span>
-                <span className={`flex-1 font-serif text-xl transition-[color,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:text-2xl ${selected ? 'translate-x-1 text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                <span className={`flex-1 font-serif text-xl transition-[color,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:text-2xl ${selected ? 'translate-x-1 text-fg' : 'text-soft group-hover:text-fg'}`}>
                   {capability.title}
                 </span>
-                <span className={`text-[#EA580C] transition-[opacity,transform] duration-300 ${selected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`}>
+                <span className={`text-accent transition-[opacity,transform] duration-300 ${selected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`}>
                   →
                 </span>
               </span>
               <span className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${selected ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <span className="overflow-hidden">
-                  <span className="block max-w-xl px-3 pb-1 pt-3 text-sm leading-relaxed text-slate-400 sm:px-5">
+                  <span className="block max-w-xl px-3 pb-1 pt-3 text-sm leading-relaxed text-muted sm:px-5">
                     {capability.line}
                   </span>
                 </span>
@@ -121,20 +121,20 @@ export default function CapabilitiesInstrument() {
       </div>
 
       <div className="order-1 lg:order-2" aria-live="polite">
-        <div className="sticky top-[14vh] overflow-hidden border-y border-[#1E293B]">
-          <div className="flex items-center justify-between border-b border-[#1E293B] py-4 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+        <div className="sticky top-[14vh] overflow-hidden border-y border-line">
+          <div className="flex items-center justify-between border-b border-line py-4 text-[11px] uppercase tracking-[0.2em] text-quiet">
             <span>Working instrument</span>
-            <span className="text-[#EA580C]">Mode {active.id}</span>
+            <span className="text-accent">Mode {active.id}</span>
           </div>
 
           <div className="relative aspect-[4/3] min-h-[330px] overflow-hidden">
             <InstrumentScene key={active.mode} mode={active.mode} />
             <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-5 sm:bottom-7 sm:left-7 sm:right-7">
               <div>
-                <span className="block text-[9px] uppercase tracking-[0.2em] text-slate-600">Active layer</span>
-                <span className="mt-1 block font-serif text-2xl text-white sm:text-3xl">{active.title}</span>
+                <span className="block text-[11px] uppercase tracking-[0.2em] text-quiet">Active layer</span>
+                <span className="mt-1 block font-serif text-2xl text-fg sm:text-3xl">{active.title}</span>
               </div>
-              <span className="max-w-[46%] break-words text-right text-[9px] uppercase leading-relaxed tracking-[0.1em] text-[#EA580C] sm:text-[10px] sm:tracking-[0.15em]">
+              <span className="max-w-[46%] break-words text-right text-[11px] uppercase leading-relaxed tracking-[0.1em] text-accent sm:text-[11px] sm:tracking-[0.15em]">
                 {active.readout}
               </span>
             </div>

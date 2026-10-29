@@ -36,7 +36,7 @@ function SceneWarmup({ onReady }: { onReady?: () => void }) {
 
 export default function Scene({ onReady }: { onReady?: () => void }) {
   return (
-    <div className="w-full h-full bg-black">
+    <div className="w-full h-full bg-ink">
       <Canvas
         // Initial shot comes from cameraFocus so the overview-return animation and the
         // first render agree on where "home" is. Far plane clears the star shell at 500.

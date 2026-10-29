@@ -89,7 +89,7 @@ export default function JourneyRail() {
       if (colorState !== lastReachedIndex) {
         stopRefs.current.forEach((el, i) => {
           if (!el) return;
-          el.style.backgroundColor = i <= reachedIndex || i === preview?.index ? '#EA580C' : '#020617';
+          el.style.backgroundColor = i <= reachedIndex || i === preview?.index ? 'var(--color-accent)' : 'var(--color-ink)';
           el.style.boxShadow = i === preview?.index ? '0 0 10px 2px rgba(234,88,12,0.65)' : 'none';
         });
         lastReachedIndex = colorState;
@@ -145,17 +145,17 @@ export default function JourneyRail() {
       aria-hidden
       className="fixed left-5 xl:left-8 inset-y-0 z-30 hidden lg:flex flex-col justify-center pointer-events-none select-none transition-opacity duration-300"
     >
-      <div ref={trackRef} className="relative h-[56vh] w-px bg-[#1E293B]">
+      <div ref={trackRef} className="relative h-[56vh] w-px bg-line">
         {/* Orange trail already travelled. */}
         <div
           ref={fillRef}
-          className="absolute top-0 left-0 w-px h-full bg-[#EA580C]/60 origin-top will-change-transform"
+          className="absolute top-0 left-0 w-px h-full bg-accent/60 origin-top will-change-transform"
           style={{ transform: 'scaleY(0)' }}
         />
 
         {/* The Sun: fixed at the point of departure. */}
         <span
-          className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#EA580C]"
+          className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent"
           style={{ boxShadow: '0 0 8px 1px rgba(234,88,12,0.7)' }}
         />
 
@@ -166,8 +166,8 @@ export default function JourneyRail() {
             ref={(el) => {
               stopRefs.current[i] = el;
             }}
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border border-[#334155]"
-            style={{ top: `${(stop.au / MAX_AU) * 100}%`, backgroundColor: '#020617' }}
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border border-line-strong"
+            style={{ top: `${(stop.au / MAX_AU) * 100}%`, backgroundColor: 'var(--color-ink)' }}
           />
         ))}
 
@@ -179,14 +179,14 @@ export default function JourneyRail() {
           style={{ transform: 'translateY(0px)' }}
         >
           {/* Halo (animated: transform+opacity only) behind a static solid core. */}
-          <span className="journey-marker-halo absolute left-1/2 top-0 w-2.5 h-2.5 rounded-full bg-[#EA580C]" />
+          <span className="journey-marker-halo absolute left-1/2 top-0 w-2.5 h-2.5 rounded-full bg-accent" />
           <span
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#EA580C]"
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-accent"
             style={{ boxShadow: '0 0 10px 2px rgba(234,88,12,0.55)' }}
           />
           <span
             ref={labelRef}
-            className="absolute left-3.5 -translate-y-1/2 whitespace-nowrap font-serif italic text-sm tracking-wide text-slate-400"
+            className="absolute left-3.5 -translate-y-1/2 whitespace-nowrap font-serif italic text-sm tracking-wide text-muted"
             style={{ writingMode: 'vertical-rl' }}
           >
             The Sun

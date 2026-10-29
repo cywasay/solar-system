@@ -190,7 +190,7 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
       // occupy exactly one screen and the scroll cue never falls below the fold. `svh`
       // (small viewport height) is measured with mobile browser chrome expanded, so the
       // layout doesn't jump when the URL bar hides.
-      className="relative min-h-[calc(100svh-5rem)] flex flex-col justify-between overflow-hidden border-b border-[#1E293B] px-6 md:px-12 lg:px-24 pt-10 md:pt-14 pb-8"
+      className="relative min-h-[calc(100svh-5rem)] flex flex-col justify-between overflow-hidden border-b border-line px-6 md:px-12 lg:px-24 pt-10 md:pt-14 pb-8"
       style={{ ['--mx' as string]: 0, ['--my' as string]: 0, ['--sp' as string]: 0 }}
     >
       {/* Layer 1 — starfield. One transform per depth band, NOT per star: the band is
@@ -214,7 +214,7 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
             {band.stars.map((star) => (
               <span
                 key={star.key}
-                className={`absolute rounded-full bg-white ${band.twinkle ? 'star-twinkle' : ''}`}
+                className={`absolute rounded-full bg-fg ${band.twinkle ? 'star-twinkle' : ''}`}
                 style={{
                   left: `${star.left.toFixed(2)}%`,
                   top: `${star.top.toFixed(2)}%`,

@@ -13,21 +13,21 @@ export default function TimeControls() {
   const setShowOrbitPaths = useSimulationStore((state) => state.setShowOrbitPaths);
 
   return (
-    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-stretch bg-[#09090B]/80 backdrop-blur-sm border border-[#27272A]/70 select-none font-mono">
+    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-stretch bg-ink/80 backdrop-blur-sm border border-line/70 select-none font-sans">
       <button
         type="button"
         onClick={() => setIsPaused(!isPaused)}
-        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-[#FAFAFA] border-r border-[#27272A]/70 transition-colors duration-300 hover:text-[#09090B]"
+        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg border-r border-line/70 transition-colors duration-300 hover:text-ink"
       >
         {/* Same rising-fill hover as the landing CTAs. */}
-        <span className="absolute inset-0 bg-[#FF4500] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
+        <span className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
         <span className="relative">{isPaused ? '[ Resume ]' : '[ Pause ]'}</span>
       </button>
 
       <div className="flex items-center gap-4 px-5">
         <label
           htmlFor="time-speed"
-          className="text-[10px] uppercase tracking-[0.2em] text-[#71717A]"
+          className="text-[11px] uppercase tracking-[0.2em] text-quiet"
         >
           Rate
         </label>
@@ -39,9 +39,9 @@ export default function TimeControls() {
           step="0.1"
           value={timeSpeed}
           onChange={(e) => setTimeSpeed(parseFloat(e.target.value))}
-          className="w-28 accent-[#FF4500] cursor-pointer"
+          className="w-28 accent-accent cursor-pointer"
         />
-        <span className="text-[11px] text-[#FAFAFA] w-10 text-right tabular-nums">
+        <span className="font-mono text-[11px] text-fg w-10 text-right tabular-nums">
           {timeSpeed.toFixed(1)}x
         </span>
       </div>
@@ -50,9 +50,9 @@ export default function TimeControls() {
         type="button"
         onClick={() => setShowOrbitPaths(!showOrbitPaths)}
         aria-pressed={showOrbitPaths}
-        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-[#FAFAFA] border-l border-[#27272A]/70 transition-colors duration-300 hover:text-[#09090B]"
+        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg border-l border-line/70 transition-colors duration-300 hover:text-ink"
       >
-        <span className="absolute inset-0 bg-[#FF4500] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
+        <span className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
         <span className="relative">{showOrbitPaths ? '[ Guides On ]' : '[ Guides Off ]'}</span>
       </button>
     </div>

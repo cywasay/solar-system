@@ -12,8 +12,8 @@ function rowClasses(active: boolean) {
   return [
     'w-full text-left flex items-baseline gap-3 px-4 py-1.5 border-l-2 transition-colors duration-150',
     active
-      ? 'border-[#FF4500] text-[#FAFAFA]'
-      : 'border-transparent text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#FAFAFA]/[0.04]',
+      ? 'border-accent text-fg'
+      : 'border-transparent text-muted hover:text-fg hover:bg-fg/[0.04]',
   ].join(' ');
 }
 
@@ -24,10 +24,10 @@ export default function PlanetMenu() {
   return (
     <nav
       aria-label="Camera focus"
-      className="absolute top-16 left-4 md:left-6 z-10 w-52 bg-[#09090B]/80 backdrop-blur-sm border border-[#27272A]/70 select-none"
+      className="absolute top-16 left-4 md:left-6 z-10 w-52 bg-ink/80 backdrop-blur-sm border border-line/70 select-none"
     >
-      <div className="px-4 pt-3.5 pb-2.5 border-b border-[#27272A]/70">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#71717A]">
+      <div className="px-4 pt-3.5 pb-2.5 border-b border-line/70">
+        <h2 className="font-sans text-[11px] uppercase tracking-[0.2em] text-quiet">
           Bodies
         </h2>
       </div>
@@ -42,13 +42,13 @@ export default function PlanetMenu() {
             className={rowClasses(selectedPlanet === null)}
           >
             <span
-              className={`font-mono text-[10px] ${
-                selectedPlanet === null ? 'text-[#FF4500]' : 'text-[#71717A]'
+              className={`font-mono text-[11px] ${
+                selectedPlanet === null ? 'text-accent' : 'text-quiet'
               }`}
             >
               00
             </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.15em]">Overview</span>
+            <span className="font-sans text-[11px] uppercase tracking-[0.15em]">Overview</span>
           </button>
         </li>
 
@@ -63,8 +63,8 @@ export default function PlanetMenu() {
                 className={rowClasses(isSelected)}
               >
                 <span
-                  className={`font-mono text-[10px] ${
-                    isSelected ? 'text-[#FF4500]' : 'text-[#71717A]'
+                  className={`font-mono text-[11px] ${
+                    isSelected ? 'text-accent' : 'text-quiet'
                   }`}
                 >
                   {String(index + 1).padStart(2, '0')}
@@ -87,8 +87,8 @@ export default function PlanetMenu() {
                           className={`${rowClasses(moonSelected)} pl-9 py-1`}
                         >
                           <span
-                            className={`font-mono text-[10px] ${
-                              moonSelected ? 'text-[#FF4500]' : 'text-[#71717A]'
+                            className={`font-mono text-[11px] ${
+                              moonSelected ? 'text-accent' : 'text-quiet'
                             }`}
                           >
                             └

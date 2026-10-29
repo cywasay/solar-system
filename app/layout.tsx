@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Geist, Bebas_Neue } from "next/font/google";
+import { Newsreader, Geist, Geist_Mono, Bebas_Neue } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteNav from "@/components/site/SiteNav";
 import "./globals.css";
@@ -12,6 +12,12 @@ const newsreader = Newsreader({
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+/** Data only: numbers, indices, readouts. Labels are Geist (see globals.css). */
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -34,9 +40,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${geistSans.variable} ${bebasNeue.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#020617] text-[#F8FAFC] font-sans selection:bg-[#EA580C] selection:text-white">
+      <body className="min-h-full flex flex-col bg-ink text-fg font-sans selection:bg-accent selection:text-ink">
         {children}
         {/* Site-wide navigation: fixed [ Menu ] trigger bottom-right on every page. */}
         <SiteNav />

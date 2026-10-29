@@ -38,7 +38,7 @@ export default function ExploreExperience() {
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-[#09090B]" aria-busy={showLoader}>
+    <main className="relative h-screen w-screen overflow-hidden bg-ink" aria-busy={showLoader}>
       <div className="h-full w-full">
         <Scene onReady={handleSceneReady} />
       </div>
@@ -46,9 +46,9 @@ export default function ExploreExperience() {
       <div className="absolute left-4 top-4 z-50 md:left-6">
         <Link
           href="/"
-          className="group relative inline-block overflow-hidden border border-[#27272A]/70 bg-[#09090B]/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] backdrop-blur-sm transition-colors duration-300 hover:text-[#09090B]"
+          className="group relative inline-block overflow-hidden border border-line/70 bg-ink/80 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm transition-colors duration-300 hover:text-ink"
         >
-          <span className="absolute inset-0 translate-y-full bg-[#FF4500] transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)] group-hover:translate-y-0" />
+          <span className="absolute inset-0 translate-y-full bg-accent transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)] group-hover:translate-y-0" />
           <span className="relative">[ Exit ]</span>
         </Link>
       </div>

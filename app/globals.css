@@ -1,22 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #020617; /* Slate 950 for deep space base */
-  --foreground: #F8FAFC;
+/*
+ * DESIGN TOKENS — colour.
+ *
+ * The one palette for the public site. Components use these as utilities (`bg-ink`,
+ * `text-quiet`, `border-line`, `text-accent`, with the usual `/opacity` suffix) and never
+ * a raw hex value, so a colour exists in exactly one place.
+ *
+ * Text, lightest to dimmest — every step clears WCAG AA (4.5:1) on `ink` AND `card`:
+ *   fg 19.3 · soft 13.6 · muted 7.9 · quiet 5.8   (ratios on ink)
+ * `faint` is the exception: for decoration and disabled states only, never readable text.
+ *
+ * Rules that go with the palette:
+ *   1. One accent. Text sitting ON an accent fill is `ink`, never white (5.7:1 vs 3.4:1).
+ *   2. Hairlines are `line`; use `line-strong` only where a rule must hold its own.
+ *   3. Nothing readable is dimmer than `quiet`.
+ *
+ * `static` so every variable is always emitted: plain CSS below (and inline styles in
+ * components) read them with var(--color-*), which Tailwind would otherwise prune.
+ */
+@theme static {
+  --color-ink: #020617; /* page background — deep space */
+  --color-card: #0b1220; /* panels, inputs, raised surfaces */
+  --color-line: #1e293b; /* hairlines and borders */
+  --color-line-strong: #334155;
+  --color-fg: #f8fafc; /* headlines, primary text */
+  --color-soft: #cbd5e1; /* body copy */
+  --color-muted: #94a3b8; /* secondary text */
+  --color-quiet: #7b8ba3; /* labels, footnotes, placeholders */
+  --color-faint: #475569; /* decoration and disabled only */
+  --color-accent: #ea580c;
+  --color-accent-hover: #f97316;
+  --color-danger: #f87171; /* form errors */
 }
 
+/*
+ * DESIGN TOKENS — type. Three families, one job each:
+ *   serif (Newsreader)  display headlines and long-form prose
+ *   sans  (Geist)       body copy, buttons and every small uppercase label
+ *   mono  (Geist Mono)  DATA ONLY — numbers, indices, readouts, URLs
+ * Wordmark display (Bebas Neue) is scoped to the footer canvas and not a utility.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-serif: var(--font-newsreader);
   --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {
   /* No `scroll-behavior: smooth` — Lenis (components/landing/SmoothScroll.tsx) owns the
      scroll easing on the landing page, and the two fight each other if both are on. */
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  /* Tells the browser this is a dark UI: dark scrollbars, form controls and autofill
+     instead of the light defaults that were glaring against the navy. */
+  color-scheme: dark;
 }
 
 body {
@@ -385,7 +423,7 @@ a {
 }
 
 .explore-loader-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.28) 46%, #020617 100%);
+  background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.28) 46%, var(--color-ink) 100%);
 }
 
 .explore-loader-orbit {
@@ -430,14 +468,14 @@ a {
   display: block;
   position: relative;
   overflow: hidden;
-  background-color: var(--planet-color, #64748b);
+  background-color: var(--planet-color, var(--color-quiet));
   background-position: 0 center;
   background-repeat: repeat-x;
   background-size: auto 100%;
   box-shadow:
     inset -18px -6px 24px rgba(2, 6, 23, 0.9),
     inset 7px 5px 10px rgba(248, 250, 252, 0.13),
-    0 0 18px color-mix(in srgb, var(--planet-color, #64748b) 25%, transparent);
+    0 0 18px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 25%, transparent);
 }
 
 .planet-row-sphere::after,
@@ -455,7 +493,7 @@ a {
   box-shadow:
     inset -70px -12px 72px rgba(2, 6, 23, 0.94),
     inset 18px 12px 28px rgba(248, 250, 252, 0.13),
-    0 0 54px color-mix(in srgb, var(--planet-color, #64748b) 24%, transparent);
+    0 0 54px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 24%, transparent);
 }
 
 .planet-preview-in {
@@ -546,7 +584,7 @@ a {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #1e293b;
+  background: var(--color-line);
   opacity: 0.8;
 }
 .capability-axis--x { width: 78%; height: 1px; transform: translate(-50%, -50%); }
@@ -566,14 +604,14 @@ a {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #94a3b8;
+  background: var(--color-muted);
   transform: translate(-50%, -50%);
 }
 .capability-orbit--1 { animation: capability-orbit-spin 7s linear infinite; }
 .capability-orbit--2 { animation: capability-orbit-spin 11s linear infinite reverse; }
 .capability-orbit--3 { animation: capability-orbit-spin 17s linear infinite; }
 .capability-orbit--4 { animation: capability-orbit-spin 25s linear infinite reverse; }
-.capability-orbit--2 .capability-orbit-body { background: #ea580c; box-shadow: 0 0 12px rgba(234, 88, 12, 0.8); }
+.capability-orbit--2 .capability-orbit-body { background: var(--color-accent); box-shadow: 0 0 12px rgba(234, 88, 12, 0.8); }
 .capability-sun {
   position: absolute;
   left: 50%;
@@ -582,7 +620,7 @@ a {
   height: 28px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #f8fafc;
+  background: var(--color-fg);
   box-shadow: 0 0 20px rgba(248, 250, 252, 0.65), 0 0 52px rgba(234, 88, 12, 0.55);
 }
 .capability-target,
@@ -600,7 +638,7 @@ a {
   top: 32%;
   width: 70px;
   height: 70px;
-  border: 1px solid #ea580c;
+  border: 1px solid var(--color-accent);
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -610,7 +648,7 @@ a {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #ea580c;
+  background: var(--color-accent);
   transform: translate(-50%, -50%);
 }
 .capability-target::before { width: 94px; height: 1px; }
@@ -633,7 +671,7 @@ a {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #f8fafc;
+  background: var(--color-fg);
   box-shadow: 0 0 8px rgba(248, 250, 252, 0.5);
 }
 .capability-satellite--one { transform: translate(74px, -49px); }
@@ -648,7 +686,7 @@ a {
   right: 10%;
   top: 14%;
   height: 1px;
-  background: #ea580c;
+  background: var(--color-accent);
   box-shadow: 0 0 18px rgba(234, 88, 12, 0.7);
 }
 .capability-scene--render .capability-scan {
@@ -667,7 +705,7 @@ a {
   top: 48%;
   width: 1px;
   height: 30%;
-  background: linear-gradient(to top, #ea580c, transparent);
+  background: linear-gradient(to top, var(--color-accent), transparent);
   transform-origin: 50% 100%;
 }
 .capability-scene--time .capability-time-hand {
