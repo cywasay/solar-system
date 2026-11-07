@@ -1,0 +1,1170 @@
+/* ---------------------------------------------------------------------------
+ * Flight deck. Every shadow, bevel and highlight below is derived from the light
+ * vector (--lx, --ly: where the light comes FROM, -1..1 around the console centre).
+ * MissionDeck.tsx moves it with the cursor; CSS alone gives a fixed top-left key.
+ *
+ * Neon is rationed to keep this a spacecraft, not a nightclub:
+ *   ion cyan   instruments (scope phosphor, nominal lamps, the tube)
+ *   ember      the drive (Earth, the engage ring) — the site's accent
+ *   amber      one caution lamp
+ * ------------------------------------------------------------------------- */
+
+.deck {
+  --lx: -0.55;
+  --ly: -0.7;
+  --la: 142;
+  --sx: calc(var(--lx) * -1);
+  --sy: calc(var(--ly) * -1);
+  --spec: calc(50% + var(--lx) * 28%) calc(50% + var(--ly) * 28%);
+
+  --neon: 103, 232, 249;
+  --amber: 251, 191, 36;
+  --ember: 234, 88, 12;
+  --bone: #e9e2cf;
+  --engrave: #8d9ab0;
+  --well: #050a14;
+
+  /* Raised: dark shadow away from the light, faint lift toward it. */
+  --raise-lg:
+    calc(var(--sx) * 26px) calc(var(--sy) * 26px) 60px rgba(0, 0, 0, 0.72),
+    calc(var(--lx) * 18px) calc(var(--ly) * 18px) 44px rgba(148, 163, 184, 0.075);
+  --raise-sm:
+    calc(var(--sx) * 6px) calc(var(--sy) * 6px) 12px rgba(0, 0, 0, 0.7),
+    calc(var(--lx) * 4px) calc(var(--ly) * 4px) 10px rgba(148, 163, 184, 0.08);
+  /* Recessed: the wall nearest the light falls into shadow. */
+  --sink:
+    inset calc(var(--sx) * 7px) calc(var(--sy) * 7px) 16px rgba(0, 0, 0, 0.8),
+    inset calc(var(--lx) * 5px) calc(var(--ly) * 5px) 12px rgba(148, 163, 184, 0.07);
+  --sink-sm:
+    inset calc(var(--sx) * 3px) calc(var(--sy) * 3px) 7px rgba(0, 0, 0, 0.8),
+    inset calc(var(--lx) * 2px) calc(var(--ly) * 2px) 6px rgba(148, 163, 184, 0.07);
+  /* Machined edge: a lit lip on the light side, a dark one opposite. */
+  --bevel:
+    inset calc(var(--sx) * 1.5px) calc(var(--sy) * 1.5px) 0 rgba(255, 255, 255, 0.08),
+    inset calc(var(--lx) * 1.5px) calc(var(--ly) * 1.5px) 0 rgba(0, 0, 0, 0.55);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* Side gutters match the landing page (px-4 sm:px-6 md:px-12 lg:px-24) so the copy clears the JourneyRail. */
+  padding: clamp(80px, 11vw, 150px) 16px clamp(150px, 16vw, 230px);
+  border-top: 1px solid var(--color-line);
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@media (min-width: 640px) {
+  .deck {
+    padding-inline: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .deck {
+    padding-inline: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .deck {
+    padding-inline: 96px;
+  }
+}
+
+/* ---------- the room ---------- */
+
+.stars {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(248, 250, 252, 0.75) 0 0.7px, transparent 1.3px) 0 0 / 97px 89px,
+    radial-gradient(circle, rgba(248, 250, 252, 0.5) 0 0.6px, transparent 1.2px) 31px 47px / 151px 137px,
+    radial-gradient(circle, rgba(186, 230, 253, 0.6) 0 0.9px, transparent 1.6px) 73px 19px / 233px 211px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 88%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 88%);
+}
+
+/* Warm key light, pooled on the side the light comes from. */
+.keylight {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background: radial-gradient(
+    900px circle at calc(68% + var(--lx) * 22%) calc(46% + var(--ly) * 34%),
+    rgba(255, 222, 186, 0.075),
+    transparent 62%
+  );
+}
+
+/* A planet's limb along the bottom edge: the deck is in orbit. */
+.horizon {
+  position: absolute;
+  z-index: -2;
+  left: 50%;
+  top: calc(100% - 120px);
+  width: 240vw;
+  height: 240vw;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(closest-side, #0a1730 0%, #071127 72%, #050d1e 100%);
+  box-shadow:
+    0 -1px 0 rgba(var(--neon), 0.5),
+    0 -10px 40px rgba(var(--neon), 0.14),
+    0 -50px 140px rgba(56, 120, 255, 0.1),
+    inset 0 14px 30px rgba(var(--neon), 0.09);
+}
+
+/* Orbital sunrise breaking over the limb. */
+.sunrise {
+  position: absolute;
+  z-index: -1;
+  left: 30%;
+  bottom: 62px;
+  width: 560px;
+  height: 72px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 206, 160, 0.5), rgba(var(--ember), 0.16) 38%, transparent 70%);
+}
+
+.sunrise::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 214, 178, 0.55), transparent);
+}
+
+/* ---------- layout ---------- */
+
+.inner {
+  position: relative;
+  display: grid;
+  gap: clamp(56px, 6vw, 88px);
+  align-items: center;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
+  }
+}
+
+@media (min-width: 1440px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 620px);
+  }
+}
+
+/* ---------- copy ---------- */
+
+.plates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 28px;
+}
+
+.plate {
+  display: inline-block;
+  padding: 4px 9px 3px;
+  border-radius: 2px;
+  background: var(--bone);
+  color: var(--color-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: calc(var(--sx) * 2px) calc(var(--sy) * 2px) 4px rgba(0, 0, 0, 0.55);
+}
+
+.plateMono {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-quiet);
+}
+
+/* Letterforms shaded by the same light as the hardware. */
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(56px, 12vw, 132px);
+  line-height: 0.86;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  background: linear-gradient(calc(var(--la) * 1deg), #ffffff 0%, #e2e8f0 38%, #7d8ca5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(calc(var(--sx) * 10px) calc(var(--sy) * 14px) 18px rgba(0, 0, 0, 0.6));
+}
+
+/* The full stop is a lit indicator lamp. */
+.titleLamp {
+  display: inline-block;
+  width: 0.17em;
+  height: 0.17em;
+  margin-left: 0.06em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffd5b3, #f97316 45%, #c2410c 100%);
+  box-shadow:
+    0 0 0.12em rgba(var(--ember), 0.9),
+    0 0 0.45em rgba(var(--ember), 0.55),
+    0 0 1.1em rgba(var(--ember), 0.22);
+}
+
+@media (min-width: 1200px) {
+  .title {
+    font-size: clamp(56px, 6.6vw, 132px);
+  }
+}
+
+.lede {
+  max-width: 34em;
+  margin: 30px 0 0;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.55;
+  color: var(--color-soft);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 36px 0 0;
+}
+
+.stat {
+  flex: 1 1 0;
+  min-width: 118px;
+  max-width: 180px;
+  padding: 12px 14px 14px;
+  border-radius: 10px;
+  background: linear-gradient(calc(var(--la) * 1deg), #0c1528, #070d1b);
+  box-shadow: var(--sink-sm);
+}
+
+.stat dt {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-quiet);
+}
+
+.stat dd {
+  margin: 6px 0 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+
+.stat dd small {
+  margin-left: 4px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.hint {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-quiet);
+}
+
+.hint::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fde7cf;
+  box-shadow: 0 0 10px 2px rgba(255, 220, 180, 0.6);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hint {
+    display: flex;
+  }
+}
+
+/* ---------- console ---------- */
+
+.deckWrap {
+  position: relative;
+  justify-self: center;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Cyan underglow reflected on the limb below. */
+.deckWrap::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -50px;
+  height: 70px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(var(--neon), 0.13), transparent 70%);
+}
+
+.console {
+  position: relative;
+  overflow: hidden;
+  padding: 36px 26px 0;
+  border-radius: 22px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px),
+    linear-gradient(calc(var(--la) * 1deg), #18253f 0%, #0f1829 55%, #0a1120 100%);
+  box-shadow: var(--raise-lg), var(--bevel);
+}
+
+/* The cursor's light falling on the hardware itself. */
+.console::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(420px circle at var(--gx, 28%) var(--gy, 16%), rgba(255, 228, 196, 0.09), transparent 62%);
+}
+
+.screw {
+  position: absolute;
+  z-index: 2;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at var(--spec), #6b7894, #2a3550 55%, #151d31 100%);
+  box-shadow:
+    calc(var(--sx) * 1.5px) calc(var(--sy) * 1.5px) 2px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.screw::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: #0b1120;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: rotate(var(--rot));
+}
+
+.screwTL {
+  top: 12px;
+  left: 12px;
+}
+
+.screwTR {
+  top: 12px;
+  right: 12px;
+}
+
+.screwBL {
+  bottom: 22px;
+  left: 12px;
+}
+
+.screwBR {
+  bottom: 22px;
+  right: 12px;
+}
+
+/* Neon tube set into a machined groove. */
+.groove {
+  position: absolute;
+  top: 13px;
+  left: 40px;
+  right: 40px;
+  height: 9px;
+  border-radius: 9px;
+  background: var(--well);
+  box-shadow: var(--sink-sm);
+}
+
+.tube {
+  position: absolute;
+  inset: 3px 4px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(var(--neon), 0.5), #effdff 50%, rgba(var(--neon), 0.5));
+  box-shadow:
+    0 0 4px rgba(var(--neon), 0.95),
+    0 0 14px rgba(var(--neon), 0.6),
+    0 0 36px rgba(var(--neon), 0.3);
+  opacity: 0.5;
+  transition: opacity 400ms ease;
+}
+
+.console[data-engaged='true'] .tube {
+  opacity: 1;
+  animation: ignite 900ms steps(1, end);
+}
+
+@keyframes ignite {
+  0% {
+    opacity: 0.2;
+  }
+  12% {
+    opacity: 1;
+  }
+  18% {
+    opacity: 0.35;
+  }
+  30% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.6;
+  }
+  46%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* The tube's light spilling down the panel face. */
+.spill {
+  position: absolute;
+  top: 16px;
+  left: 6%;
+  right: 6%;
+  height: 160px;
+  pointer-events: none;
+  background: radial-gradient(55% 100% at 50% 0%, rgba(var(--neon), 0.1), transparent 72%);
+  opacity: 0.55;
+  transition: opacity 400ms ease;
+}
+
+.console[data-engaged='true'] .spill {
+  opacity: 1;
+}
+
+.engraved {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--engrave);
+  text-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 16px;
+  padding: 4px 6px 20px;
+}
+
+.panelId,
+.met {
+  display: grid;
+  gap: 7px;
+}
+
+.panelId {
+  justify-items: start;
+}
+
+.met {
+  justify-items: end;
+}
+
+.metWell {
+  padding: 7px 12px 6px;
+  border-radius: 7px;
+  background: #03070f;
+  box-shadow:
+    var(--sink-sm),
+    0 0 0 1px rgba(var(--neon), 0.08);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--neon));
+  text-shadow: 0 0 8px rgba(var(--neon), 0.75);
+}
+
+.metWell b {
+  font-weight: 400;
+  color: rgba(var(--neon), 0.55);
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 214px;
+  gap: 22px;
+  align-items: center;
+}
+
+/* ---------- scope ---------- */
+
+.bezel {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 22px;
+  border-radius: 50%;
+  background: linear-gradient(calc(var(--la) * 1deg), #121c33, #070d1a);
+  box-shadow: var(--sink);
+}
+
+.bearingMark {
+  position: absolute;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--engrave);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.7);
+}
+
+.bmN {
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bmS {
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* East and west stay upright: a rotated "090" reads as "060". */
+.bmE {
+  top: 50%;
+  right: 1px;
+  letter-spacing: 0;
+  transform: translateY(-50%);
+}
+
+.bmW {
+  top: 50%;
+  left: 1px;
+  letter-spacing: 0;
+  transform: translateY(-50%);
+}
+
+.glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #0b2a35 0%, #06171f 52%, #020a10 100%);
+  box-shadow:
+    0 0 0 2px #03070d,
+    0 0 0 3px rgba(var(--neon), 0.18),
+    0 0 22px rgba(var(--neon), 0.1),
+    inset 0 0 40px rgba(0, 0, 0, 0.85),
+    inset 0 0 90px rgba(var(--neon), 0.06);
+}
+
+.scope {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.grid {
+  fill: none;
+  stroke: rgba(var(--neon), 0.1);
+  stroke-width: 1;
+}
+
+.ticks {
+  fill: none;
+  stroke: rgba(var(--neon), 0.35);
+  stroke-width: 1.2;
+}
+
+.orbits {
+  fill: none;
+  stroke: rgba(var(--neon), 0.2);
+  stroke-width: 1;
+  transition: opacity 300ms ease;
+}
+
+.orbitEarth {
+  stroke: rgba(var(--ember), 0.6);
+  stroke-dasharray: 3 4;
+}
+
+.console[data-engaged='true'] .grid {
+  stroke: rgba(var(--neon), 0.18);
+}
+
+.console[data-engaged='true'] .orbits {
+  stroke: rgba(var(--neon), 0.32);
+}
+
+.console[data-orbits='false'] .orbits {
+  opacity: 0;
+}
+
+.ring {
+  fill: none;
+  stroke: rgba(233, 226, 207, 0.7);
+  stroke-width: 1.2;
+}
+
+.code {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 13.5px;
+  letter-spacing: 0.06em;
+  fill: rgba(var(--neon), 0.85);
+}
+
+.console[data-labels='false'] .code {
+  display: none;
+}
+
+/* Rotating phosphor sweep: a long fading tail behind a bright leading edge. */
+.sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--neon), 0) 0deg,
+    rgba(var(--neon), 0) 240deg,
+    rgba(var(--neon), 0.06) 300deg,
+    rgba(var(--neon), 0.22) 350deg,
+    rgba(var(--neon), 0.55) 358.6deg,
+    rgba(225, 252, 255, 0.95) 359.6deg,
+    rgba(var(--neon), 0) 360deg
+  );
+  will-change: transform;
+}
+
+.console[data-engaged='true'] .sweep {
+  opacity: 1;
+}
+
+.console[data-sweep='false'] .sweep {
+  display: none;
+}
+
+/* Curved-glass highlight (it moves with the light) plus faint scanlines. */
+.glassShine {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at calc(50% + var(--lx) * 30%) calc(50% + var(--ly) * 36%), rgba(255, 255, 255, 0.09), transparent 42%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+
+.readout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 21%;
+  margin: 0;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(var(--neon), 0.85);
+  text-shadow:
+    0 0 6px rgba(var(--neon), 0.5),
+    0 0 2px #020a10;
+}
+
+/* ---------- annunciator ---------- */
+
+.side {
+  display: grid;
+  gap: 20px;
+  align-content: center;
+}
+
+.annun {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 9px;
+  border-radius: 12px;
+  background: #060b17;
+  box-shadow: var(--sink-sm);
+}
+
+.lamp {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 5px 4px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #111a2c, #0a111e);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.5);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: #56647c;
+  transition:
+    color 250ms ease,
+    box-shadow 250ms ease,
+    text-shadow 250ms ease;
+}
+
+/* Frosted lens over each lamp. */
+.lamp::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 55% 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+}
+
+.lamp[data-on='true'][data-tone='cyan'] {
+  color: #e6fdff;
+  background: radial-gradient(120% 130% at 50% 45%, rgba(var(--neon), 0.42), rgba(var(--neon), 0.12) 60%, #071a22 100%);
+  text-shadow: 0 0 8px rgba(var(--neon), 0.9);
+  box-shadow:
+    inset 0 0 14px rgba(var(--neon), 0.35),
+    0 0 16px rgba(var(--neon), 0.16),
+    0 0 0 1px rgba(var(--neon), 0.3);
+}
+
+.lamp[data-on='true'][data-tone='amber'] {
+  color: #fff6db;
+  background: radial-gradient(120% 130% at 50% 45%, rgba(var(--amber), 0.45), rgba(var(--amber), 0.12) 60%, #1f1606 100%);
+  text-shadow: 0 0 8px rgba(var(--amber), 0.9);
+  box-shadow:
+    inset 0 0 14px rgba(var(--amber), 0.35),
+    0 0 16px rgba(var(--amber), 0.16),
+    0 0 0 1px rgba(var(--amber), 0.35);
+}
+
+.lamp[data-on='true'][data-tone='orange'] {
+  color: #fff1e6;
+  background: radial-gradient(120% 130% at 50% 45%, rgba(var(--ember), 0.55), rgba(var(--ember), 0.16) 60%, #1f0d05 100%);
+  text-shadow: 0 0 8px rgba(var(--ember), 0.95);
+  box-shadow:
+    inset 0 0 14px rgba(var(--ember), 0.4),
+    0 0 18px rgba(var(--ember), 0.2),
+    0 0 0 1px rgba(var(--ember), 0.4);
+}
+
+/* ---------- knob + engage ---------- */
+
+.controls {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.control {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.legend {
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 7px 2px;
+  border-radius: 2px;
+  background: var(--bone);
+  color: var(--color-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: calc(var(--sx) * 1.5px) calc(var(--sy) * 1.5px) 3px rgba(0, 0, 0, 0.5);
+}
+
+.knobScale {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+}
+
+.knobMark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--engrave);
+  transform: translate(-50%, -50%) rotate(var(--a)) translateY(-45px) rotate(calc(var(--a) * -1));
+}
+
+.knobMark[data-active='true'] {
+  color: rgb(var(--neon));
+  text-shadow: 0 0 6px rgba(var(--neon), 0.8);
+}
+
+/* Knurled grip around a cap that catches the light. */
+.knob {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: repeating-conic-gradient(from 0deg, #24314f 0deg 5deg, #0f1729 5deg 10deg);
+  box-shadow:
+    var(--raise-sm),
+    0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.knob::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at var(--spec), #36476e 0%, #18233c 55%, #0c1426 100%);
+  box-shadow:
+    var(--bevel),
+    0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.knobPointer {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  transform: rotate(var(--knob));
+  transition: transform 260ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.knobPointer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 3px;
+  height: 14px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: #fb923c;
+  box-shadow: 0 0 6px rgba(var(--ember), 0.9);
+}
+
+.knob:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.bezelRing {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(calc(var(--la) * 1deg), #111a30, #060b17);
+  box-shadow: var(--sink);
+}
+
+/* Ember ring: dormant until the drive is armed. */
+.bezelRing::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 2px solid rgba(var(--ember), 0.28);
+  border-radius: 50%;
+  pointer-events: none;
+  transition:
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.console[data-engaged='true'] .bezelRing::before {
+  border-color: rgba(253, 186, 116, 0.95);
+  box-shadow:
+    0 0 8px rgba(var(--ember), 0.85),
+    0 0 26px rgba(var(--ember), 0.45),
+    inset 0 0 8px rgba(var(--ember), 0.55);
+}
+
+.dome {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at var(--spec), #ffc59a 0%, #f97316 28%, #c2410c 66%, #6b2410 100%);
+  box-shadow:
+    var(--raise-sm),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.35),
+    inset 0 2px 2px rgba(255, 255, 255, 0.25);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    filter 300ms ease;
+}
+
+/* Specular glint that tracks the light across the dome. */
+.dome::after {
+  content: '';
+  position: absolute;
+  left: calc(50% + var(--lx) * 15px - 11px);
+  top: calc(50% + var(--ly) * 17px - 6px);
+  width: 22px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.75), transparent);
+}
+
+.dome:active {
+  transform: scale(0.95);
+}
+
+.dome[aria-pressed='true'] {
+  transform: scale(0.96);
+  filter: brightness(1.12) saturate(1.1);
+  box-shadow:
+    calc(var(--sx) * 2px) calc(var(--sy) * 2px) 5px rgba(0, 0, 0, 0.7),
+    0 0 18px rgba(var(--ember), 0.55),
+    inset 0 0 14px rgba(255, 210, 170, 0.55);
+}
+
+.dome:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 5px;
+}
+
+/* ---------- bottom bar ---------- */
+
+.bottombar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 24px;
+  margin-top: 24px;
+  padding: 18px 8px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.levers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+}
+
+.lever {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.lever input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.slot {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 42px;
+  border-radius: 11px;
+  background: var(--well);
+  box-shadow: var(--sink-sm);
+}
+
+/* Bone lever cap: down is off, up is on. */
+.slot::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 19px;
+  height: 20px;
+  border-radius: 8px;
+  background: radial-gradient(circle at var(--spec), #fbf7ec, #d6cfba 55%, #8f8a78 100%);
+  box-shadow: calc(var(--sx) * 2px) calc(var(--sy) * 2px) 4px rgba(0, 0, 0, 0.7);
+  transition: transform 160ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.lever input:checked + .slot::after {
+  transform: translateY(-16px);
+}
+
+.lever input:checked + .slot {
+  box-shadow:
+    var(--sink-sm),
+    0 0 10px rgba(var(--neon), 0.15),
+    inset 0 0 0 1px rgba(var(--neon), 0.25);
+}
+
+.lever input:focus-visible + .slot {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.leverText {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+}
+
+.state {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--engrave);
+}
+
+.lever input:checked ~ .leverText .state {
+  color: rgb(var(--neon));
+  text-shadow: 0 0 6px rgba(var(--neon), 0.7);
+}
+
+.dataPlate {
+  display: flex;
+  border: 1px solid rgba(233, 226, 207, 0.45);
+  border-radius: 2px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+
+.dataPlate span {
+  padding: 5px 9px;
+}
+
+.dataPlate span + span {
+  border-left: 1px solid rgba(233, 226, 207, 0.3);
+}
+
+.hazard {
+  height: 10px;
+  margin: 0 -26px;
+  background: repeating-linear-gradient(-45deg, var(--color-accent) 0 9px, #0a0f1c 9px 18px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 640px) {
+  .console {
+    padding: 34px 14px 0;
+    border-radius: 18px;
+  }
+
+  .groove {
+    left: 30px;
+    right: 30px;
+  }
+
+  .hazard {
+    margin: 0 -14px;
+  }
+
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .bezel {
+    justify-self: center;
+    width: min(100%, 360px);
+    padding: 20px;
+  }
+
+  .annun {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .controls {
+    justify-content: space-around;
+  }
+
+  .met {
+    justify-items: start;
+  }
+}
+
+/* ---------- reduced motion: static light, no sweep, instant states ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hint,
+  .sweep {
+    display: none;
+  }
+
+  .console[data-engaged='true'] .tube {
+    animation: none;
+  }
+
+  .tube,
+  .spill,
+  .orbits,
+  .lamp,
+  .knobPointer,
+  .slot::after,
+  .dome,
+  .bezelRing::before {
+    transition: none;
+  }
+}
