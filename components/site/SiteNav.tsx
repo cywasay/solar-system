@@ -242,7 +242,7 @@ export default function SiteNav() {
             ref={closeButtonRef}
             type="button"
             onClick={close}
-            className="font-sans text-[11px] uppercase tracking-[0.25em] text-muted hover:text-accent transition-colors duration-200 cursor-pointer group"
+            className="btn-neo btn-neo-sm min-w-[8rem] px-4 py-2 text-center font-sans text-[11px] uppercase tracking-[0.25em] text-muted hover:text-accent transition-colors duration-200 cursor-pointer group"
           >
             <span className="group-hover:tracking-[0.35em] transition-all duration-300">[ Close ]</span>
           </button>
@@ -369,16 +369,7 @@ export default function SiteNav() {
             <Link
               href="/explore"
               onClick={close}
-              className={`group relative flex items-center justify-center gap-4 w-full py-3.5 border border-accent hover:bg-accent text-accent hover:text-ink font-sans text-xs sm:text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE} overflow-hidden`}
-              style={{
-                boxShadow: '0 0 20px rgba(234,88,12,0.1), inset 0 0 20px rgba(234,88,12,0.03)',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 40px rgba(234,88,12,0.3), inset 0 0 30px rgba(234,88,12,0.05)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(234,88,12,0.1), inset 0 0 20px rgba(234,88,12,0.03)';
-              }}
+              className={`btn-neo group relative flex items-center justify-center gap-4 w-full py-3.5 hover:bg-accent text-accent hover:text-ink font-sans text-xs sm:text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE} overflow-hidden`}
             >
               {/* Sweeping shimmer on hover */}
               <span

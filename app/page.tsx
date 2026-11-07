@@ -1,54 +1,20 @@
-import React from 'react';
 import Link from 'next/link';
-import { planets } from '@/data/planets';
 import HeroOrrery from '@/components/landing/HeroOrrery';
 import HeroStage from '@/components/landing/HeroStage';
 import SplitHeadline from '@/components/landing/SplitHeadline';
 import SmoothScroll from '@/components/landing/SmoothScroll';
-import Reveal from '@/components/landing/Reveal';
 import JourneyRail from '@/components/landing/JourneyRail';
-import IdleOffscreen from '@/components/landing/IdleOffscreen';
 import BeginCta from '@/components/landing/BeginCta';
 import FooterFluidText from '@/components/landing/FooterFluidText';
 import MenuTrigger from '@/components/site/MenuTrigger';
-import PlanetLedger from '@/components/landing/PlanetLedger';
-import ManifestScale from '@/components/landing/ManifestScale';
-import CapabilitiesInstrument from '@/components/landing/CapabilitiesInstrument';
+import MissionDeck from '@/components/landing/MissionDeck';
 
 /* ---------------------------------------------------------------------------
  * The landing page as an editorial front page. Every figure is pulled from the
  * same data files that drive the simulation — the orrery spins at real compressed
- * periods, the ledger lists the actual eight worlds. Two voices only: Newsreader
- * for display and prose, Geist (sans) for quiet labels. No monospace chrome.
+ * periods. Two voices only: Newsreader for display and prose, Geist (sans) for
+ * quiet labels. No monospace chrome.
  * ------------------------------------------------------------------------- */
-
-/** Quiet editorial eyebrow — small sans caps, a number, a hairline. No mono, no brackets. */
-function Eyebrow({ index, children }: { index: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-16">
-      <span className="font-serif italic text-base sm:text-lg text-accent">{index}</span>
-      <span className="text-[11px] sm:text-xs tracking-[0.18em] uppercase text-muted">{children}</span>
-      <span aria-hidden className="flex-1 h-px bg-line" />
-    </div>
-  );
-}
-
-/** One run of the running masthead; rendered twice for a seamless -50% loop. */
-function MarqueeRun({ hidden }: { hidden?: boolean }) {
-  return (
-    <span
-      aria-hidden={hidden}
-      className="flex items-center gap-4 sm:gap-8 pr-4 sm:pr-8 font-serif italic text-lg sm:text-2xl md:text-3xl text-muted"
-    >
-      {planets.map((planet) => (
-        <React.Fragment key={planet.name}>
-          <span>{planet.name}</span>
-          <span className="text-accent/70 not-italic text-base">✦</span>
-        </React.Fragment>
-      ))}
-    </span>
-  );
-}
 
 export default function LandingPage() {
   return (
@@ -146,44 +112,8 @@ export default function LandingPage() {
         </>
       </HeroStage>
 
-      {/* Running masthead */}
-      <IdleOffscreen>
-        <div className="marquee overflow-hidden border-b border-line py-4 whitespace-nowrap">
-          <div className="marquee-track flex w-max">
-            <MarqueeRun />
-            <MarqueeRun hidden />
-          </div>
-        </div>
-      </IdleOffscreen>
-
-      {/* The ledger: the system itself as the page's main content */}
-      <section id="worlds" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24">
-        <Reveal>
-          <Eyebrow index="I">The eight worlds</Eyebrow>
-        </Reveal>
-
-        <IdleOffscreen>
-          <PlanetLedger />
-        </IdleOffscreen>
-      </section>
-
-      {/* Manifest with margin notes */}
-      <section id="manifest" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-line">
-        <Reveal>
-          <Eyebrow index="II">Manifest</Eyebrow>
-        </Reveal>
-
-        <ManifestScale />
-      </section>
-
-      {/* Capabilities */}
-      <section id="instrument" className="px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-24 border-t border-line">
-        <Reveal>
-          <Eyebrow index="III">What&rsquo;s inside</Eyebrow>
-        </Reveal>
-
-        <CapabilitiesInstrument />
-      </section>
+      {/* Second hero: the NASA-punk flight deck, lit by the cursor. */}
+      <MissionDeck />
 
       {/* Closing CTA. Client component: the arrow detaches and becomes the cursor. */}
       <BeginCta />

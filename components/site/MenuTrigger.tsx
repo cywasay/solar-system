@@ -9,7 +9,7 @@ export default function MenuTrigger() {
     <button
       type="button"
       onClick={() => window.dispatchEvent(new CustomEvent('open-site-nav'))}
-      className="group inline-flex items-center gap-1.5 font-sans text-[11px] uppercase tracking-[0.2em] text-muted hover:text-fg transition-colors duration-300 cursor-pointer"
+      className="btn-neo btn-neo-sm group inline-flex items-center gap-1.5 px-3.5 py-2 font-sans text-[11px] uppercase tracking-[0.2em] text-muted hover:text-fg transition-colors duration-300 cursor-pointer"
     >
       <span className="relative">
         <span>[ Menu ]</span>
