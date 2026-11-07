@@ -70,7 +70,7 @@ export default function ContactForm() {
           </p>
           <button
             onClick={() => setStatus('idle')}
-            className="mt-6 px-5 py-2.5 font-sans text-xs uppercase tracking-widest bg-line hover:bg-line-strong text-fg rounded transition-colors"
+            className="btn-neo mt-6 px-5 py-2.5 font-sans text-xs uppercase tracking-widest hover:bg-line-strong text-fg transition-colors"
           >
             Send Another Message
           </button>
@@ -161,7 +161,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={status === 'submitting'}
-            className="w-full py-3 sm:py-3.5 bg-accent hover:bg-accent-hover disabled:bg-quiet text-ink font-sans text-[11px] sm:text-xs uppercase tracking-widest font-semibold rounded transition-all duration-200 shadow-lg shadow-accent/20 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+            className="btn-neo btn-neo-accent w-full py-3 sm:py-3.5 hover:bg-accent-hover disabled:bg-quiet text-ink font-sans text-[11px] sm:text-xs uppercase tracking-widest font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
           >
             {status === 'submitting' ? (
               <>

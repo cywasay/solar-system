@@ -127,7 +127,7 @@ export default async function PlanetPage({ params }: { params: Promise<{ slug: s
       <section className="px-6 md:px-12 py-16 border-b border-line/40 flex flex-col md:flex-row md:items-center gap-10 md:gap-16">
         <Link
           href={`/explore?focus=${planet.name}`}
-          className="group relative overflow-hidden inline-block border border-fg/30 px-8 py-4 font-sans text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:border-accent hover:text-ink self-start"
+          className="btn-neo group relative overflow-hidden inline-block px-8 py-4 font-sans text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:text-ink self-start"
         >
           <span className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
           <span className="relative">[ View {planet.name} live ]</span>
@@ -140,7 +140,7 @@ export default async function PlanetPage({ params }: { params: Promise<{ slug: s
               <Link
                 key={moon.name}
                 href={`/explore?focus=${moon.name}`}
-                className="border border-line px-3 py-1.5 text-muted hover:text-accent hover:border-accent transition-colors duration-200"
+                className="btn-neo btn-neo-sm px-3 py-1.5 text-muted hover:text-accent transition-colors duration-200"
               >
                 {moon.name}
               </Link>

@@ -13,11 +13,11 @@ export default function TimeControls() {
   const setShowOrbitPaths = useSimulationStore((state) => state.setShowOrbitPaths);
 
   return (
-    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-stretch bg-ink/80 backdrop-blur-sm border border-line/70 select-none font-sans">
+    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-stretch gap-2 p-2 bg-ink/80 backdrop-blur-sm border border-line/70 select-none font-sans">
       <button
         type="button"
         onClick={() => setIsPaused(!isPaused)}
-        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg border-r border-line/70 transition-colors duration-300 hover:text-ink"
+        className="btn-neo group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg transition-colors duration-300 hover:text-ink"
       >
         {/* Same rising-fill hover as the landing CTAs. */}
         <span className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
@@ -50,7 +50,7 @@ export default function TimeControls() {
         type="button"
         onClick={() => setShowOrbitPaths(!showOrbitPaths)}
         aria-pressed={showOrbitPaths}
-        className="group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg border-l border-line/70 transition-colors duration-300 hover:text-ink"
+        className="btn-neo group relative overflow-hidden px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-fg transition-colors duration-300 hover:text-ink"
       >
         <span className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)]" />
         <span className="relative">{showOrbitPaths ? '[ Guides On ]' : '[ Guides Off ]'}</span>

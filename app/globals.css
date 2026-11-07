@@ -77,6 +77,145 @@ a {
   color: inherit;
 }
 
+/*
+ * BUTTONS — NASA-HUD, soft-extruded.
+ *
+ * A raised keycap (dual light/dark shadow) carrying HUD corner brackets; a toggle that is
+ * ON (`aria-pressed="true"`) sits pushed in with a lit LED. This is SURFACE only: size,
+ * type, colour utilities, hover fills and every transition stay on the element's own
+ * classes, which is why it lives in the components layer (utilities still win over it).
+ *
+ *   btn-neo          the standard key
+ *   btn-neo-accent   the primary action (accent face, ink label)
+ *   btn-neo-sm       compact key for chips and small controls
+ *
+ * Pressed, toggled-on and disabled states are instant: no new transitions are added here.
+ * The soft edge is low-contrast by nature, so the label must carry the affordance: keep
+ * labels `fg`/`muted` or better, and leave the focus ring alone.
+ */
+:root {
+  --neo-face: #0d1628;
+  --neo-light: rgba(148, 163, 184, 0.1);
+  --neo-dark: rgba(0, 0, 0, 0.7);
+  --neo-bracket: rgba(203, 213, 225, 0.5);
+}
+
+@layer components {
+  .btn-neo {
+    --neo-tick: 7px;
+    position: relative;
+    border-radius: 4px;
+    background-color: var(--neo-face);
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.28));
+    box-shadow:
+      6px 6px 14px var(--neo-dark),
+      -5px -5px 12px var(--neo-light),
+      inset 1px 1px 0 rgba(255, 255, 255, 0.06),
+      inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  /* HUD corner brackets: eight hairline gradients, no extra elements. */
+  .btn-neo::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 0 / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 0 / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 0 / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 0 / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 100% / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 100% / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 100% / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 100% / 1px var(--neo-tick);
+    background-repeat: no-repeat;
+  }
+
+  .btn-neo:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* Status LED, only on real toggles. Top-right so it never touches the label. */
+  .btn-neo[aria-pressed]::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 4px;
+    height: 4px;
+    background: var(--color-faint);
+  }
+
+  .btn-neo:active,
+  .btn-neo[aria-pressed='true'] {
+    background-image: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.12));
+    box-shadow:
+      inset 5px 5px 11px var(--neo-dark),
+      inset -4px -4px 9px var(--neo-light);
+  }
+
+  .btn-neo[aria-pressed='true']::before {
+    background: var(--color-accent);
+    box-shadow: 0 0 6px 1px rgba(234, 88, 12, 0.7);
+  }
+
+  .btn-neo-accent {
+    background-color: var(--color-accent);
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.18));
+    color: var(--color-ink);
+    box-shadow:
+      6px 6px 14px var(--neo-dark),
+      -4px -4px 10px rgba(251, 146, 60, 0.14),
+      inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+      inset -1px -1px 0 rgba(0, 0, 0, 0.28);
+  }
+
+  .btn-neo-accent::after {
+    --neo-bracket: rgba(2, 6, 23, 0.55);
+  }
+
+  .btn-neo-accent:active {
+    background-image: linear-gradient(145deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.08));
+    box-shadow:
+      inset 5px 5px 11px rgba(0, 0, 0, 0.45),
+      inset -4px -4px 9px rgba(251, 146, 60, 0.18);
+  }
+
+  .btn-neo-sm {
+    --neo-tick: 5px;
+    border-radius: 3px;
+    box-shadow:
+      3px 3px 8px var(--neo-dark),
+      -3px -3px 7px var(--neo-light),
+      inset 1px 1px 0 rgba(255, 255, 255, 0.06),
+      inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-neo-sm::after {
+    inset: 3px;
+  }
+
+  .btn-neo-sm:active,
+  .btn-neo-sm[aria-pressed='true'] {
+    box-shadow:
+      inset 3px 3px 7px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
+  }
+
+  /* Disabled: flat and inert, no extrusion. Placed last so it beats :active. */
+  .btn-neo:disabled {
+    background-image: none;
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+    cursor: not-allowed;
+  }
+
+  .btn-neo:disabled::after {
+    opacity: 0.35;
+  }
+}
+
 /* Route-entry rise-and-fade (used by /planets and /contact mains). */
 @keyframes page-in {
   from {

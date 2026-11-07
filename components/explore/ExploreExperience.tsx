@@ -46,7 +46,7 @@ export default function ExploreExperience() {
       <div className="absolute left-4 top-4 z-50 md:left-6">
         <Link
           href="/"
-          className="group relative inline-block overflow-hidden border border-line/70 bg-ink/80 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.2em] text-muted backdrop-blur-sm transition-colors duration-300 hover:text-ink"
+          className="btn-neo btn-neo-sm group relative inline-block overflow-hidden px-4 py-2 font-sans text-[11px] uppercase tracking-[0.2em] text-muted transition-colors duration-300 hover:text-ink"
         >
           <span className="absolute inset-0 translate-y-full bg-accent transition-transform duration-300 ease-[cubic-bezier(0.83,0,0.17,1)] group-hover:translate-y-0" />
           <span className="relative">[ Exit ]</span>
