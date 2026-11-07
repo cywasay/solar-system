@@ -12,30 +12,30 @@
  */
 
 .admin-root {
-  --a-bg: #f7f8fa;
-  --a-surface: #ffffff;
-  --a-surface-2: #f2f4f7;
-  --a-border: #e3e6ea;
-  --a-border-strong: #d3d8de;
+  --a-bg: #8A9098;
+  --a-surface: #8A9098;
+  --a-surface-2: #8A9098;
+  --a-border: #8A9098;
+  --a-border-strong: #8A9098;
 
-  --a-text: #12161c;
-  --a-text-muted: #5a6472;
-  --a-text-subtle: #838d9b;
+  --a-text: #101012;
+  --a-text-muted: #8A9098;
+  --a-text-subtle: #8A9098;
 
-  --a-accent: #4f46e5;
-  --a-accent-hover: #4338ca;
-  --a-accent-soft: #eef2ff;
-  --a-accent-text: #ffffff;
+  --a-accent: #FF6A3D;
+  --a-accent-hover: #FF6A3D;
+  --a-accent-soft: #8A9098;
+  --a-accent-text: #8A9098;
 
-  --a-success: #15803d;
-  --a-success-soft: #dcfce7;
-  --a-warning: #a16207;
-  --a-warning-soft: #fef3c7;
-  --a-danger: #b91c1c;
-  --a-danger-soft: #fee2e2;
+  --a-success: #FF6A3D;
+  --a-success-soft: #8A9098;
+  --a-warning: #FF6A3D;
+  --a-warning-soft: #FF6A3D;
+  --a-danger: #FF6A3D;
+  --a-danger-soft: #8A9098;
 
-  --a-ring: #4f46e5;
-  --a-shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
+  --a-ring: #FF6A3D;
+  --a-shadow: 0 1px 2px rgb(16 16 18) / 0.06), 0 1px 3px rgb(16 16 18) / 0.1);
 
   background: var(--a-bg);
   color: var(--a-text);
@@ -47,29 +47,29 @@
 
 .admin-root[data-admin-theme='dark'],
 [data-admin-theme='dark'] .admin-root {
-  --a-bg: #0b0e13;
-  --a-surface: #12161d;
-  --a-surface-2: #171c25;
-  --a-border: #232936;
-  --a-border-strong: #333b4a;
+  --a-bg: #101012;
+  --a-surface: #101012;
+  --a-surface-2: #101012;
+  --a-border: #101012;
+  --a-border-strong: #101012;
 
-  --a-text: #e8ecf2;
-  --a-text-muted: #98a2b3;
-  --a-text-subtle: #6b7684;
+  --a-text: #8A9098;
+  --a-text-muted: #8A9098;
+  --a-text-subtle: #8A9098;
 
-  --a-accent: #6366f1;
-  --a-accent-hover: #818cf8;
-  --a-accent-soft: #1e1b4b;
-  --a-accent-text: #ffffff;
+  --a-accent: #FF6A3D;
+  --a-accent-hover: #FF6A3D;
+  --a-accent-soft: #101012;
+  --a-accent-text: #8A9098;
 
-  --a-success: #4ade80;
-  --a-success-soft: #052e16;
-  --a-warning: #fbbf24;
-  --a-warning-soft: #2e1f02;
-  --a-danger: #f87171;
-  --a-danger-soft: #3b0a0a;
+  --a-success: #FF6A3D;
+  --a-success-soft: #101012;
+  --a-warning: #FF6A3D;
+  --a-warning-soft: #101012;
+  --a-danger: #FF6A3D;
+  --a-danger-soft: #101012;
 
-  --a-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+  --a-shadow: 0 1px 2px rgb(16 16 18) / 0.4), 0 1px 3px rgb(16 16 18) / 0.3);
 }
 
 /* Numbers in tables and stats must align column-wise. */
@@ -96,3 +96,7 @@
     transition: background-color 120ms linear, border-color 120ms linear;
   }
 }
+
+/* Both admin modes share the three-color brand palette. */
+.admin-root { --a-bg:#8A9098; --a-surface:#8A9098; --a-surface-2:#8A9098; --a-text:#101012; --a-text-muted:#101012; --a-text-subtle:#101012; --a-border:#10101238; --a-border-strong:#10101270; --a-accent:#FF6A3D; --a-accent-hover:#FF6A3D; --a-accent-soft:#FF6A3D20; --a-accent-text:#101012; --a-success:#101012; --a-warning:#101012; --a-danger:#101012; }
+.admin-root[data-admin-theme="dark"], [data-admin-theme="dark"] .admin-root { --a-bg:#101012; --a-surface:#101012; --a-surface-2:#101012; --a-text:#8A9098; --a-text-muted:#8A9098; --a-text-subtle:#8A9098; --a-border:#8A909838; --a-border-strong:#8A909870; --a-accent-text:#101012; --a-success:#FF6A3D; --a-warning:#FF6A3D; --a-danger:#FF6A3D; }

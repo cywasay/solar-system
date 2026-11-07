@@ -1,49 +1,34 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useLayoutEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import FocusFromQuery from '@/components/FocusFromQuery';
 import InfoPanel from '@/components/ui/InfoPanel';
 import PlanetMenu from '@/components/ui/PlanetMenu';
 import TimeControls from '@/components/ui/TimeControls';
-import ExploreLoader from './ExploreLoader';
+import { useExploreTransition } from './ExploreTransition';
+import MobileSimulationControls from './MobileSimulationControls';
+import styles from './MobileSimulationControls.module.css';
 
 const Scene = dynamic(() => import('@/components/Scene'), { ssr: false });
-
-const MINIMUM_LOADER_DURATION = 2_000;
-const LOADER_EXIT_DURATION = 500;
 
 /**
  * The canvas warms behind the loader. It is revealed only after the minimum display
  * time and the renderer's own warm-up signal have both completed.
  */
 export default function ExploreExperience() {
-  const [minimumDurationElapsed, setMinimumDurationElapsed] = useState(false);
-  const [sceneReady, setSceneReady] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
-  const loaderReadyToExit = minimumDurationElapsed && sceneReady;
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setMinimumDurationElapsed(true), MINIMUM_LOADER_DURATION);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!loaderReadyToExit) return;
-    const timer = window.setTimeout(() => setShowLoader(false), LOADER_EXIT_DURATION);
-    return () => window.clearTimeout(timer);
-  }, [loaderReadyToExit]);
-
-  const handleSceneReady = useCallback(() => setSceneReady(true), []);
+  const { phase, prepareScene, markSceneReady } = useExploreTransition();
+  useLayoutEffect(() => prepareScene(), [prepareScene]);
+  const showLoader = phase !== 'idle';
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-ink" aria-busy={showLoader}>
+    <main className="fixed inset-0 overflow-hidden bg-ink" data-explore-surface aria-busy={showLoader}>
       <div className="h-full w-full">
-        <Scene onReady={handleSceneReady} />
+        <Scene onReady={markSceneReady} />
       </div>
 
-      <div className="absolute left-4 top-4 z-50 md:left-6">
+      <div className={`absolute left-4 top-4 z-50 md:left-6 ${styles.exit}`}>
         <Link
           href="/"
           className="btn-neo btn-neo-sm group relative inline-block overflow-hidden px-4 py-2 font-sans text-[11px] uppercase tracking-[0.2em] text-muted transition-colors duration-300 hover:text-ink"
@@ -56,11 +41,13 @@ export default function ExploreExperience() {
       <Suspense fallback={null}>
         <FocusFromQuery />
       </Suspense>
-      <PlanetMenu />
-      <InfoPanel />
-      <TimeControls />
+      <div className={styles.desktop}>
+        <PlanetMenu />
+        <InfoPanel />
+        <TimeControls />
+      </div>
+      <MobileSimulationControls />
 
-      {showLoader && <ExploreLoader exiting={loaderReadyToExit} />}
     </main>
   );
 }

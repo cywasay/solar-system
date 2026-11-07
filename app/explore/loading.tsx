@@ -1,6 +1,6 @@
-import ExploreLoader from '@/components/explore/ExploreLoader';
+import { ExploreRouteLoading } from '@/components/explore/ExploreTransition';
 
 /** Immediate route-transition feedback while the Explore page is being requested. */
 export default function Loading() {
-  return <ExploreLoader />;
+  return <ExploreRouteLoading />;
 }

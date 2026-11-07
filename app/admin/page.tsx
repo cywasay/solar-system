@@ -71,21 +71,21 @@ export default function AdminDashboard() {
     <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 font-sans">
       
       {/* Professional Dashboard Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#101012] pb-6">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent" />
             </span>
-            <span className="font-mono text-[11px] uppercase tracking-wider text-emerald-400 font-medium">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-accent font-medium">
               System Active · Live Data
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-fg">
             Dashboard Overview
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-fg mt-1">
             Real-time analytics and recent contact portal inquiries.
           </p>
         </div>
@@ -94,10 +94,10 @@ export default function AdminDashboard() {
           <button
             onClick={handleRefresh}
             disabled={refreshing || loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0f172a] border border-[#1E293B] hover:border-[#334155] text-xs font-medium text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#101012] border border-[#101012] hover:border-[#101012] text-xs font-medium text-fg hover:text-fg transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50"
           >
             <svg
-              className={`w-3.5 h-3.5 text-indigo-400 ${refreshing ? 'animate-spin' : ''}`}
+              className={`w-3.5 h-3.5 text-accent ${refreshing ? 'animate-spin' : ''}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -125,75 +125,75 @@ export default function AdminDashboard() {
         ) : (
           <>
             {/* Card 1: Total Inquiries */}
-            <div className="group relative bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] hover:bg-[#1E293B]/40 p-5 rounded-2xl transition-colors duration-200">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-400 mb-3">
+            <div className="group relative bg-[#101012]/80 backdrop-blur-md border border-[#101012] hover:bg-[#101012]/40 p-5 rounded-2xl transition-colors duration-200">
+              <div className="flex items-center justify-between text-xs font-medium text-fg mb-3">
                 <span>Total Inquiries</span>
-                <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-semibold text-white tracking-tight">
+              <div className="text-3xl font-semibold text-fg tracking-tight">
                 {unavailable ? '—' : total}
               </div>
-              <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span className="text-slate-300 font-medium">All portal submissions</span>
+              <div className="mt-2 text-[11px] text-fg flex items-center gap-1.5">
+                <span className="text-fg font-medium">All portal submissions</span>
               </div>
             </div>
 
             {/* Card 2: Action Needed */}
-            <div className="group relative bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] hover:bg-[#1E293B]/40 p-5 rounded-2xl transition-colors duration-200">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-400 mb-3">
+            <div className="group relative bg-[#101012]/80 backdrop-blur-md border border-[#101012] hover:bg-[#101012]/40 p-5 rounded-2xl transition-colors duration-200">
+              <div className="flex items-center justify-between text-xs font-medium text-fg mb-3">
                 <span>Action Required</span>
-                <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+                <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-semibold text-amber-400 tracking-tight">
+              <div className="text-3xl font-semibold text-accent tracking-tight">
                 {unavailable ? '—' : unread}
               </div>
-              <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <div className="mt-2 text-[11px] text-fg flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                 <span>Unread messages</span>
               </div>
             </div>
 
             {/* Card 3: Replied */}
-            <div className="group relative bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] hover:bg-[#1E293B]/40 p-5 rounded-2xl transition-colors duration-200">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-400 mb-3">
+            <div className="group relative bg-[#101012]/80 backdrop-blur-md border border-[#101012] hover:bg-[#101012]/40 p-5 rounded-2xl transition-colors duration-200">
+              <div className="flex items-center justify-between text-xs font-medium text-fg mb-3">
                 <span>Successfully Replied</span>
-                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-semibold text-emerald-400 tracking-tight">
+              <div className="text-3xl font-semibold text-accent tracking-tight">
                 {unavailable ? '—' : replied}
               </div>
-              <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span className="text-emerald-400 font-medium">Completed responses</span>
+              <div className="mt-2 text-[11px] text-fg flex items-center gap-1.5">
+                <span className="text-accent font-medium">Completed responses</span>
               </div>
             </div>
 
             {/* Card 4: Response Rate */}
-            <div className="group relative bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] hover:bg-[#1E293B]/40 p-5 rounded-2xl transition-colors duration-200">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-400 mb-3">
+            <div className="group relative bg-[#101012]/80 backdrop-blur-md border border-[#101012] hover:bg-[#101012]/40 p-5 rounded-2xl transition-colors duration-200">
+              <div className="flex items-center justify-between text-xs font-medium text-fg mb-3">
                 <span>Response Rate</span>
-                <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+                <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-semibold text-cyan-400 tracking-tight">
+              <div className="text-3xl font-semibold text-accent tracking-tight">
                 {unavailable ? '—' : `${responseRate}%`}
               </div>
-              <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span className="text-cyan-400 font-medium">Overall resolution rate</span>
+              <div className="mt-2 text-[11px] text-fg flex items-center gap-1.5">
+                <span className="text-accent font-medium">Overall resolution rate</span>
               </div>
             </div>
           </>
@@ -201,18 +201,18 @@ export default function AdminDashboard() {
       </div>
 
       {/* Professional Interactive SVG Trend Chart */}
-      <div className="bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] p-6 rounded-2xl shadow-xl space-y-4">
+      <div className="bg-[#101012]/80 backdrop-blur-md border border-[#101012] p-6 rounded-2xl shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm uppercase tracking-wider text-slate-200 font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+            <h3 className="text-sm uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
               Inquiry Volume Trend
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-fg mt-0.5">
               Weekly breakdown of incoming portal messages.
             </p>
           </div>
-          <div className="text-xs text-slate-400 bg-[#020617] px-3 py-1.5 rounded-lg border border-[#1E293B] font-mono">
+          <div className="text-xs text-fg bg-[#101012] px-3 py-1.5 rounded-lg border border-[#101012] font-mono">
             7-Day View
           </div>
         </div>
@@ -222,8 +222,8 @@ export default function AdminDashboard() {
           <svg className="w-full h-full overflow-visible" viewBox="0 0 700 140" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366f1" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="#FF6A3D" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#FF6A3D" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
                 y1={y}
                 x2="700"
                 y2={y}
-                stroke="#1E293B"
+                stroke="#101012"
                 strokeDasharray="4 4"
                 strokeWidth="1"
               />
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                   <path d={areaD} fill="url(#chartGradient)" />
 
                   {/* Main Line */}
-                  <path d={pathD} fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" />
+                  <path d={pathD} fill="none" stroke="#FF6A3D" strokeWidth="3" strokeLinecap="round" />
 
                   {/* Interactive Nodes */}
                   {points.map((p, i) => (
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                         cx={p.x}
                         cy={p.y}
                         r="6"
-                        className="fill-[#090b0f] stroke-indigo-400 stroke-2 group-hover/node:r-8 transition-all"
+                        className="fill-[#101012] stroke-accent stroke-2 group-hover/node:r-8 transition-all"
                         onMouseEnter={() => setHoveredPoint(p)}
                         onMouseLeave={() => setHoveredPoint(null)}
                       />
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
                         cx={p.x}
                         cy={p.y}
                         r="3"
-                        className="fill-indigo-400"
+                        className="fill-accent"
                       />
                     </g>
                   ))}
@@ -296,16 +296,16 @@ export default function AdminDashboard() {
           {/* Hover Tooltip */}
           {hoveredPoint && (
             <div
-              className="absolute z-20 bg-[#090b0f] border border-indigo-500/50 text-white text-xs px-3 py-1.5 rounded-lg shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-12 transition-all font-mono"
+              className="absolute z-20 bg-[#101012] border border-accent/50 text-fg text-xs px-3 py-1.5 rounded-lg shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-12 transition-all font-mono"
               style={{ left: `${(hoveredPoint.x / 700) * 100}%`, top: `${(hoveredPoint.y / 140) * 100}%` }}
             >
-              <span className="text-indigo-400 font-semibold">{hoveredPoint.day}:</span> {hoveredPoint.count} inquiries
+              <span className="text-accent font-semibold">{hoveredPoint.day}:</span> {hoveredPoint.count} inquiries
             </div>
           )}
         </div>
 
         {/* X-Axis Labels */}
-        <div className="flex justify-between text-[11px] font-mono text-slate-500 px-2 pt-2 border-t border-[#1E293B]">
+        <div className="flex justify-between text-[11px] font-mono text-fg px-2 pt-2 border-t border-[#101012]">
           {activityData.map((d) => (
             <span key={d.day}>{d.day}</span>
           ))}
@@ -316,10 +316,10 @@ export default function AdminDashboard() {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-white tracking-tight">
+            <h2 className="text-lg font-semibold text-fg tracking-tight">
               Recent Inquiries
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-fg">
               Latest contact form submissions needing attention.
             </p>
           </div>
@@ -333,12 +333,12 @@ export default function AdminDashboard() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name, email..."
-                className="bg-[#0f172a] border border-[#1E293B] focus:border-indigo-500 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none transition-colors w-44 sm:w-56"
+                className="bg-[#101012] border border-[#101012] focus:border-accent rounded-xl px-3.5 py-1.5 text-xs text-fg placeholder-fg focus:outline-none transition-colors w-44 sm:w-56"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-fg hover:text-fg text-xs"
                 >
                   ✕
                 </button>
@@ -346,15 +346,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Filter Chips */}
-            <div className="flex bg-[#0f172a] p-1 rounded-xl border border-[#1E293B] text-[11px]">
+            <div className="flex bg-[#101012] p-1 rounded-xl border border-[#101012] text-[11px]">
               {(['ALL', 'UNREAD', 'REPLIED'] as const).map((st) => (
                 <button
                   key={st}
                   onClick={() => setFilter(st)}
                   className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer capitalize ${
                     filter === st
-                      ? 'bg-indigo-600 text-white font-medium shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-accent text-ink font-medium shadow-sm'
+                      : 'text-fg hover:text-fg'
                   }`}
                 >
                   {st.toLowerCase()}
@@ -365,11 +365,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Inquiries Table */}
-        <div className="bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#101012]/80 backdrop-blur-md border border-[#101012] rounded-2xl overflow-hidden shadow-xl">
           {loading ? (
             <SkeletonTableRows rows={5} />
           ) : recent.length === 0 ? (
-            <div className="p-12 text-center text-xs text-slate-400">
+            <div className="p-12 text-center text-xs text-fg">
               {unavailable
                 ? 'Messages could not be loaded.'
                 : 'No inquiries found matching your criteria.'}
@@ -378,7 +378,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                  <tr className="border-b border-[#1E293B] text-[11px] font-semibold uppercase tracking-wider text-slate-400 bg-[#090b0f]/60">
+                  <tr className="border-b border-[#101012] text-[11px] font-semibold uppercase tracking-wider text-fg bg-[#101012]/60">
                     <th className="px-6 py-3.5">Sender</th>
                     <th className="px-6 py-3.5">Subject</th>
                     <th className="px-6 py-3.5">Status</th>
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                     <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1E293B]/60 text-xs">
+                <tbody className="divide-y divide-[#101012]/60 text-xs">
                   {recent.map((msg) => {
                     const initials = msg.name
                       .split(' ')
@@ -398,30 +398,30 @@ export default function AdminDashboard() {
                     return (
                       <tr
                         key={msg.id}
-                        className="transition-colors hover:bg-slate-800/40 group/row"
+                        className="transition-colors hover:bg-ink/40 group/row"
                       >
                         <td className="px-6 py-4">
                           <Link href="/admin/messages" className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center font-bold text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover/row:scale-105 transition-transform">
+                            <div className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center font-bold text-xs bg-accent/10 text-accent border border-accent/20 group-hover/row:scale-105 transition-transform">
                               {initials}
                             </div>
                             <div>
-                              <div className="font-medium text-white group-hover/row:text-indigo-300 transition-colors">
+                              <div className="font-medium text-fg group-hover/row:text-accent transition-colors">
                                 {msg.name}
                               </div>
-                              <div className="text-[11px] text-slate-400 font-mono">
+                              <div className="text-[11px] text-fg font-mono">
                                 {msg.email}
                               </div>
                             </div>
                           </Link>
                         </td>
-                        <td className="px-6 py-4 text-slate-300 max-w-xs truncate">
+                        <td className="px-6 py-4 text-fg max-w-xs truncate">
                           {msg.subject || '(No Subject)'}
                         </td>
                         <td className="px-6 py-4">
                           <StatusBadge status={msg.status} />
                         </td>
-                        <td className="px-6 py-4 text-right font-mono text-slate-400 text-[11px]">
+                        <td className="px-6 py-4 text-right font-mono text-fg text-[11px]">
                           {relativeDate(msg.createdAt)}
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -429,13 +429,13 @@ export default function AdminDashboard() {
                             {msg.status === 'UNREAD' && (
                               <button
                                 onClick={() => setStatus(msg.id, 'READ')}
-                                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-medium transition-all cursor-pointer"
+                                className="px-2.5 py-1 rounded-lg bg-ink hover:bg-ink text-fg hover:text-fg text-[11px] font-medium transition-all cursor-pointer"
                               >
                                 Mark Read
                               </button>
                             )}
                             <Link href="/admin/messages">
-                              <button className="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px] font-medium transition-all cursor-pointer">
+                              <button className="px-2.5 py-1 rounded-lg bg-accent/20 hover:bg-accent/40 text-accent text-[11px] font-medium transition-all cursor-pointer">
                                 View →
                               </button>
                             </Link>
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
 
         {/* View All Footer Link */}
         <div className="flex justify-end pt-2">
-          <Link href="/admin/messages" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors inline-flex items-center gap-1.5 group">
+          <Link href="/admin/messages" className="text-xs text-accent hover:text-accent font-medium transition-colors inline-flex items-center gap-1.5 group">
             <span>View all inquiries in messages</span>
             <span className="group-hover:translate-x-1 transition-transform">→</span>
           </Link>

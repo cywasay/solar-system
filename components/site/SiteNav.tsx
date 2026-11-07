@@ -1,412 +1,258 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { planets } from '@/data/planets';
+import styles from './SiteNav.module.css';
+import { useOrbitEntrance } from './useOrbitEntrance';
 
-/** The house ease — the same curve as every CTA sweep. */
-const EASE = 'ease-[cubic-bezier(0.83,0,0.17,1)]';
-
-const primaryLinks = [
-  { href: '/', label: 'Home', index: '01' },
-  { href: '/explore', label: 'Explore', index: '02' },
-  { href: '/contact', label: 'Contact', index: '03' },
-  { href: '/admin', label: 'Admin', index: '04' },
-];
-
-/* ─── Starfield Canvas ─── */
-function Starfield({ active }: { active: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let w = (canvas.width = canvas.offsetWidth);
-    let h = (canvas.height = canvas.offsetHeight);
-
-    const COUNT = 220;
-    const stars = Array.from({ length: COUNT }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 1.2 + 0.3,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.15,
-      twinkleSpeed: Math.random() * 0.02 + 0.005,
-      twinkleOffset: Math.random() * Math.PI * 2,
-    }));
-
-    const handleResize = () => {
-      w = canvas.width = canvas.offsetWidth;
-      h = canvas.height = canvas.offsetHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    let t = 0;
-    const draw = () => {
-      t++;
-      ctx.clearRect(0, 0, w, h);
-      for (const s of stars) {
-        s.x += s.vx;
-        s.y += s.vy;
-        if (s.x < 0) s.x = w;
-        if (s.x > w) s.x = 0;
-        if (s.y < 0) s.y = h;
-        if (s.y > h) s.y = 0;
-
-        const alpha = 0.35 + 0.65 * ((Math.sin(t * s.twinkleSpeed + s.twinkleOffset) + 1) / 2);
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(248, 250, 252, ${alpha})`;
-        ctx.fill();
-      }
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    if (active) draw();
-
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [active]);
-
+function Arrow({ className = '' }: { className?: string }) {
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: active ? 1 : 0, transition: 'opacity 0.8s' }}
-    />
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 19 19 5M5 5h14v14" />
+    </svg>
   );
 }
 
-/* ─── Cursor Glow ─── */
-function CursorGlow({ active }: { active: boolean }) {
-  const glowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!active) return;
-    const el = glowRef.current;
-    if (!el) return;
-
-    const onMove = (e: MouseEvent) => {
-      el.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-    };
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
-  }, [active]);
-
-  if (!active) return null;
-  return (
-    <div
-      ref={glowRef}
-      aria-hidden
-      className="fixed top-0 left-0 z-[101] pointer-events-none"
-      style={{
-        width: 600,
-        height: 600,
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(234,88,12,0.06) 0%, rgba(234,88,12,0.02) 35%, transparent 70%)',
-        willChange: 'transform',
-      }}
-    />
-  );
-}
-
-/**
- * Site-wide navigation. The trigger sits bottom-right — the one corner no page uses —
- * and opens a full-screen curtain that rises from the trigger's edge. Motion is
- * transform/opacity only. Content reveals are choreographed: primary destinations rise
- * first, the planetary index follows in a tighter ripple, and everything collapses
- * instantly with the curtain on close (a staggered close reads as disobedience).
- */
+/** Route changes remount only the small navigation, dismissing its disclosure. */
 export default function SiteNav() {
-  const [open, setOpen] = useState(false);
-  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const pathname = usePathname();
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  const close = () => setOpen(false);
-
-  // Listen for external open triggers (e.g. from navbar menu button)
+  const router = useRouter();
+  const [entryOrigin, setEntryOrigin] = useState<string | null>(null);
+  const [entryFinished, setEntryFinished] = useState(false);
+  const onBegin = useCallback((href: string) => {
+    setEntryOrigin(pathname);
+    setEntryFinished(false);
+    router.prefetch(href);
+  }, [pathname, router]);
+  const onNavigate = useCallback((href: string) => router.push(href), [router]);
+  const onComplete = useCallback(() => setEntryFinished(true), []);
+  const onCancel = useCallback(() => { setEntryOrigin(null); setEntryFinished(false); }, []);
+  const handedOff = entryFinished && pathname.startsWith('/explore');
   useEffect(() => {
-    const handleExternalOpen = () => setOpen(true);
-    window.addEventListener('open-site-nav', handleExternalOpen);
-    return () => window.removeEventListener('open-site-nav', handleExternalOpen);
+    if (handedOff || (entryOrigin && pathname !== entryOrigin && !pathname.startsWith('/explore'))) onCancel();
+  }, [handedOff, entryOrigin, pathname, onCancel]);
+  // The simulation and admin already have dedicated navigation and controls.
+  if (handedOff || (!entryOrigin && (pathname.startsWith('/explore') || pathname.startsWith('/admin') || pathname.startsWith('/lab')))) return null;
+  // Preserve the original elements until the five-second choreography has ended,
+  // even when the simulation route has already mounted underneath its cover.
+  return <NavigationBar key={entryOrigin ?? pathname} pathname={entryOrigin ?? pathname}
+    onBegin={onBegin} onNavigate={onNavigate} onComplete={onComplete} onCancel={onCancel} />;
+}
+
+interface NavigationBarProps {
+  pathname: string;
+  onBegin: (href: string) => void;
+  onNavigate: (href: string) => void;
+  onComplete: () => void;
+  onCancel: () => void;
+}
+
+function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: NavigationBarProps) {
+  const [planetsOpen, setPlanetsOpen] = useState(false);
+  const [absorbing, setAbsorbing] = useState(false);
+  const rootRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const exploreRef = useRef<HTMLAnchorElement>(null);
+  const onPlanetPage = pathname.startsWith('/planets/');
+  const closePanel = useCallback(() => setPlanetsOpen(false), []);
+  const { entering, overlay } = useOrbitEntrance({ rootRef, buttonRef: exploreRef, closePanel, onBegin, onNavigate, onComplete, onCancel });
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const explore = exploreRef.current;
+    if (!root || !explore) return;
+
+    const slots = Array.from(root.querySelectorAll<HTMLElement>('[data-absorb]'));
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let lastProgress = -1;
+    let inactive = false;
+
+    // offset* ignores the transforms we are animating. Measurements happen only
+    // when layout changes, never on scroll, and use the stable header as origin.
+    const centerWithinHeader = (element: HTMLElement) => {
+      let x = element.offsetWidth / 2;
+      let y = element.offsetHeight / 2;
+      let current: HTMLElement | null = element;
+      while (current && current !== root) {
+        x += current.offsetLeft;
+        y += current.offsetTop;
+        current = current.offsetParent as HTMLElement | null;
+      }
+      return { x, y };
+    };
+
+    const measure = () => {
+      const target = centerWithinHeader(explore);
+      root.style.setProperty('--sink-x', `${target.x}px`);
+      root.style.setProperty('--sink-y', `${target.y}px`);
+      root.style.setProperty('--panel-width', `${root.offsetWidth}px`);
+      if (triggerRef.current) {
+        const triggerCenter = centerWithinHeader(triggerRef.current);
+        root.style.setProperty('--panel-offset', `${root.offsetWidth / 2 - triggerCenter.x}px`);
+        root.style.setProperty('--panel-drop', `${root.offsetHeight - triggerCenter.y - triggerRef.current.offsetHeight / 2 + 12}px`);
+      }
+      for (const slot of slots) {
+        const center = centerWithinHeader(slot);
+        slot.style.setProperty('--travel-x', `${target.x - center.x}px`);
+        slot.style.setProperty('--travel-y', `${target.y - center.y}px`);
+      }
+    };
+
+    const update = () => {
+      frame = 0;
+      if (root.dataset.entering === 'true') return;
+      const raw = Math.min(1, Math.max(0, (window.scrollY - 24) / 160));
+      const progress = reducedMotion.matches ? (raw > 0.08 ? 1 : 0) : raw;
+      if (progress === lastProgress || (progress > 0 && progress < 1 && Math.abs(progress - lastProgress) < 0.0001)) return;
+      lastProgress = progress;
+      root.style.setProperty('--collapse', progress.toFixed(4));
+      root.dataset.compact = String(progress === 1);
+
+      // A little hysteresis prevents tab targets flickering at the boundary.
+      const nextInactive = inactive ? progress > 0.02 : progress > 0.08;
+      if (inactive === nextInactive) return;
+      inactive = nextInactive;
+      if (inactive) {
+        if (root.querySelector('[data-nav-content]:focus-within')) {
+          explore.focus({ preventScroll: true });
+        }
+        setPlanetsOpen(false);
+      }
+      setAbsorbing(inactive);
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    measure();
+    update();
+    const observer = new ResizeObserver(measure);
+    for (const element of [root, explore, ...slots]) observer.observe(element);
+    window.addEventListener('scroll', schedule, { passive: true });
+    reducedMotion.addEventListener('change', schedule);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', schedule);
+      reducedMotion.removeEventListener('change', schedule);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-    closeButtonRef.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+    if (!planetsOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setPlanetsOpen(false);
     };
-    window.addEventListener('keydown', onKey);
-    const previousOverflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setPlanetsOpen(false);
+      triggerRef.current?.focus();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
     return () => {
-      window.removeEventListener('keydown', onKey);
-      document.documentElement.style.overflow = previousOverflow;
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
     };
-  }, [open]);
+  }, [planetsOpen]);
 
-  /** Staggered rise for curtain content; `step` positions it in the sequence. */
-  const reveal = useCallback((step: number) => ({
-    className: `transition-[opacity,transform] duration-500 ${EASE} motion-reduce:transition-none ${
-      open ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-    }`,
-    style: { transitionDelay: open ? `${140 + step * 45}ms` : '0ms' },
-  }), [open]);
-
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
-
-  // Hide the global site navigation entirely when inside the admin portal.
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
-
-  return (
-    <>
-      <CursorGlow active={open} />
-
-      {/* Curtain */}
-      <div
-        id="site-nav-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Site navigation"
-        inert={!open}
-        className={`fixed inset-0 z-[100] bg-ink text-fg flex flex-col overflow-y-auto scrollbar-none transition-transform duration-[600ms] ${EASE} motion-reduce:transition-none ${
-          open ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      >
-        {/* Animated starfield canvas */}
-        <Starfield active={open} />
-
-        {/* Slowly rotating orrery rings */}
-        <div
-          aria-hidden
-          className="absolute -top-[24vmin] -right-[24vmin] w-[70vmin] aspect-square pointer-events-none select-none"
-        >
-          {[
-            { size: 100, dur: '90s' },
-            { size: 68, dur: '60s' },
-            { size: 38, dur: '35s' },
-          ].map(({ size, dur }) => (
-            <div
-              key={size}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/70"
-              style={{
-                width: `${size}%`,
-                height: `${size}%`,
-                animation: `spin ${dur} linear infinite`,
-              }}
-            />
-          ))}
-          {/* Pulsing sun dot */}
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent"
-            style={{
-              boxShadow: '0 0 12px 4px rgba(234,88,12,0.5), 0 0 30px 8px rgba(234,88,12,0.2)',
-              animation: 'pulse-glow 2s ease-in-out infinite',
-            }}
-          />
-          {/* Tiny orbiting planet on the middle ring */}
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: '68%',
-              height: '68%',
-              animation: 'spin 60s linear infinite reverse',
-            }}
-          >
-            <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-soft"
-              style={{ boxShadow: '0 0 6px 2px rgba(248,250,252,0.3)' }}
-            />
-          </div>
-        </div>
-
-        <div className="relative flex items-center justify-between px-6 md:px-12 lg:px-24 pt-7 pb-6 border-b border-line">
-          <span {...reveal(0)}>
-            <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
-              Index
+  return (<>
+    <header
+      className={styles.header}
+      ref={rootRef}
+      data-absorbing={absorbing}
+      aria-busy={entering}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPlanetsOpen(false);
+      }}
+    >
+      <div className={styles.rule} aria-hidden="true" />
+      <nav className={styles.bar} aria-label="Main navigation">
+        <div className={`${styles.absorb} ${styles.brandSlot}`} data-absorb data-nav-content inert={absorbing || entering}>
+          <Link href="/" className={styles.brand} aria-label="Thessaris home" onClick={() => setPlanetsOpen(false)}>
+            <span className={styles.sealSlot} data-orbit-piece="emblem">
+            <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
+              <circle cx="26" cy="26" r="17" stroke="currentColor" strokeWidth=".8" />
+              <ellipse cx="26" cy="26" rx="25" ry="8" transform="rotate(-38 26 26)" stroke="currentColor" strokeWidth=".8" />
+              <path d="M26 2v8m0 32v8M2 26h8m32 0h8" stroke="currentColor" strokeWidth=".6" />
+              <circle cx="26" cy="26" r="3" fill="var(--color-accent-hover)" />
+              <circle cx="39.4" cy="15.6" r="2" fill="currentColor" />
+            </svg>
             </span>
-          </span>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={close}
-            className="btn-neo btn-neo-sm min-w-[8rem] px-4 py-2 text-center font-sans text-[11px] uppercase tracking-[0.25em] text-muted hover:text-accent transition-colors duration-200 cursor-pointer group"
-          >
-            <span className="group-hover:tracking-[0.35em] transition-all duration-300">[ Close ]</span>
-          </button>
+            <span className={styles.brandType} data-orbit-piece="wordmark">
+              <span className={styles.wordmark}>Thessaris<span className={styles.brandDot}>.</span></span>
+              <span className={styles.brandCaption}>An independent observatory</span>
+            </span>
+          </Link>
         </div>
 
-        <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 px-6 md:px-12 lg:px-24 py-4 lg:py-6 overflow-y-auto">
-          {/* Primary destinations */}
-          <nav className="lg:col-span-7 flex flex-col justify-center" aria-label="Primary">
-            <ul className="space-y-2.5 lg:space-y-4">
-              {primaryLinks.map((link, i) => (
-                <li key={link.href} {...reveal(1 + i)}>
-                  <Link
-                    href={link.href}
-                    onClick={close}
-                    aria-current={isActive(link.href) ? 'page' : undefined}
-                    className="group flex items-baseline gap-4 relative"
-                    onMouseEnter={() => setHoveredLink(link.href)}
-                    onMouseLeave={() => setHoveredLink(null)}
-                  >
-                    {/* Ambient glow behind hovered text */}
-                    <span
-                      aria-hidden
-                      className="absolute -left-4 top-1/2 -translate-y-1/2 w-24 h-24 rounded-full pointer-events-none transition-opacity duration-500"
-                      style={{
-                        background: 'radial-gradient(circle, rgba(234,88,12,0.15) 0%, transparent 70%)',
-                        opacity: hoveredLink === link.href ? 1 : 0,
-                      }}
-                    />
-                    <span
-                      className={`font-mono text-[11px] transition-all duration-300 ${
-                        isActive(link.href)
-                          ? 'text-accent'
-                          : 'text-quiet group-hover:text-accent'
-                      } ${hoveredLink === link.href ? 'translate-x-1' : ''}`}
-                    >
-                      {link.index}
-                    </span>
-                    <span
-                      className={`font-serif uppercase text-[clamp(2.2rem,5vw,4.5rem)] leading-[0.95] tracking-tight transition-all duration-300 ${EASE} group-hover:translate-x-3 ${
-                        isActive(link.href)
-                          ? 'italic text-fg'
-                          : 'text-muted group-hover:text-fg'
-                      }`}
-                      style={{
-                        textShadow: hoveredLink === link.href
-                          ? '0 0 30px rgba(234,88,12,0.25), 0 0 60px rgba(234,88,12,0.1)'
-                          : 'none',
-                        transition: 'text-shadow 0.4s, color 0.3s, transform 0.3s',
-                      }}
-                    >
-                      {link.label}
-                    </span>
-                    <span
-                      aria-hidden
-                      className={`font-sans text-xl text-accent opacity-0 -translate-x-3 transition-[opacity,transform] duration-300 ${EASE} group-hover:opacity-100 group-hover:translate-x-0`}
-                    >
-                      →
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Planetary index with dotted leaders — print-catalogue register. */}
-          <nav
-            className="lg:col-span-5 lg:border-l lg:border-line lg:pl-10 flex flex-col justify-center"
-            aria-label="Planets"
-          >
-            <h2 {...reveal(4)}>
-              <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
-                Planetary index
-              </span>
-            </h2>
-            <ul className="mt-3 lg:mt-5 space-y-1.5 lg:space-y-2.5">
-              {planets.map((planet, i) => {
-                const href = `/planets/${planet.name.toLowerCase()}`;
-                const active = pathname === href;
-                return (
-                  <li key={planet.name} {...reveal(5 + i * 0.6)}>
-                    <Link
-                      href={href}
-                      onClick={close}
-                      aria-current={active ? 'page' : undefined}
-                      className="group flex items-baseline relative overflow-hidden py-0.5 rounded"
-                    >
-                      {/* Scanning highlight bar on hover */}
-                      <span
-                        aria-hidden
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"
-                      />
-                      <span
-                        className={`font-mono text-[11px] w-6 transition-all duration-200 ${
-                          active ? 'text-accent' : 'text-quiet group-hover:text-accent'
-                        }`}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <span
-                        className={`font-serif text-xl tracking-tight transition-all duration-200 group-hover:translate-x-1 ${
-                          active ? 'italic text-fg' : 'text-muted group-hover:text-fg'
-                        }`}
-                      >
-                        {planet.name}
-                      </span>
-                      <span
-                        aria-hidden
-                        className="flex-1 border-b border-dotted border-line mx-3 -translate-y-1 group-hover:border-line-strong transition-colors duration-300"
-                      />
-                      <span className="font-mono text-[11px] text-quiet group-hover:text-soft transition-colors duration-200">
-                        {parseFloat(planet.facts.distance).toFixed(2)} AU
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </div>
-
-        {/* Enter the Simulation CTA */}
-        <div className="relative px-6 md:px-12 lg:px-24 py-3 lg:py-4 border-t border-line shrink-0">
-          <div {...reveal(9)}>
-            <Link
-              href="/explore"
-              onClick={close}
-              className={`btn-neo group relative flex items-center justify-center gap-4 w-full py-3.5 hover:bg-accent text-accent hover:text-ink font-sans text-xs sm:text-sm uppercase tracking-[0.2em] transition-all duration-300 ${EASE} overflow-hidden`}
-            >
-              {/* Sweeping shimmer on hover */}
-              <span
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-fg/[0.06] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"
-              />
-              <span className="font-semibold relative z-10">Enter the Simulation</span>
-              <span
-                aria-hidden
-                className={`text-lg relative z-10 transition-transform duration-300 ${EASE} group-hover:translate-x-2`}
-              >
-                →
-              </span>
+        <div className={styles.destinations} data-nav-content inert={absorbing || entering}>
+          <div className={styles.absorb} data-absorb style={{ '--lag': 0.035 } as CSSProperties}>
+            <Link href="/" className={styles.key} data-orbit-piece="home" aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setPlanetsOpen(false)}>
+              <span className={styles.navIndex} aria-hidden="true">01</span>
+              <span className={styles.navText}>Home</span>
+            </Link>
+          </div>
+          <div className={`${styles.absorb} ${styles.planetNavigation}`} data-absorb style={{ '--lag': 0.07 } as CSSProperties}>
+            <button type="button" ref={triggerRef} className={styles.key} data-orbit-piece="planets"
+              aria-expanded={planetsOpen} aria-controls="navbar-planets"
+              data-active={onPlanetPage || undefined} onClick={() => setPlanetsOpen((open) => !open)}>
+              <span className={styles.navIndex} aria-hidden="true">02</span>
+              <span className={styles.navText}>Planets <span className={styles.toggleGlyph} aria-hidden="true" /></span>
+            </button>
+            {planetsOpen && (
+              <div className={styles.planetPanel} id="navbar-planets" data-lenis-prevent>
+                <div className={styles.panelHeading}>
+                  <span>The planetary atlas<span className={styles.panelDot}>.</span></span>
+                  <span className={styles.panelEdition}>Our solar system<br />01 — 08</span>
+                </div>
+                <nav className={styles.planetGrid} aria-label="Planetary index">
+                  {planets.map((planet, index) => {
+                    const href = `/planets/${planet.name.toLowerCase()}`;
+                    return (
+                      <Link key={planet.name} href={href} className={styles.planetLink} onClick={() => setPlanetsOpen(false)}
+                        aria-current={pathname === href ? 'page' : undefined}
+                        style={{ '--planet-color': planet.fallbackColor } as CSSProperties}>
+                        <span className={styles.planetOrdinal} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                        <span className={styles.planetSphere} aria-hidden="true" style={{ backgroundImage: `url(${planet.textureFile})` }} />
+                        <span className={styles.planetText}>
+                          <span>{planet.name}</span>
+                          <span>{planet.facts.distance.replace(' from the Sun', '')}</span>
+                        </span>
+                        <Arrow className={styles.planetArrow} />
+                      </Link>
+                    );
+                  })}
+                </nav>
+                <Link href="/explore" className={styles.panelExplore} onClick={() => setPlanetsOpen(false)}>
+                  <span>See it all in motion</span><Arrow />
+                </Link>
+              </div>
+            )}
+          </div>
+          <div className={styles.absorb} data-absorb style={{ '--lag': 0.105 } as CSSProperties}>
+            <Link href="/contact" className={styles.key} data-orbit-piece="contact" aria-current={pathname === '/contact' ? 'page' : undefined} onClick={() => setPlanetsOpen(false)}>
+              <span className={styles.navIndex} aria-hidden="true">03</span>
+              <span className={styles.navText}>Contact</span>
+            </Link>
+          </div>
+          <div className={styles.absorb} data-absorb style={{ '--lag': 0.14 } as CSSProperties}>
+            <Link href="/admin" className={`${styles.key} ${styles.adminKey}`} data-orbit-piece="admin" onClick={() => setPlanetsOpen(false)}>
+              <span className={styles.navIndex} aria-hidden="true">04</span>
+              <span className={styles.navText}>Admin</span>
             </Link>
           </div>
         </div>
 
-        <div className="relative px-6 md:px-12 lg:px-24 py-4 border-t border-line shrink-0">
-          <div {...reveal(10)}>
-            <div className="flex flex-wrap justify-between gap-2 font-sans text-[11px] uppercase tracking-[0.25em] text-quiet">
-              <span>Simulation.01 — Thessaris</span>
-              <span>09 bodies · 03 satellites · No analytics</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Keyframes injected once */}
-      <style jsx global>{`
-        @keyframes spin {
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 12px 4px rgba(234,88,12,0.5), 0 0 30px 8px rgba(234,88,12,0.2); }
-          50% { box-shadow: 0 0 20px 8px rgba(234,88,12,0.7), 0 0 50px 16px rgba(234,88,12,0.3); }
-        }
-      `}</style>
-    </>
-  );
+        <Link ref={exploreRef} href="/explore" className={styles.exploreKey} aria-label="Explore" onClick={() => setPlanetsOpen(false)}>
+          <span className={styles.exploreLabel}>Explore</span>
+          <span className={styles.exploreArrow}><Arrow /></span>
+        </Link>
+      </nav>
+    </header>
+    {overlay}
+  </>);
 }

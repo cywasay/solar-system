@@ -81,17 +81,17 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] flex overflow-hidden bg-[#020617]">
+    <div className="h-[calc(100vh-64px)] flex overflow-hidden bg-[#101012]">
       {/* Sidebar List */}
-      <aside className="w-full md:w-[360px] lg:w-[400px] border-r border-[#1E293B] flex flex-col flex-shrink-0 bg-[#090b0f]/80 backdrop-blur-xl z-10">
-        <div className="p-5 border-b border-[#1E293B] space-y-4 bg-[#020617]/50">
+      <aside className="w-full md:w-[360px] lg:w-[400px] border-r border-[#101012] flex flex-col flex-shrink-0 bg-[#101012]/80 backdrop-blur-xl z-10">
+        <div className="p-5 border-b border-[#101012] space-y-4 bg-[#101012]/50">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold tracking-tight text-white">Messages</h1>
+            <h1 className="text-lg font-semibold tracking-tight text-fg">Messages</h1>
             <button
               onClick={refresh}
               disabled={loading}
               title="Refresh"
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E293B] transition-colors cursor-pointer disabled:opacity-50"
+              className="p-2 rounded-lg text-fg hover:text-fg hover:bg-[#101012] transition-colors cursor-pointer disabled:opacity-50"
             >
               <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -101,7 +101,7 @@ export default function MessagesPage() {
 
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-fg group-focus-within:text-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -110,19 +110,19 @@ export default function MessagesPage() {
               placeholder="Search inquiries..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#0f172a] border border-[#1E293B] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#101012] border border-[#101012] rounded-xl text-sm text-fg placeholder-fg focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-[#0f172a] border border-[#1E293B] text-xs font-medium">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-[#101012] border border-[#101012] text-xs font-medium">
             {(['ALL', 'UNREAD', 'READ', 'REPLIED'] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer ${
                   filter === f
-                    ? 'bg-[#1E293B] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#1E293B]/50'
+                    ? 'bg-[#101012] text-fg shadow-sm'
+                    : 'text-fg hover:text-fg hover:bg-[#101012]/50'
                 }`}
               >
                 {f === 'ALL' ? 'All' : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -131,7 +131,7 @@ export default function MessagesPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto divide-y divide-[#1E293B]">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#101012]">
           {loadError && (
             <div className="p-4">
               <LoadErrorNotice message={loadError} onRetry={() => void refresh()} busy={loading} />
@@ -161,16 +161,16 @@ export default function MessagesPage() {
                   onClick={() => handleSelect(msg)}
                   className={`px-4 py-4 cursor-pointer transition-all border-l-2 flex items-center gap-4 ${
                     isSelected
-                      ? 'bg-[#1E293B]/60 border-indigo-500'
-                      : 'border-transparent hover:bg-[#1E293B]/30 hover:border-slate-600'
+                      ? 'bg-[#101012]/60 border-accent'
+                      : 'border-transparent hover:bg-[#101012]/30 hover:border-fg'
                   }`}
                 >
                   {/* Avatar Circle */}
                   <div
                     className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-bold text-xs shadow-inner ${
                       isSelected
-                        ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                        : 'bg-[#0f172a] text-slate-400 border border-[#1E293B]'
+                        ? 'bg-accent/20 text-accent border border-accent/30'
+                        : 'bg-[#101012] text-fg border border-[#101012]'
                     }`}
                   >
                     {initials}
@@ -179,16 +179,16 @@ export default function MessagesPage() {
                   {/* Message Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className={`text-sm font-semibold truncate ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                      <span className={`text-sm font-semibold truncate ${isSelected ? 'text-fg' : 'text-fg'}`}>
                         {msg.name}
                       </span>
-                      <span className="text-[10px] font-mono shrink-0 text-slate-500">
+                      <span className="text-[10px] font-mono shrink-0 text-fg">
                         {new Date(msg.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs truncate text-slate-400">
+                      <span className="text-xs truncate text-fg">
                         {msg.subject ? `${msg.subject} — ${msg.message}` : msg.message}
                       </span>
                       <div className="shrink-0 scale-90 origin-right">
@@ -204,19 +204,19 @@ export default function MessagesPage() {
       </aside>
 
       {/* Main Detail Pane */}
-      <main className="flex-1 overflow-y-auto bg-[#020617] relative">
+      <main className="flex-1 overflow-y-auto bg-[#101012] relative">
         {selectedMessage ? (
           <div className="max-w-4xl mx-auto p-6 md:p-10 space-y-8 flex flex-col min-h-full">
             {/* Subject & Status Bar */}
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#1E293B] pb-6">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#101012] pb-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <StatusBadge status={selectedMessage.status} />
-                  <span className="text-xs font-mono text-slate-500 bg-[#0f172a] px-2 py-1 rounded-md border border-[#1E293B]">
+                  <span className="text-xs font-mono text-fg bg-[#101012] px-2 py-1 rounded-md border border-[#101012]">
                     ID: {selectedMessage.id}
                   </span>
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight text-white mt-2">
+                <h1 className="text-3xl font-bold tracking-tight text-fg mt-2">
                   {selectedMessage.subject || '(No Subject)'}
                 </h1>
               </div>
@@ -225,7 +225,7 @@ export default function MessagesPage() {
                 {selectedMessage.status !== 'UNREAD' && (
                   <button
                     onClick={() => setStatus(selectedMessage.id, 'UNREAD')}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0f172a] text-slate-300 border border-[#1E293B] hover:bg-[#1E293B] hover:text-white transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#101012] text-fg border border-[#101012] hover:bg-[#101012] hover:text-fg transition-colors cursor-pointer"
                   >
                     Mark Unread
                   </button>
@@ -233,7 +233,7 @@ export default function MessagesPage() {
                 {selectedMessage.status === 'UNREAD' && (
                   <button
                     onClick={() => setStatus(selectedMessage.id, 'READ')}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0f172a] text-slate-300 border border-[#1E293B] hover:bg-[#1E293B] hover:text-white transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#101012] text-fg border border-[#101012] hover:bg-[#101012] hover:text-fg transition-colors cursor-pointer"
                   >
                     Mark Read
                   </button>
@@ -243,7 +243,7 @@ export default function MessagesPage() {
 
             {/* Sender Info Bar */}
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full font-bold text-sm flex items-center justify-center shrink-0 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+              <div className="w-12 h-12 rounded-full font-bold text-sm flex items-center justify-center shrink-0 bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(255, 106, 61,0.15)]">
                 {selectedMessage.name
                   .split(' ')
                   .map((n) => n[0])
@@ -253,30 +253,30 @@ export default function MessagesPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-base font-semibold text-white">
+                  <span className="text-base font-semibold text-fg">
                     {selectedMessage.name}
                   </span>
                   <a
                     href={`mailto:${selectedMessage.email}`}
-                    className="text-sm text-slate-400 hover:text-indigo-400 hover:underline transition-colors"
+                    className="text-sm text-fg hover:text-accent hover:underline transition-colors"
                   >
                     &lt;{selectedMessage.email}&gt;
                   </a>
                 </div>
-                <div className="text-xs mt-1 text-slate-500">
+                <div className="text-xs mt-1 text-fg">
                   Received {formatDate(selectedMessage.createdAt)}
                 </div>
               </div>
             </div>
 
             {/* Message Body Content */}
-            <div className="py-8 px-6 rounded-2xl bg-[#0f172a]/50 border border-[#1E293B] text-[15px] leading-relaxed whitespace-pre-wrap font-sans min-h-[120px] text-slate-200 shadow-sm">
+            <div className="py-8 px-6 rounded-2xl bg-[#101012]/50 border border-[#101012] text-[15px] leading-relaxed whitespace-pre-wrap font-sans min-h-[120px] text-fg shadow-sm">
               {selectedMessage.message}
             </div>
 
             {/* Recorded Previous Reply */}
             {selectedMessage.replyText && (
-              <div className="p-5 rounded-xl space-y-3 text-sm bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <div className="p-5 rounded-xl space-y-3 text-sm bg-accent/10 border border-accent/20 text-accent">
                 <div className="flex items-center gap-2 font-semibold text-xs uppercase tracking-wider">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -288,12 +288,12 @@ export default function MessagesPage() {
             )}
 
             {/* Reply Composer Card */}
-            <div className="mt-auto bg-[#0f172a]/80 backdrop-blur-md border border-[#1E293B] rounded-2xl p-6 shadow-lg">
+            <div className="mt-auto bg-[#101012]/80 backdrop-blur-md border border-[#101012] rounded-2xl p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-fg">
                   Send Email Reply
                 </h3>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-fg">
                   To: {selectedMessage.email}
                 </span>
               </div>
@@ -303,8 +303,8 @@ export default function MessagesPage() {
                   role={visibleNote.ok ? 'status' : 'alert'}
                   className={`p-3 rounded-lg text-xs font-medium mb-4 border ${
                     visibleNote.ok
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                      ? 'bg-accent/10 text-accent border-accent/20'
+                      : 'bg-accent/10 text-accent border-accent/20'
                   }`}
                 >
                   {visibleNote.text}
@@ -319,7 +319,7 @@ export default function MessagesPage() {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder={`Write your response to ${selectedMessage.name}...`}
-                  className="w-full p-4 bg-[#020617]/50 border border-[#1E293B] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none"
+                  className="w-full p-4 bg-[#101012]/50 border border-[#101012] rounded-xl text-sm text-fg placeholder-fg focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none"
                 />
 
                 <div className="flex flex-wrap items-center justify-end gap-3">
@@ -330,7 +330,7 @@ export default function MessagesPage() {
                       type="button"
                       disabled={sendingReply || !replyText.trim()}
                       onClick={() => void submitReply(true)}
-                      className="px-4 py-2.5 rounded-xl border border-[#334155] text-sm font-medium text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl border border-[#101012] text-sm font-medium text-fg hover:bg-[#101012] hover:text-fg transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       Mark replied without emailing
                     </button>
@@ -338,7 +338,7 @@ export default function MessagesPage() {
                   <button
                     type="submit"
                     disabled={sendingReply} 
-                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:-translate-y-0 cursor-pointer"
+                    className="px-6 py-2.5 bg-accent hover:bg-accent text-ink text-sm font-medium rounded-xl shadow-lg shadow-accent/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:-translate-y-0 cursor-pointer"
                   >
                     {sendingReply ? (
                       'Sending...'
@@ -358,14 +358,14 @@ export default function MessagesPage() {
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="text-center space-y-4 p-8">
-              <div className="w-16 h-16 rounded-2xl bg-[#0f172a] border border-[#1E293B] flex items-center justify-center mx-auto shadow-lg shadow-black/20">
-                <svg className="w-8 h-8 text-indigo-400/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-16 h-16 rounded-2xl bg-[#101012] border border-[#101012] flex items-center justify-center mx-auto shadow-lg shadow-ink/20">
+                <svg className="w-8 h-8 text-accent/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-white mb-1">No message selected</h3>
-                <p className="text-sm text-slate-400 max-w-sm mx-auto">Choose an inquiry from the sidebar to inspect content and send replies.</p>
+                <h3 className="text-base font-semibold text-fg mb-1">No message selected</h3>
+                <p className="text-sm text-fg max-w-sm mx-auto">Choose an inquiry from the sidebar to inspect content and send replies.</p>
               </div>
             </div>
           </div>

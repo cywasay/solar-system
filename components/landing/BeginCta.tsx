@@ -281,10 +281,10 @@ export default function BeginCta() {
     <Link
       ref={sectionRef}
       href="/explore"
-      className="group relative block w-full border-t border-[#1E293B] overflow-hidden bg-[#020617]"
+      className="group relative block w-full border-t border-[#101012] overflow-hidden bg-[#101012]"
     >
       <div
-        className={`absolute inset-0 bg-[#EA580C] translate-y-full group-hover:translate-y-0 transition-transform duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
+        className={`absolute inset-0 bg-[#FF6A3D] translate-y-full group-hover:translate-y-0 transition-transform duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
       />
       <div className="relative px-4 sm:px-6 md:px-12 lg:px-24 py-12 sm:py-20 md:py-32 flex items-end justify-between gap-4 sm:gap-8">
         {/* Not `flex`: flex items don't get letter-spacing, which silently dropped
@@ -300,14 +300,14 @@ export default function BeginCta() {
             >
               {/* Outgoing white letter. */}
               <span
-                className={`block text-[#F8FAFC] transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:-translate-y-full ${EASE_OUT}`}
+                className={`block text-[#E6DED0] transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:-translate-y-full ${EASE_OUT}`}
               >
                 {letter}
               </span>
               {/* Incoming black letter, stacked exactly one line-box below. Absolute so
                   it cannot contribute to the mask's height. */}
               <span
-                className={`absolute left-0 top-0 block text-[#020617] translate-y-full transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:translate-y-0 ${EASE_OUT}`}
+                className={`absolute left-0 top-0 block text-[#101012] translate-y-full transition-transform duration-[380ms] [transition-delay:0ms] group-hover:duration-[640ms] group-hover:[transition-delay:var(--d)] group-hover:translate-y-0 ${EASE_OUT}`}
               >
                 {letter}
               </span>
@@ -319,7 +319,7 @@ export default function BeginCta() {
           {/* Steps aside while the arrow is acting as the cursor — the corner would
               otherwise read as an orphaned label. Fades only when the effect is live. */}
           <span
-            className={`cta-ready hidden md:block text-sm text-slate-500 group-hover:text-[#020617]/70 transition-[color,opacity] duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
+            className={`cta-ready hidden md:block text-sm text-fg group-hover:text-[#101012]/70 transition-[color,opacity] duration-[420ms] group-hover:duration-[740ms] ${EASE_OUT}`}
           >
             Ready when you are
           </span>
@@ -336,32 +336,11 @@ export default function BeginCta() {
           <span
             ref={arrowRef}
             aria-hidden="true"
-            /*
-             * Off-white throughout, no longer switching to near-black on hover: once the
-             * disc is filled, the arrow's contrast partner is the plum fill rather than
-             * the page behind it, and near-black on plum is unreadable. Off-white gives
-             * 9.8:1 on the fill and still reads on navy at rest.
-             */
-            className="relative block pointer-events-none text-[#F8FAFC]"
+            /* Deep ink keeps the arrow legible on the orange hover surface. */
+            className="relative block pointer-events-none text-[#E6DED0] group-hover:text-[#101012] transition-colors duration-300"
           >
-            {/*
-             * Ring. Absent at rest — it grows in only once the arrow becomes the cursor,
-             * so the corner keeps its bare-arrow composition. Sized as a percentage of
-             * the arrow so it tracks CURSOR_SCALE automatically.
-             *
-             * Off-white stroke, deliberately NOT `border-current`: the ring crosses two
-             * backgrounds — navy while it flies in, orange once the sweep lands — and
-             * off-white is the only palette colour clearing 3:1 against both (19.3:1 on
-             * navy, 3.4:1 on orange). Inheriting the arrow's colour would drop it to
-             * 1.0:1 — invisible — for the whole entry.
-             *
-             * Wine-red fill (#9B0F3A, hue 342, 82% saturation). Balances four things at
-             * once: 7.95:1 for the off-white arrow on top, 2.34:1 against the orange
-             * field, 2.42:1 against navy, and a 39deg hue gap from orange. Anything
-             * brighter (raspberry, cerise) drops under 2:1 on the orange; anything
-             * violet-leaning reads greyish because it loses separation from the navy.
-             */}
-            <span className="cta-ring absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] rounded-full border-[3px] border-[#F8FAFC] bg-[#9B0F3A]" />
+            {/* The cursor ring follows the arrow ink on the orange surface. */}
+            <span className="cta-ring absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[145%] h-[145%] rounded-full border-[3px] border-[#E6DED0] bg-[#E6DED0]" />
 
             {/* Heading pivot. An HTML element rather than the <svg>: CSS rotation on an
                 SVG root resolves transform-origin against the viewBox, so it would spin

@@ -45,16 +45,6 @@ export default async function PlanetPage({ params }: { params: Promise<{ slug: s
 
   return (
     <main className="min-h-screen bg-ink text-fg page-in">
-      {/* Chrome bar, same register as the landing nav */}
-      <nav className="flex justify-between items-center px-6 md:px-12 py-6 font-sans text-[11px] md:text-xs tracking-widest uppercase border-b border-line/40 text-quiet">
-        <Link href="/" className="hover:text-accent transition-colors duration-200 text-fg">
-          Simulation.01
-        </Link>
-        <span>
-          Planetary Index — {ordinal} / {String(planets.length).padStart(2, '0')}
-        </span>
-      </nav>
-
       {/* Masthead */}
       <header className="px-6 md:px-12 pt-16 md:pt-24 pb-12 border-b border-line/40 relative overflow-hidden">
         <p className="font-sans text-[11px] md:text-xs uppercase tracking-[0.2em] text-quiet mb-8">

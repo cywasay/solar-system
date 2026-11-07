@@ -64,7 +64,7 @@ const bands = (() => {
  *   - skips writes when nothing moved beyond a dead zone, so an idle page costs nothing,
  *   - never starts on coarse-pointer devices, where there is no pointer to track.
  */
-export default function HeroStage({ children }: { children: React.ReactNode }) {
+export default function HeroStage({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const rootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -182,15 +182,10 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    // Renders the <header> itself rather than wrapping one in `display: contents` —
-    // that would strip the banner landmark's semantics in some browsers.
+    // Keep depth and visibility handling here; the caller supplies the layout.
     <header
       ref={rootRef}
-      // Height budget: one viewport MINUS the masthead above it, so nav + hero together
-      // occupy exactly one screen and the scroll cue never falls below the fold. `svh`
-      // (small viewport height) is measured with mobile browser chrome expanded, so the
-      // layout doesn't jump when the URL bar hides.
-      className="relative min-h-[calc(100svh-5rem)] flex flex-col justify-between overflow-hidden border-b border-line px-6 md:px-12 lg:px-24 pt-10 md:pt-14 pb-8"
+      className={`relative overflow-hidden border-b border-line ${className}`}
       style={{ ['--mx' as string]: 0, ['--my' as string]: 0, ['--sp' as string]: 0 }}
     >
       {/* Layer 1 — starfield. One transform per depth band, NOT per star: the band is
@@ -244,14 +239,14 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
         className="glow-breathe absolute left-[68%] top-[46%] w-[85vmin] h-[85vmin] rounded-full pointer-events-none"
         style={{
           background:
-            'radial-gradient(circle, rgba(234,88,12,0.16), rgba(234,88,12,0.05) 42%, transparent 68%)',
+            'radial-gradient(circle, rgba(255, 106, 61,0.16), rgba(255, 106, 61,0.05) 42%, transparent 68%)',
         }}
       />
       <div
         aria-hidden
         className="absolute left-[8%] top-[70%] w-[60vmin] h-[60vmin] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(56,89,248,0.10), transparent 65%)',
+          background: 'radial-gradient(circle, rgba(255, 106, 61,0.10), transparent 65%)',
           transform:
             'translate3d(calc(var(--mx) * -18px), calc(var(--my) * -18px + var(--sp) * 70px), 0)',
         }}
@@ -265,7 +260,7 @@ export default function HeroStage({ children }: { children: React.ReactNode }) {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse at 60% 45%, transparent 35%, rgba(2,6,23,0.55) 100%)',
+            'radial-gradient(ellipse at 60% 45%, transparent 35%, rgba(16, 16, 18,0.55) 100%)',
         }}
       />
     </header>

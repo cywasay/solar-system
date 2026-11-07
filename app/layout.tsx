@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader, Geist, Geist_Mono, Bebas_Neue } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteNav from "@/components/site/SiteNav";
+import ExploreTransition from "@/components/explore/ExploreTransition";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -43,9 +44,16 @@ export default function RootLayout({
       className={`${newsreader.variable} ${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-fg font-sans selection:bg-accent selection:text-ink">
-        {children}
-        {/* Site-wide navigation: fixed [ Menu ] trigger bottom-right on every page. */}
-        <SiteNav />
+        <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+          <defs>
+            <filter id="brand-seal"><feFlood floodColor="#8A9098" /><feComposite in2="SourceAlpha" operator="in" /></filter>
+            <filter id="brand-galaxy"><feFlood floodColor="#101012" /><feComposite in2="SourceAlpha" operator="in" /></filter>
+          </defs>
+        </svg>
+        <ExploreTransition>
+          <SiteNav />
+          {children}
+        </ExploreTransition>
         {/* Vercel Speed Insights — collects Core Web Vitals from real visits. Renders
             nothing and is inert outside Vercel deployments, so local dev is unaffected. */}
         <SpeedInsights />

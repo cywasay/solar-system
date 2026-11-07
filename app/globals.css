@@ -12,7 +12,7 @@
  * `faint` is the exception: for decoration and disabled states only, never readable text.
  *
  * Rules that go with the palette:
- *   1. One accent. Text sitting ON an accent fill is `ink`, never white (5.7:1 vs 3.4:1).
+ *   1. One accent. Text sitting ON an accent fill is `ink`, never #8A9098 (5.7:1 vs 3.4:1).
  *   2. Hairlines are `line`; use `line-strong` only where a rule must hold its own.
  *   3. Nothing readable is dimmer than `quiet`.
  *
@@ -20,18 +20,19 @@
  * components) read them with var(--color-*), which Tailwind would otherwise prune.
  */
 @theme static {
-  --color-ink: #020617; /* page background — deep space */
-  --color-card: #0b1220; /* panels, inputs, raised surfaces */
-  --color-line: #1e293b; /* hairlines and borders */
-  --color-line-strong: #334155;
-  --color-fg: #f8fafc; /* headlines, primary text */
-  --color-soft: #cbd5e1; /* body copy */
-  --color-muted: #94a3b8; /* secondary text */
-  --color-quiet: #7b8ba3; /* labels, footnotes, placeholders */
-  --color-faint: #475569; /* decoration and disabled only */
-  --color-accent: #ea580c;
-  --color-accent-hover: #f97316;
-  --color-danger: #f87171; /* form errors */
+  --color-ivory: #E6DED0; /* Warm light for primary type and contrasting controls. */
+  --color-ink: #101012; /* page background — deep space */
+  --color-card: #1A191B; /* panels, inputs, raised surfaces */
+  --color-line: #8A909824; /* hairlines and borders */
+  --color-line-strong: #8A90984D;
+  --color-fg: #E6DED0; /* headlines, primary text */
+  --color-soft: #E6DED0; /* body copy */
+  --color-muted: #8A9098; /* secondary text */
+  --color-quiet: #8A9098; /* labels, footnotes, placeholders */
+  --color-faint: #8A9098; /* decoration and disabled only */
+  --color-accent: #FF6A3D;
+  --color-accent-hover: #FF6A3D;
+  --color-danger: #FF6A3D; /* form errors */
 }
 
 /*
@@ -94,10 +95,10 @@ a {
  * labels `fg`/`muted` or better, and leave the focus ring alone.
  */
 :root {
-  --neo-face: #0d1628;
-  --neo-light: rgba(148, 163, 184, 0.1);
-  --neo-dark: rgba(0, 0, 0, 0.7);
-  --neo-bracket: rgba(203, 213, 225, 0.5);
+  --neo-face: #101012;
+  --neo-light: rgba(138, 144, 152, 0.1);
+  --neo-dark: rgba(16, 16, 18, 0.7);
+  --neo-bracket: rgba(138, 144, 152, 0.5);
 }
 
 @layer components {
@@ -106,12 +107,12 @@ a {
     position: relative;
     border-radius: 4px;
     background-color: var(--neo-face);
-    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.28));
+    background-image: linear-gradient(145deg, rgba(138, 144, 152, 0.05), rgba(16, 16, 18, 0.28));
     box-shadow:
       6px 6px 14px var(--neo-dark),
       -5px -5px 12px var(--neo-light),
-      inset 1px 1px 0 rgba(255, 255, 255, 0.06),
-      inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+      inset 1px 1px 0 rgba(138, 144, 152, 0.06),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.4);
   }
 
   /* HUD corner brackets: eight hairline gradients, no extra elements. */
@@ -150,7 +151,7 @@ a {
 
   .btn-neo:active,
   .btn-neo[aria-pressed='true'] {
-    background-image: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.12));
+    background-image: linear-gradient(145deg, rgba(16, 16, 18, 0.4), rgba(16, 16, 18, 0.12));
     box-shadow:
       inset 5px 5px 11px var(--neo-dark),
       inset -4px -4px 9px var(--neo-light);
@@ -158,29 +159,29 @@ a {
 
   .btn-neo[aria-pressed='true']::before {
     background: var(--color-accent);
-    box-shadow: 0 0 6px 1px rgba(234, 88, 12, 0.7);
+    box-shadow: 0 0 6px 1px rgba(255, 106, 61, 0.7);
   }
 
   .btn-neo-accent {
     background-color: var(--color-accent);
-    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.18));
+    background-image: linear-gradient(145deg, rgba(138, 144, 152, 0.16), rgba(16, 16, 18, 0.18));
     color: var(--color-ink);
     box-shadow:
       6px 6px 14px var(--neo-dark),
-      -4px -4px 10px rgba(251, 146, 60, 0.14),
-      inset 1px 1px 0 rgba(255, 255, 255, 0.28),
-      inset -1px -1px 0 rgba(0, 0, 0, 0.28);
+      -4px -4px 10px rgba(255, 106, 61, 0.14),
+      inset 1px 1px 0 rgba(138, 144, 152, 0.28),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.28);
   }
 
   .btn-neo-accent::after {
-    --neo-bracket: rgba(2, 6, 23, 0.55);
+    --neo-bracket: rgba(16, 16, 18, 0.55);
   }
 
   .btn-neo-accent:active {
-    background-image: linear-gradient(145deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.08));
+    background-image: linear-gradient(145deg, rgba(16, 16, 18, 0.3), rgba(16, 16, 18, 0.08));
     box-shadow:
-      inset 5px 5px 11px rgba(0, 0, 0, 0.45),
-      inset -4px -4px 9px rgba(251, 146, 60, 0.18);
+      inset 5px 5px 11px rgba(16, 16, 18, 0.45),
+      inset -4px -4px 9px rgba(255, 106, 61, 0.18);
   }
 
   .btn-neo-sm {
@@ -189,8 +190,8 @@ a {
     box-shadow:
       3px 3px 8px var(--neo-dark),
       -3px -3px 7px var(--neo-light),
-      inset 1px 1px 0 rgba(255, 255, 255, 0.06),
-      inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+      inset 1px 1px 0 rgba(138, 144, 152, 0.06),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.4);
   }
 
   .btn-neo-sm::after {
@@ -207,7 +208,7 @@ a {
   /* Disabled: flat and inert, no extrusion. Placed last so it beats :active. */
   .btn-neo:disabled {
     background-image: none;
-    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: inset 1px 1px 0 rgba(138, 144, 152, 0.04);
     cursor: not-allowed;
   }
 
@@ -537,10 +538,10 @@ a {
 
 @keyframes loader-sun {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.35), 0 0 28px rgba(234, 88, 12, 0.6);
+    box-shadow: 0 0 0 0 rgba(255, 106, 61, 0.35), 0 0 28px rgba(255, 106, 61, 0.6);
   }
   50% {
-    box-shadow: 0 0 0 11px rgba(234, 88, 12, 0), 0 0 42px rgba(234, 88, 12, 0.85);
+    box-shadow: 0 0 0 11px rgba(255, 106, 61, 0), 0 0 42px rgba(255, 106, 61, 0.85);
   }
 }
 
@@ -555,14 +556,14 @@ a {
 
 .explore-loader-grid {
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.32) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.32) 1px, transparent 1px);
+    linear-gradient(rgba(16, 16, 18, 0.32) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 16, 18, 0.32) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  mask-image: radial-gradient(circle at center, #101012, transparent 72%);
 }
 
 .explore-loader-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.28) 46%, var(--color-ink) 100%);
+  background: radial-gradient(circle at center, transparent 0%, rgba(16, 16, 18, 0.28) 46%, var(--color-ink) 100%);
 }
 
 .explore-loader-orbit {
@@ -612,8 +613,8 @@ a {
   background-repeat: repeat-x;
   background-size: auto 100%;
   box-shadow:
-    inset -18px -6px 24px rgba(2, 6, 23, 0.9),
-    inset 7px 5px 10px rgba(248, 250, 252, 0.13),
+    inset -18px -6px 24px rgba(16, 16, 18, 0.9),
+    inset 7px 5px 10px rgba(138, 144, 152, 0.13),
     0 0 18px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 25%, transparent);
 }
 
@@ -623,15 +624,15 @@ a {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at 30% 25%, transparent 0 30%, rgba(2, 6, 23, 0.12) 48%, rgba(2, 6, 23, 0.88) 100%);
+  background: radial-gradient(circle at 30% 25%, transparent 0 30%, rgba(16, 16, 18, 0.12) 48%, rgba(16, 16, 18, 0.88) 100%);
 }
 
 .planet-preview-sphere {
   z-index: 10;
   animation: planet-surface-drift 32s linear infinite;
   box-shadow:
-    inset -70px -12px 72px rgba(2, 6, 23, 0.94),
-    inset 18px 12px 28px rgba(248, 250, 252, 0.13),
+    inset -70px -12px 72px rgba(16, 16, 18, 0.94),
+    inset 18px 12px 28px rgba(138, 144, 152, 0.13),
     0 0 54px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 24%, transparent);
 }
 
@@ -649,7 +650,7 @@ a {
   max-width: none;
   pointer-events: none;
   transform: translate(-50%, -50%) rotateZ(-12deg) rotateX(67deg);
-  filter: drop-shadow(0 0 7px rgba(226, 211, 180, 0.16));
+  filter: drop-shadow(0 0 7px rgba(255, 106, 61, 0.16));
 }
 
 .saturn-ring-canvas--back {
@@ -707,17 +708,17 @@ a {
   position: absolute;
   inset: 0;
   animation: capability-arrive 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  background: radial-gradient(circle at 50% 48%, rgba(234, 88, 12, 0.07), transparent 31%);
+  background: radial-gradient(circle at 50% 48%, rgba(255, 106, 61, 0.07), transparent 31%);
 }
 .capability-grid {
   position: absolute;
   inset: 0;
   opacity: 0.55;
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.28) 1px, transparent 1px);
+    linear-gradient(rgba(16, 16, 18, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 16, 18, 0.28) 1px, transparent 1px);
   background-size: 42px 42px;
-  mask-image: radial-gradient(circle at center, black 20%, transparent 72%);
+  mask-image: radial-gradient(circle at center, #101012 20%, transparent 72%);
 }
 .capability-axis {
   position: absolute;
@@ -732,7 +733,7 @@ a {
   position: absolute;
   left: 50%;
   top: 48%;
-  border: 1px solid rgba(71, 85, 105, 0.62);
+  border: 1px solid rgba(138, 144, 152, 0.62);
   border-radius: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
 }
@@ -750,7 +751,7 @@ a {
 .capability-orbit--2 { animation: capability-orbit-spin 11s linear infinite reverse; }
 .capability-orbit--3 { animation: capability-orbit-spin 17s linear infinite; }
 .capability-orbit--4 { animation: capability-orbit-spin 25s linear infinite reverse; }
-.capability-orbit--2 .capability-orbit-body { background: var(--color-accent); box-shadow: 0 0 12px rgba(234, 88, 12, 0.8); }
+.capability-orbit--2 .capability-orbit-body { background: var(--color-accent); box-shadow: 0 0 12px rgba(255, 106, 61, 0.8); }
 .capability-sun {
   position: absolute;
   left: 50%;
@@ -760,7 +761,7 @@ a {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: var(--color-fg);
-  box-shadow: 0 0 20px rgba(248, 250, 252, 0.65), 0 0 52px rgba(234, 88, 12, 0.55);
+  box-shadow: 0 0 20px rgba(138, 144, 152, 0.65), 0 0 52px rgba(255, 106, 61, 0.55);
 }
 .capability-target,
 .capability-satellite,
@@ -768,7 +769,7 @@ a {
 .capability-time-hand { opacity: 0; }
 
 .capability-scene--topology .capability-orbit-body { opacity: 1; }
-.capability-scene--motion .capability-orbit { border-color: rgba(234, 88, 12, 0.36); }
+.capability-scene--motion .capability-orbit { border-color: rgba(255, 106, 61, 0.36); }
 .capability-scene--motion .capability-orbit-body { width: 8px; height: 8px; }
 
 .capability-target {
@@ -795,7 +796,7 @@ a {
 .capability-target span {
   position: absolute;
   inset: 12px;
-  border: 1px dashed rgba(234, 88, 12, 0.55);
+  border: 1px dashed rgba(255, 106, 61, 0.55);
   border-radius: 50%;
 }
 .capability-scene--tracking .capability-target {
@@ -811,7 +812,7 @@ a {
   height: 7px;
   border-radius: 50%;
   background: var(--color-fg);
-  box-shadow: 0 0 8px rgba(248, 250, 252, 0.5);
+  box-shadow: 0 0 8px rgba(138, 144, 152, 0.5);
 }
 .capability-satellite--one { transform: translate(74px, -49px); }
 .capability-satellite--two { transform: translate(96px, 28px); }
@@ -826,7 +827,7 @@ a {
   top: 14%;
   height: 1px;
   background: var(--color-accent);
-  box-shadow: 0 0 18px rgba(234, 88, 12, 0.7);
+  box-shadow: 0 0 18px rgba(255, 106, 61, 0.7);
 }
 .capability-scene--render .capability-scan {
   opacity: 1;
@@ -835,7 +836,7 @@ a {
 .capability-scene--render .capability-sun {
   width: 54px;
   height: 54px;
-  box-shadow: 0 0 28px #fff, 0 0 80px rgba(234, 88, 12, 0.85), 0 0 150px rgba(234, 88, 12, 0.28);
+  box-shadow: 0 0 28px #8A9098, 0 0 80px rgba(255, 106, 61, 0.85), 0 0 150px rgba(255, 106, 61, 0.28);
 }
 
 .capability-time-hand {
@@ -905,3 +906,7 @@ a {
   .manifest-line { transform: scaleX(1); }
   .manifest-stop { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+/* Preserve logo artwork and alpha while applying the brand ink. */
+img[src*="/logos/"] { filter: url(#brand-seal); }
+img[src*="/logos/black-logo"] { filter: url(#brand-galaxy); }

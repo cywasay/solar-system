@@ -17,7 +17,7 @@ export default function OrbitPath({ radius, width = 0.06, opacity = 0.22 }: Orbi
       {/* 256 segments so the outer orbits still read as circles rather than polygons. */}
       <ringGeometry args={[radius - width, radius + width, 256]} />
       <meshBasicMaterial
-        color="#ffffff"
+        color="#8A9098"
         opacity={opacity}
         transparent
         side={THREE.DoubleSide}

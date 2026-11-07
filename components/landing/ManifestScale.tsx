@@ -88,7 +88,7 @@ export default function ManifestScale() {
 
       <Reveal className="mt-16 sm:mt-24" delay={100}>
         <div className="relative overflow-hidden border-y border-line py-8 sm:py-12">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_50%,rgba(234,88,12,0.07),transparent_38%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_50%,rgba(255, 106, 61,0.07),transparent_38%)]" />
           <div className="relative mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <span className="text-[11px] uppercase tracking-[0.2em] text-accent">Scale study</span>

@@ -9,6 +9,7 @@ import SolarSystem from './SolarSystem';
 import CameraController from './CameraController';
 import Skybox from './Skybox';
 import { OVERVIEW_POSITION } from './cameraFocus';
+import { useMobileSimulation } from './explore/useMobileSimulation';
 
 /**
  * Kill switch for the post-processing chain. Bloom is the priciest thing in the scene
@@ -35,9 +36,13 @@ function SceneWarmup({ onReady }: { onReady?: () => void }) {
 }
 
 export default function Scene({ onReady }: { onReady?: () => void }) {
+  const mobile = useMobileSimulation();
+  if (mobile === null) return null;
   return (
     <div className="w-full h-full bg-ink">
       <Canvas
+        key={mobile ? 'mobile' : 'desktop'}
+        gl={mobile ? { antialias: false, powerPreference: 'low-power' } : undefined}
         // Initial shot comes from cameraFocus so the overview-return animation and the
         // first render agree on where "home" is. Far plane clears the star shell at 500.
         camera={{
@@ -48,26 +53,26 @@ export default function Scene({ onReady }: { onReady?: () => void }) {
         }}
         // Cap the pixel ratio: a 3x-DPI display would otherwise render ~9x the
         // pixels for no visible gain — and post-processing multiplies that cost.
-        dpr={[1, 2]}
+        dpr={mobile ? 1 : [1, 2]}
       >
         {/* Outside Suspense so camera controls stay live while textures load. */}
         <CameraController />
         <SceneWarmup onReady={onReady} />
 
         {/* Milky Way backdrop at radius 1000; procedural stars twinkle in front of it. */}
-        <Skybox textureFile="/textures/8k_stars_milky_way.jpg" />
+        {!mobile && <Skybox textureFile="/textures/8k_stars_milky_way.jpg" />}
 
         {/* Star shell OUTSIDE maxDistance (350, CameraController) so the camera can
             never exit the universe. depth spreads shells over 500..650 for parallax;
             factor 7 gives strong per-star size variation — uniform dots are the main
             "procedural placeholder" tell. saturation 0 keeps starlight white. */}
-        <Stars radius={500} depth={150} count={12000} factor={7} saturation={0} fade speed={0} />
+        <Stars radius={500} depth={150} count={mobile ? 1200 : 12000} factor={7} saturation={0} fade speed={0} />
 
         <Suspense fallback={null}>
           <SolarSystem />
         </Suspense>
 
-        {POST_PROCESSING && (
+        {POST_PROCESSING && !mobile && (
           <EffectComposer multisampling={4}>
             {/* Threshold 1.0 in the pre-tonemap HDR buffer: only genuinely overbright
                 pixels bloom. The Sun renders at ~1.6 (toneMapped=false + tint), so it

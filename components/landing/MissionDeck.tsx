@@ -44,7 +44,7 @@ const BODIES = planets.map((planet, i) => {
     code: planet.name.slice(0, 3).toUpperCase(),
     r,
     size: 1.6 + Math.sqrt(planet.radius) * 2.2,
-    color: planet.name === 'Earth' ? '#ea580c' : planet.fallbackColor,
+    color: planet.name === 'Earth' ? '#FF6A3D' : planet.fallbackColor,
     earth: planet.name === 'Earth',
     ringed: Boolean(planet.ring),
     speed: planet.orbitSpeed,
@@ -371,17 +371,17 @@ export default function MissionDeck() {
                   >
                     <defs>
                       <radialGradient id="md-sun">
-                        <stop offset="0" stopColor="#fff4dc" />
-                        <stop offset="0.3" stopColor="#fdba74" stopOpacity="0.9" />
-                        <stop offset="1" stopColor="#ea580c" stopOpacity="0" />
+                        <stop offset="0" stopColor="#8A9098" />
+                        <stop offset="0.3" stopColor="#FF6A3D" stopOpacity="0.9" />
+                        <stop offset="1" stopColor="#FF6A3D" stopOpacity="0" />
                       </radialGradient>
                       <radialGradient id="md-halo">
-                        <stop offset="0" stopColor="#67e8f9" stopOpacity="0.75" />
-                        <stop offset="1" stopColor="#67e8f9" stopOpacity="0" />
+                        <stop offset="0" stopColor="#FF6A3D" stopOpacity="0.75" />
+                        <stop offset="1" stopColor="#FF6A3D" stopOpacity="0" />
                       </radialGradient>
                       <radialGradient id="md-halo-earth">
-                        <stop offset="0" stopColor="#fb923c" stopOpacity="0.85" />
-                        <stop offset="1" stopColor="#ea580c" stopOpacity="0" />
+                        <stop offset="0" stopColor="#FF6A3D" stopOpacity="0.85" />
+                        <stop offset="1" stopColor="#FF6A3D" stopOpacity="0" />
                       </radialGradient>
                     </defs>
 
@@ -405,7 +405,7 @@ export default function MissionDeck() {
                     </g>
 
                     <circle cx={C} cy={C} r="26" fill="url(#md-sun)" />
-                    <circle cx={C} cy={C} r="5.5" fill="#fff7e6" />
+                    <circle cx={C} cy={C} r="5.5" fill="#8A9098" />
 
                     {BODIES.map((b, i) => (
                       <g

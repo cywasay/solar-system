@@ -220,6 +220,7 @@ export const planets: Planet[] = [
       {
         // 27x22x18 km, mean ~22.5 | 9,376 km out | 7.66 hr period | tidally locked
         name: 'Phobos',
+        textureFile: '/textures/phobos-generated-v1.png',
         radius: 0.11,
         distanceFromPlanet: 1.35,
         orbitSpeed: 1.7,
@@ -237,6 +238,7 @@ export const planets: Planet[] = [
       {
         // 15x12.2x11 km, mean ~12.4 | 23,463 km out | 30.3 hr period | tidally locked
         name: 'Deimos',
+        textureFile: '/textures/deimos-generated-v1.png',
         radius: 0.075,
         distanceFromPlanet: 2.0,
         orbitSpeed: 0.85,

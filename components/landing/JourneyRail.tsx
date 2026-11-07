@@ -90,7 +90,7 @@ export default function JourneyRail() {
         stopRefs.current.forEach((el, i) => {
           if (!el) return;
           el.style.backgroundColor = i <= reachedIndex || i === preview?.index ? 'var(--color-accent)' : 'var(--color-ink)';
-          el.style.boxShadow = i === preview?.index ? '0 0 10px 2px rgba(234,88,12,0.65)' : 'none';
+          el.style.boxShadow = i === preview?.index ? '0 0 10px 2px rgba(255, 106, 61,0.65)' : 'none';
         });
         lastReachedIndex = colorState;
       }
@@ -156,7 +156,7 @@ export default function JourneyRail() {
         {/* The Sun: fixed at the point of departure. */}
         <span
           className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent"
-          style={{ boxShadow: '0 0 8px 1px rgba(234,88,12,0.7)' }}
+          style={{ boxShadow: '0 0 8px 1px rgba(255, 106, 61,0.7)' }}
         />
 
         {/* Planet stops at their true proportional distances. */}
@@ -182,7 +182,7 @@ export default function JourneyRail() {
           <span className="journey-marker-halo absolute left-1/2 top-0 w-2.5 h-2.5 rounded-full bg-accent" />
           <span
             className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-accent"
-            style={{ boxShadow: '0 0 10px 2px rgba(234,88,12,0.55)' }}
+            style={{ boxShadow: '0 0 10px 2px rgba(255, 106, 61,0.55)' }}
           />
           <span
             ref={labelRef}

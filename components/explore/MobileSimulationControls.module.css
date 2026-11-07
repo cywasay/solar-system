@@ -1,0 +1,34 @@
+.mobile { display: none; }
+.desktop { display: contents; }
+@media (max-width: 767px), (max-width: 1024px) and (pointer: coarse) {
+  .desktop { display: none; }
+  .mobile { display: contents; }
+  .exit { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); }
+  .picker { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); left: 112px; z-index: 20; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 10px; background: #101012; border: 1px solid #8a909840; border-radius: 12px; }
+  .picker label { color: #8a9098; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .picker select { min-width: 0; flex: 1; height: 44px; background: #101012; color: #e6ded0; font-size: 14px; border: 0; }
+  .dock { position: absolute; z-index: 20; bottom: max(10px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); padding: 6px; border: 1px solid #8a909840; border-radius: 16px; background: #101012f5; color: #e6ded0; font-family: Arial, sans-serif; }
+  .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .actions button, .detailHeading button { min-height: 44px; border: 1px solid #8a909830; border-radius: 10px; background: #2a292b; font-size: 12px; touch-action: manipulation; }
+  .actions button:first-child { color: #ff6a3d; }
+  .actions button[aria-expanded=true] { border-color: #ff6a3d; }
+  .rate { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; font-size: 12px; }
+  .rate label { color: #8a9098; }
+  .rate input { min-width: 0; flex: 1; height: 32px; accent-color: #ff6a3d; }
+  .rate output { width: 35px; text-align: right; font-variant-numeric: tabular-nums; }
+  .details { max-height: min(44dvh, 340px); overflow-y: auto; overscroll-behavior: contain; padding: 4px 12px 14px; margin-bottom: 6px; border-bottom: 1px solid #8a909840; }
+  .detailHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .detailHeading h2 { font-family: Georgia, serif; font-size: 24px; }
+  .detailHeading button { min-width: 44px; font-size: 24px; }
+  .details p { font-size: 13px; line-height: 1.6; }
+  .details .caption { color: #8a9098; font-size: 11px; }
+  .details dl { margin: 10px 0; }
+  .details dl div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #8a909825; font-size: 12px; }
+  .details dt { color: #8a9098; }
+  .details dd { text-align: right; }
+  .mobile :is(button, select, input):focus-visible { outline: 2px solid #ff6a3d; outline-offset: 2px; }
+}
+@media (max-height: 500px) and (max-width: 1024px) and (pointer: coarse) {
+  .dock { left: auto; width: min(390px, calc(100% - 20px)); }
+  .details { max-height: 40dvh; }
+}

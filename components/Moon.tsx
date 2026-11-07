@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Moon as MoonData } from '@/data/planets';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import useOptionalTexture from './useOptionalTexture';
+import { createDeimosGeometry, createPhobosGeometry } from './phobosGeometry';
 
 /** Mirrors Planet.tsx — clamp wall-clock gaps after the tab is backgrounded. */
 const MAX_DELTA = 0.1;
@@ -36,6 +37,12 @@ export default function Moon({
   const pivotRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const map = useOptionalTexture(textureFile ?? null);
+  const moonGeometry = useMemo(() => {
+    if (name === 'Phobos') return createPhobosGeometry(radius);
+    if (name === 'Deimos') return createDeimosGeometry(radius);
+    return null;
+  }, [name, radius]);
+  useEffect(() => () => moonGeometry?.dispose(), [moonGeometry]);
 
   const registerPlanetRef = useSimulationStore((state) => state.registerPlanetRef);
   const unregisterPlanetRef = useSimulationStore((state) => state.unregisterPlanetRef);
@@ -63,9 +70,11 @@ export default function Moon({
         ref={meshRef}
         name={name}
         position={[distanceFromPlanet, 0, 0]}
-        scale={irregular ? IRREGULAR_SCALE : 1}
+        scale={irregular && !moonGeometry ? IRREGULAR_SCALE : 1}
       >
-        {irregular ? (
+        {moonGeometry ? (
+          <primitive object={moonGeometry} attach="geometry" />
+        ) : irregular ? (
           // Detail 1 = 80 faces; with flat shading the coarse facets sell the
           // potato shape instead of reading as a badly tessellated sphere.
           <icosahedronGeometry args={[radius, 1]} />
@@ -81,7 +90,7 @@ export default function Moon({
           color={map ? '#ffffff' : fallbackColor}
           roughness={1}
           metalness={0}
-          flatShading={Boolean(irregular)}
+          flatShading={Boolean(irregular) && !moonGeometry}
         />
       </mesh>
     </group>

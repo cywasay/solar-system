@@ -76,13 +76,13 @@ function SpaceBackground() {
         const twinkle = 0.3 + 0.7 * Math.sin(t * s.speed + s.phase);
         ctx.beginPath();
         ctx.arc(px, py, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(248, 250, 252, ${0.2 + twinkle * 0.8})`;
+        ctx.fillStyle = `rgba(138, 144, 152, ${0.2 + twinkle * 0.8})`;
         ctx.fill();
         
         if (s.r > 1.8) {
           ctx.beginPath();
           ctx.arc(px, py, s.r * 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(99, 102, 241, ${0.15 * twinkle})`;
+          ctx.fillStyle = `rgba(255, 106, 61, ${0.15 * twinkle})`;
           ctx.fill();
         }
       }
@@ -101,8 +101,8 @@ function SpaceBackground() {
 
         ctx.beginPath();
         const grad = ctx.createLinearGradient(m.x, m.y, m.x - Math.cos(m.angle)*m.length, m.y - Math.sin(m.angle)*m.length);
-        grad.addColorStop(0, `rgba(255, 255, 255, ${m.opacity})`);
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        grad.addColorStop(0, `rgba(138, 144, 152, ${m.opacity})`);
+        grad.addColorStop(1, 'rgba(138, 144, 152, 0)');
         ctx.strokeStyle = grad;
         ctx.lineWidth = 1.5;
         ctx.lineCap = 'round';
@@ -129,11 +129,11 @@ function SpaceBackground() {
       {/* Deep Space Nebulas */}
       <div 
         className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full mix-blend-screen" 
-        style={{ background: 'radial-gradient(circle, rgba(49,46,129,0.2) 0%, transparent 70%)', animation: 'nebulaFloat 15s ease-in-out infinite alternate' }} 
+        style={{ background: 'radial-gradient(circle, rgba(255, 106, 61,0.2) 0%, transparent 70%)', animation: 'nebulaFloat 15s ease-in-out infinite alternate' }} 
       />
       <div 
         className="absolute top-[50%] -right-[15%] w-[70%] h-[70%] rounded-full mix-blend-screen" 
-        style={{ background: 'radial-gradient(circle, rgba(76,29,149,0.15) 0%, transparent 70%)', animation: 'nebulaFloat 20s ease-in-out infinite alternate-reverse' }} 
+        style={{ background: 'radial-gradient(circle, rgba(255, 106, 61,0.15) 0%, transparent 70%)', animation: 'nebulaFloat 20s ease-in-out infinite alternate-reverse' }} 
       />
     </div>
   );
@@ -163,7 +163,7 @@ function LoginScreen() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#030508] text-[#e8ecf2] flex items-center justify-center px-6 sm:px-12 md:px-20 lg:px-32 py-12 font-sans selection:bg-indigo-500 selection:text-white overflow-hidden">
+    <div className="relative min-h-screen w-full bg-[#101012] text-[#8A9098] flex items-center justify-center px-6 sm:px-12 md:px-20 lg:px-32 py-12 font-sans selection:bg-accent selection:text-ink overflow-hidden">
       
       {/* 3D Space Background */}
       <SpaceBackground />
@@ -172,7 +172,7 @@ function LoginScreen() {
       <div 
         className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-0"
         style={{
-          background: `radial-gradient(circle 800px at ${mousePos.x}px ${mousePos.y}px, rgba(79, 70, 229, 0.15), transparent 80%)`
+          background: `radial-gradient(circle 800px at ${mousePos.x}px ${mousePos.y}px, rgba(255, 106, 61, 0.15), transparent 80%)`
         }}
       />
 
@@ -182,7 +182,7 @@ function LoginScreen() {
           <img
             src="/logos/logo.png"
             alt="Thessaris"
-            className="h-28 sm:h-36 md:h-44 lg:h-52 w-auto object-contain object-left origin-left transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.25)]"
+            className="h-28 sm:h-36 md:h-44 lg:h-52 w-auto object-contain object-left origin-left transition-all duration-700 ease-out group-hover:scale-110 group-hover:drop-shadow-[0_0_50px_rgba(138, 144, 152,0.25)]"
             style={{ 
               transform: 'scale(1.25)', 
               animation: 'float 6s ease-in-out infinite' 
@@ -195,28 +195,28 @@ function LoginScreen() {
           <div className="relative group/card w-full max-w-[420px] aspect-square flex items-center justify-center">
             
             {/* Decorative Circular Rings */}
-            <div className="absolute inset-0 border-[3px] border-indigo-500/20 rounded-full opacity-60 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0 shadow-[0_0_30px_rgba(99,102,241,0.15)] group-hover/card:shadow-[0_0_50px_rgba(99,102,241,0.3)] group-hover/card:border-indigo-500/40" style={{ animation: 'spin-slow 20s linear infinite' }}>
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-2 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-2 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
-              <div className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-2 h-4 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
-              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-2 h-4 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]"></div>
+            <div className="absolute inset-0 border-[3px] border-accent/20 rounded-full opacity-60 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0 shadow-[0_0_30px_rgba(255, 106, 61,0.15)] group-hover/card:shadow-[0_0_50px_rgba(255, 106, 61,0.3)] group-hover/card:border-accent/40" style={{ animation: 'spin-slow 20s linear infinite' }}>
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-2 bg-accent rounded-full shadow-[0_0_15px_rgba(255, 106, 61,1)]"></div>
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-2 bg-accent rounded-full shadow-[0_0_15px_rgba(255, 106, 61,1)]"></div>
+              <div className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-2 h-4 bg-accent rounded-full shadow-[0_0_15px_rgba(255, 106, 61,1)]"></div>
+              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-2 h-4 bg-accent rounded-full shadow-[0_0_15px_rgba(255, 106, 61,1)]"></div>
             </div>
 
             {/* Inner rotating ring */}
-            <div className="absolute inset-4 border border-[#1e2540] border-dashed rounded-full pointer-events-none opacity-50 group-hover/card:opacity-100 transition-opacity duration-700 z-0" style={{ animation: 'spin-slow-reverse 35s linear infinite' }}></div>
+            <div className="absolute inset-4 border border-[#101012] border-dashed rounded-full pointer-events-none opacity-50 group-hover/card:opacity-100 transition-opacity duration-700 z-0" style={{ animation: 'spin-slow-reverse 35s linear infinite' }}></div>
 
-            <div className="relative w-[92%] h-[92%] bg-[#050814]/80 backdrop-blur-xl border border-indigo-500/10 rounded-full overflow-hidden flex flex-col justify-center items-center px-10 sm:px-14 z-10 space-y-6">
+            <div className="relative w-[92%] h-[92%] bg-[#101012]/80 backdrop-blur-xl border border-accent/10 rounded-full overflow-hidden flex flex-col justify-center items-center px-10 sm:px-14 z-10 space-y-6">
               
               {/* Animated Scanning Line */}
-              <div className="absolute top-0 left-0 w-full h-[120%] bg-gradient-to-b from-transparent via-indigo-500/15 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ animation: 'scan 4s linear infinite' }} />
+              <div className="absolute top-0 left-0 w-full h-[120%] bg-gradient-to-b from-transparent via-accent/15 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ animation: 'scan 4s linear infinite' }} />
 
               {/* Header */}
               <div className="flex flex-col items-center justify-center pb-2 relative w-full text-center">
-                <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
-                <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent opacity-50" />
+                <h2 className="text-xl font-bold text-fg tracking-tight flex items-center gap-2">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent shadow-[0_0_10px_rgba(255, 106, 61,1)]"></span>
                   </span>
                   Sign In
                 </h2>
@@ -224,13 +224,13 @@ function LoginScreen() {
 
               <form onSubmit={handleSubmit} className="space-y-6 relative z-10 w-full">
                 {authError && (
-                  <div className="p-2.5 bg-rose-500/10 border border-rose-500/50 rounded-lg text-rose-400 text-xs font-medium text-center shadow-[0_0_15px_rgba(225,29,72,0.2)] animate-in fade-in zoom-in">
+                  <div className="p-2.5 bg-accent/10 border border-accent/50 rounded-lg text-accent text-xs font-medium text-center shadow-[0_0_15px_rgba(255, 106, 61,0.2)] animate-in fade-in zoom-in">
                     {authError}
                   </div>
                 )}
 
                 <div className="space-y-2 group/input w-full">
-                  <label className="flex items-center justify-center text-[11px] font-semibold uppercase tracking-wider text-indigo-200/50 group-focus-within/input:text-indigo-400 transition-colors duration-300">
+                  <label className="flex items-center justify-center text-[11px] font-semibold uppercase tracking-wider text-accent/50 group-focus-within/input:text-accent transition-colors duration-300">
                     <span>Password</span>
                   </label>
                   <div className="relative w-full max-w-[280px] mx-auto">
@@ -240,16 +240,16 @@ function LoginScreen() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full bg-black/40 border border-[#1e2540] group-focus-within/input:border-indigo-500/50 rounded-full px-5 py-3.5 pr-12 text-sm text-center text-indigo-100 placeholder-indigo-200/20 focus:outline-none transition-all duration-300"
+                      className="w-full bg-ink/40 border border-[#101012] group-focus-within/input:border-accent/50 rounded-full px-5 py-3.5 pr-12 text-sm text-center text-accent placeholder-accent/20 focus:outline-none transition-all duration-300"
                     />
                     {/* Glowing Focus Frame */}
-                    <div className="absolute inset-0 rounded-full pointer-events-none border border-indigo-400 opacity-0 group-focus-within/input:opacity-100 group-focus-within/input:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-500 scale-105 group-focus-within/input:scale-100" />
+                    <div className="absolute inset-0 rounded-full pointer-events-none border border-accent opacity-0 group-focus-within/input:opacity-100 group-focus-within/input:shadow-[0_0_20px_rgba(255, 106, 61,0.3)] transition-all duration-500 scale-105 group-focus-within/input:scale-100" />
                     
                     {/* Eye Toggle */}
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-indigo-400/50 hover:text-indigo-400 focus:outline-none transition-colors z-10 cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-accent/50 hover:text-accent focus:outline-none transition-colors z-10 cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
@@ -265,14 +265,14 @@ function LoginScreen() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="relative w-full py-3.5 bg-indigo-600/20 border border-indigo-500 hover:bg-indigo-500 hover:text-white text-indigo-400 font-bold text-[13px] uppercase tracking-wider rounded-full transition-all duration-300 cursor-pointer overflow-hidden group/btn hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative w-full py-3.5 bg-accent/20 border border-accent hover:bg-accent hover:text-ink text-accent font-bold text-[13px] uppercase tracking-wider rounded-full transition-all duration-300 cursor-pointer overflow-hidden group/btn hover:shadow-[0_0_30px_rgba(255, 106, 61,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {/* Button Scan Line Effect */}
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-400/50 to-transparent -translate-x-[150%] group-hover/btn:translate-x-[150%] transition-transform duration-700 ease-in-out pointer-events-none" />
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/50 to-transparent -translate-x-[150%] group-hover/btn:translate-x-[150%] transition-transform duration-700 ease-in-out pointer-events-none" />
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
                         <>
-                          <svg className="animate-spin h-4 w-4 text-indigo-400 group-hover/btn:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-4 w-4 text-accent group-hover/btn:text-fg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
@@ -292,7 +292,7 @@ function LoginScreen() {
               </form>
 
               <div className="pt-2 text-center relative z-10">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[11px] text-indigo-300/50 hover:text-indigo-300 transition-colors font-medium group/link cursor-pointer">
+                <Link href="/" className="inline-flex items-center gap-1.5 text-[11px] text-accent/50 hover:text-accent transition-colors font-medium group/link cursor-pointer">
                   <span className="group-hover/link:-translate-x-1.5 transition-transform duration-300">←</span>
                   Return to Public Site
                 </Link>
@@ -374,7 +374,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   };
 
   if (!ready) {
-    return <div className="min-h-screen admin-root flex items-center justify-center text-[13px] text-zinc-500" style={{ background: 'var(--a-bg)' }}>Loading...</div>;
+    return <div className="min-h-screen admin-root flex items-center justify-center text-[13px] text-fg" style={{ background: 'var(--a-bg)' }}>Loading...</div>;
   }
 
   if (!authenticated) {
@@ -403,7 +403,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="admin-root h-screen w-screen flex overflow-hidden font-sans selection:bg-indigo-500 selection:text-white"
+      className="admin-root h-screen w-screen flex overflow-hidden font-sans selection:bg-accent selection:text-ink"
       data-admin-theme={theme}
       style={{ background: 'var(--a-bg)' }}
     >
@@ -542,20 +542,20 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {isLogoutModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-[#0f172a] border border-[#1E293B] rounded-2xl p-6 shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
-            <h3 className="text-lg font-bold text-white mb-2">Sign Out</h3>
-            <p className="text-sm text-slate-400 mb-6">Are you sure you want to sign out of the admin panel?</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm px-4">
+          <div className="bg-[#101012] border border-[#101012] rounded-2xl p-6 shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold text-fg mb-2">Sign Out</h3>
+            <p className="text-sm text-fg mb-6">Are you sure you want to sign out of the admin panel?</p>
             <div className="flex items-center justify-end gap-3">
               <button 
                 onClick={() => setIsLogoutModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-[#1E293B] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-sm font-medium text-fg hover:text-fg hover:bg-[#101012] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => { setIsLogoutModalOpen(false); signOut(); }}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-rose-600 hover:bg-rose-500 text-white transition-colors cursor-pointer shadow-lg shadow-rose-600/20"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-accent hover:bg-accent text-ink transition-colors cursor-pointer shadow-lg shadow-accent/20"
               >
                 Sign Out
               </button>

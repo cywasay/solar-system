@@ -172,9 +172,9 @@ export function LoadErrorNotice({
   return (
     <div
       role="alert"
-      className={`rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-[13px] text-rose-300 ${className}`}
+      className={`rounded-xl border border-accent/30 bg-accent/10 p-4 text-[13px] text-accent ${className}`}
     >
-      <p className="font-semibold text-rose-200">Couldn&rsquo;t load messages</p>
+      <p className="font-semibold text-accent">Couldn&rsquo;t load messages</p>
       <p className="mt-1 leading-relaxed opacity-90">
         {message}. Anything shown here may be missing or out of date &mdash; an empty list does not
         mean there are no messages.
@@ -183,7 +183,7 @@ export function LoadErrorNotice({
         type="button"
         onClick={onRetry}
         disabled={busy}
-        className="mt-3 rounded-lg border border-rose-400/40 px-3 py-1.5 text-xs font-medium text-rose-100 transition-colors hover:bg-rose-500/20 disabled:opacity-50 cursor-pointer"
+        className="mt-3 rounded-lg border border-accent/40 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent/20 disabled:opacity-50 cursor-pointer"
       >
         {busy ? 'Retrying…' : 'Try again'}
       </button>

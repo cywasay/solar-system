@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import ContactForm from '@/components/contact/ContactForm';
 
 export const metadata: Metadata = {
@@ -23,18 +22,6 @@ const channels = [
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-ink text-fg page-in overflow-x-hidden">
-      <nav className="flex justify-between items-center px-4 sm:px-6 md:px-12 py-4 sm:py-6 font-sans text-[11px] md:text-xs tracking-widest uppercase border-b border-line/40 text-quiet">
-        <Link href="/" className="hover:text-accent transition-colors duration-200 text-fg">
-          Simulation.01
-        </Link>
-        <div className="flex items-center gap-3 sm:gap-6">
-          <span>Comms</span>
-          <Link href="/admin" className="hover:text-accent transition-colors text-[11px] text-muted">
-            Admin
-          </Link>
-        </div>
-      </nav>
-
       <header className="px-4 sm:px-6 md:px-12 pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 border-b border-line/40">
         <p className="font-sans text-[11px] md:text-xs uppercase tracking-[0.2em] text-quiet mb-3 sm:mb-4">
           Open channel
