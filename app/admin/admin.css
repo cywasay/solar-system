@@ -35,7 +35,7 @@
   --a-danger-soft: #8A9098;
 
   --a-ring: #FF6A3D;
-  --a-shadow: 0 1px 2px rgb(16 16 18) / 0.06), 0 1px 3px rgb(16 16 18) / 0.1);
+  --a-shadow: 0 1px 2px rgb(16 16 18 / 0.06), 0 1px 3px rgb(16 16 18 / 0.1);
 
   background: var(--a-bg);
   color: var(--a-text);
@@ -69,7 +69,7 @@
   --a-danger: #FF6A3D;
   --a-danger-soft: #101012;
 
-  --a-shadow: 0 1px 2px rgb(16 16 18) / 0.4), 0 1px 3px rgb(16 16 18) / 0.3);
+  --a-shadow: 0 1px 2px rgb(16 16 18 / 0.4), 0 1px 3px rgb(16 16 18 / 0.3);
 }
 
 /* Numbers in tables and stats must align column-wise. */
