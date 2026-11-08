@@ -1,6 +1,6 @@
 # Planet pages overhaul — art direction and implementation brief
 
-Status: Mercury, Venus, and Earth implemented for review. Pause after Earth; Mars and subsequent planets await the next instruction.
+Status: Mercury, Venus, Earth, and Mars implemented for review. Pause after Mars; Jupiter and subsequent planets await the next instruction.
 Updated: 8 November 2026
 
 The user authorized implementation on 8 November 2026, starting with Mercury and stopping after each planet for an update. Mercury now has an isolated composition, Barlow Condensed typography, carbon/mineral/bronze colors, directional mask entrances, a keyboard-accessible procedural lighting study, surface/interior/resonance/mission content, and responsive layouts. Other planets remain pending. Existing unrelated landing-page work is preserved.
@@ -267,3 +267,22 @@ Mercury now opts into a route-specific masthead: an eclipse emblem, condensed wo
 - Regional presets and the comparison slider support keyboard and touch. Atlas copy reserves space across modes, imagery retains a 2:1 geographic projection on mobile, and scientific diagrams are labeled as schematic.
 - Verified desktop and mobile reading layouts, chapter anchors, layer switching, region controls, keyboard slider endpoints, mobile navigation, page-height stability across datasets, and horizontal overflow. TypeScript and targeted lint passed. The preserved black-hole handoff opened the simulation with Earth selected and rendered; the Earth page produced no captured console warnings or errors.
 - Mercury and Venus content, design, and interactions were not revised in this step. Stop here for the user's review; Mars is next.
+
+### Mars implementation — 8 November 2026
+
+- Separate `MarsPage` composition: Basalt `#241815`, Pale sediment `#E7D3B8`, and Iron oxide `#BB6247` palette; heavy `Archivo Black` typography with geological stratified cuts.
+- Wide panoramic hero featuring the Valles Marineris canyon system (`valles-marineris.jpg`) with NASA/USGS attribution and explicit scale labeling.
+- Two signature interactive studies:
+  1. `MarsStudy.tsx`: Stratigraphic excavation interactive model demonstrating vertical strata separation (Surface cover, Sedimentary beds, Fractured foundation) with keyboard accessibility, layer explanations, and disclosure that geometry is conceptual.
+  2. `MarsElevation.tsx`: Topographic laser altimetry explorer profiling Valles Marineris (4,000 km, -7.2 km depth), Olympus Mons (21.9 km peak shield), and Jezero Crater delta (Perseverance landing site). Scrubbable waypoint tracker with MOLA datum context and vertical exaggeration labeled.
+- Substantial editorial progression (~1,400 words):
+  - 4-billion-year stratigraphic preservation due to rapid interior cooling and lack of plate tectonics.
+  - Aqueous history: valley networks, lakebed mudstones, and the three mineral eras (Noachian smectite clays → Hesperian sulfates → Amazonian ferric rust).
+  - Atmospheric stripping: loss of the core dynamo ~4 Ga, MAVEN in-situ ion escape measurements during solar wind sputtering, and why low surface pressure (~6.1 mbar) prevents stable surface liquid water.
+  - Polar layered deposits (Planum Boreum / Planum Australe) recording chaotic Milankovitch obliquity swings (15° to 35°+).
+  - Phobos & Deimos: captured asteroid vs. giant impact ring accretion hypotheses, plus Phobos’s 1.8 cm/year tidal decay toward destruction or ring formation in 30–50 million years.
+- Masthead integration in `SiteNav.tsx` and `SiteNav.module.css`:
+  - Mars-specific geological strata emblem, Basalt/Rust palette, brand caption *"Mars / A landscape that keeps evidence"*, and preserved black-hole handoff to `/explore?focus=Mars`.
+  - Adjacent navigation: `← Earth` and `Jupiter →`.
+- Full TypeScript validation, zero new lint warnings, clean responsive mobile layout, and Next.js static page generation confirmed.
+- Stop here for the user's review; Jupiter is next.

@@ -1,4 +1,5 @@
 import { Fraunces } from 'next/font/google';
+export { marsDisplay } from './marsFont';
 
 export const venusDisplay = Fraunces({
   subsets: ['latin'],
@@ -7,3 +8,4 @@ export const venusDisplay = Fraunces({
   display: 'swap',
   variable: '--font-venus',
 });
+
