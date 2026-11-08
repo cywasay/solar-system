@@ -3,6 +3,7 @@ import Link from 'next/link';
 import styles from './PortfolioWork.module.css';
 import WorkSculpture from './WorkSculpture';
 import WorkReveal from './WorkReveal';
+import MotionStudy from './MotionStudy';
 
 export default function PortfolioWork() {
   return (
@@ -69,25 +70,7 @@ export default function PortfolioWork() {
               <p className={styles.application}>For your site, I can choreograph a product reveal, guide a visitor through a portfolio, or make a change of view feel continuous.</p>
             </div>
             <figure className={styles.motionStudy}>
-              <svg viewBox="0 0 540 210" role="img" aria-label="Three paths spiral toward the entrance button">
-                <g fill="none" stroke="currentColor" strokeOpacity=".27">
-                  <path d="M24 105H516M378 20V190" strokeDasharray="3 6" />
-                  <circle cx="378" cy="105" r="72" />
-                  <circle cx="378" cy="105" r="43" />
-                </g>
-                <g fill="none" stroke="currentColor" strokeWidth="1.25">
-                  <path d="M60 48C160 48 289 10 404 46c97 30 53 126-22 115-57-8-66-62-32-79 35-17 64 10 51 32-8 13-25 11-27-3" />
-                  <path d="M99 109c87 2 158-27 224-53 73-29 144 21 117 75-19 39-75 39-99 8-24-32-4-62 25-63 28 0 41 27 24 39-7 5-15 3-16-4" opacity=".62" />
-                  <path d="M155 162c61 0 107 24 174 17 92-9 130-72 89-109-35-32-88-9-92 31-3 31 28 53 57 37 20-11 19-32 4-37-9-3-16 5-13 10" opacity=".42" />
-                </g>
-                <g fill="currentColor">
-                  <circle cx="60" cy="48" r="4" />
-                  <circle cx="99" cy="109" r="4" />
-                  <circle cx="155" cy="162" r="4" />
-                </g>
-                <circle cx="378" cy="105" r="14" fill="var(--color-accent)" />
-                <circle cx="378" cy="105" r="22" fill="none" stroke="var(--color-accent)" strokeOpacity=".55" />
-              </svg>
+              <MotionStudy />
             </figure>
           </li>
 

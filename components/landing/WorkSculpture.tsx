@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useContext, useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './PortfolioWork.module.css';
+import { WorkRevealContext } from './WorkReveal';
+import { useRoamingBlocks } from './useRoamingBlocks';
 
 let sculptureAssembled = false;
 const SIDE = 43;
@@ -20,7 +22,9 @@ const blocks = [
 
 export default function WorkSculpture() {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const revealReady = useContext(WorkRevealContext);
+  useRoamingBlocks(ref, open);
 
   useEffect(() => {
     const button = ref.current;
@@ -28,6 +32,7 @@ export default function WorkSculpture() {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (preference.matches || new URLSearchParams(location.search).has('lite')) return;
     button.dataset.assembly = 'waiting';
+    if (!revealReady) return;
     let timer: ReturnType<typeof setTimeout>;
     const finish = () => { button.dataset.assembly = 'complete'; };
     const observer = new IntersectionObserver(([entry]) => {
@@ -45,17 +50,17 @@ export default function WorkSculpture() {
       preference.removeEventListener('change', finish);
       delete button.dataset.assembly;
     };
-  }, []);
+  }, [revealReady]);
+
+  const toggle = () => {
+    if (ref.current) ref.current.dataset.assembly = 'complete';
+    sculptureAssembled = true;
+    setOpen(value => !value);
+  };
 
   return (
-    <button ref={ref} type="button" className={styles.sculpturePlay}
-      aria-label="Unfold the sculpture" aria-pressed={open} data-open={open}
-      onClick={() => {
-        if (ref.current) ref.current.dataset.assembly = 'complete';
-        sculptureAssembled = true;
-        setOpen(value => !value);
-      }}>
-      <svg viewBox="0 0 440 290" aria-hidden="true">
+    <div ref={ref} className={styles.sculpturePlay} data-open={open}>
+      <svg viewBox="0 0 440 290">
         <g transform="translate(220 145) scale(1.25)">
           {blocks.map(([x, y, z], index) => {
             const [px, py] = project(x * 46 - 44.5, y * 46 - 44.5, z * 46 - 44.5);
@@ -68,7 +73,16 @@ export default function WorkSculpture() {
                   '--piece-delay': `${index * 130}ms`,
                   '--piece-angle': `${(index % 2 ? 1 : -1) * 14}deg`,
                 } as CSSProperties}>
-                  <g className={styles.sculptureBlock} data-accent={accent}>
+                  <g className={styles.sculptureBlock} data-accent={accent}
+                    role={accent ? 'button' : undefined}
+                    tabIndex={accent ? 0 : undefined}
+                    aria-label={accent ? 'Release the blocks' : undefined}
+                    aria-pressed={accent ? open : undefined}
+                    aria-hidden={accent ? undefined : true}
+                    onClick={accent ? toggle : undefined}
+                    onKeyDown={accent ? event => {
+                      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); }
+                    } : undefined}>
                     <polygon className={styles.blockLeft} points={faces.left} />
                     <polygon className={styles.blockRight} points={faces.right} />
                     <polygon className={styles.blockTop} points={faces.top} />
@@ -79,7 +93,6 @@ export default function WorkSculpture() {
           })}
         </g>
       </svg>
-      <span>{open ? 'Bring it together' : 'Pull it apart'} <span className={styles.sculptureToggle} aria-hidden="true">{open ? '−' : '+'}</span></span>
-    </button>
+    </div>
   );
 }

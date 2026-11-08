@@ -347,3 +347,137 @@
 
 /* Warm ivory establishes a clear primary type level. */
 .wordmark, .key[aria-current="page"], .key[aria-expanded="true"], .planetText > span:first-child { color: #E6DED0; }
+
+/* Mercury: an etched masthead with a lit hemisphere, not the portfolio chrome. */
+.header[data-theme] {
+  --nav-paper: #ded9cf;
+  --nav-accent: #bda68a;
+  width: 85%;
+  top: 0;
+  margin-top: 0;
+  color: var(--nav-paper);
+}
+.header[data-theme] .bar {
+  grid-template-columns: minmax(220px, 1fr) auto 58px;
+  min-height: 94px;
+  padding: 16px 0;
+  gap: 34px;
+}
+.header[data-theme]:not([data-entering='true'])::before {
+  content: '';
+  position: absolute;
+  inset: 0 -8.8235%;
+  background: #111214f5;
+  border-bottom: 1px solid #ded9cf26;
+  z-index: -1;
+  pointer-events: none;
+}
+.header[data-theme] .rule { display: none; }
+.header[data-theme] .brand { gap: 15px; }
+.header[data-theme] .seal { width: 35px; height: 35px; color: var(--nav-accent); }
+.header[data-theme] .wordmark {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+.header[data-theme] .brandDot,
+.header[data-theme] .navIndex,
+.header[data-theme] .panelEdition { display: none; }
+.header[data-theme] .brandCaption {
+  font-size: 9px;
+  letter-spacing: .035em;
+  text-transform: none;
+  color: #bda68a;
+}
+.header[data-theme] .destinations { gap: 28px; }
+.header[data-theme] .key {
+  min-height: 42px;
+  min-width: 0;
+  padding: 8px 0;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--nav-paper);
+}
+.header[data-theme] .key::after { background: var(--nav-accent); bottom: 0; }
+.header[data-theme] .toggleGlyph { color: var(--nav-accent); }
+.header[data-theme] .key:hover .navText { color: var(--nav-accent); translate: none; }
+.header[data-theme] .exploreKey { width: 58px; height: 58px; gap: 3px; }
+.header[data-theme]:not([data-entering='true']) .exploreKey {
+  background: var(--nav-paper);
+  color: #111214;
+  box-shadow: none;
+}
+.header[data-theme]:not([data-entering='true']) .exploreKey::before {
+  border-color: #bda68a70;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  inset: -4px;
+}
+.header[data-theme] .exploreLabel { font-size: 7px; letter-spacing: .055em; }
+.header[data-theme] .exploreArrow,
+.header[data-theme] .exploreArrow>svg { width: 22px; height: 22px; }
+.header[data-theme] .planetPanel {
+  background: #191a1c;
+  border: 1px solid #bda68a55;
+  color: var(--nav-paper);
+  border-radius: 0;
+  box-shadow: 0 22px 45px #0007;
+}
+.header[data-theme] .panelHeading>span:first-child,
+.header[data-theme] .planetText>span:first-child { font-family: var(--font-bebas), sans-serif; letter-spacing: .025em; }
+.header[data-theme] .planetLink { border-color: #ded9cf26; }
+.header[data-theme] .planetLink[aria-current='page'],
+.header[data-theme] .planetArrow,
+.header[data-theme] .panelDot,
+.header[data-theme] .panelExplore { color: var(--nav-accent); }
+.header[data-theme] .panelExplore { border-color: #ded9cf26; }
+.header[data-theme] :focus-visible { outline-color: var(--nav-accent); }
+@media(max-width:760px) {
+  .header[data-theme] { width: 88%; }
+  .header[data-theme] .bar { grid-template-columns: 1fr 48px; gap: 9px 18px; padding: 14px 0 7px; }
+  .header[data-theme] .wordmark { font-size: 26px; }
+  .header[data-theme] .brandCaption { font-size: 8px; }
+  .header[data-theme] .seal { width: 29px; height: 29px; }
+  .header[data-theme] .brand { gap: 10px; }
+  .header[data-theme] .exploreKey { grid-column: 2; grid-row: 1; width: 48px; height: 48px; }
+  .header[data-theme] .destinations { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; gap: 24px; }
+  .header[data-theme] .key { min-height: 32px; font-size: 11px; }
+  .header[data-theme] .planetPanel { padding: 20px 17px; max-height: 65svh; }
+}
+
+@media(max-width:760px){.header[data-theme]:not([data-entering='true'])::before{inset:0 -6.8181%}}
+
+
+
+/* Venus takes the same navigation mechanics into a soft, luminous atmosphere. */
+.header[data-theme='venus'] { --nav-paper:#231c12; --nav-accent:#705d29; color:#231c12; }
+.header[data-theme='venus']:not([data-entering='true'])::before { background:#f1e5befa; border-color:#231c1226; }
+.header[data-theme='venus'] .wordmark { font-family:var(--font-venus),Georgia,serif; font-size:28px; font-weight:500; letter-spacing:-.06em; text-transform:none; color:#231c12; }
+.header[data-theme='venus'] .brandCaption { color:#705d29; }
+.header[data-theme='venus'] .key[aria-expanded='true'] { color:#231c12; }
+.header[data-theme='venus']:not([data-entering='true']) .exploreKey { background:#231c12; color:#f1e5be; }
+.header[data-theme='venus']:not([data-entering='true']) .exploreKey::before { border-color:#705d2966; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='venus'] .planetPanel { background:#f1e5be; border-color:#705d2966; border-radius:15px; color:#231c12; }
+.header[data-theme='venus'] .panelHeading>span:first-child,.header[data-theme='venus'] .planetText>span:first-child { font-family:var(--font-venus),serif; color:#231c12; letter-spacing:-.04em; }
+.header[data-theme='venus'] .planetText>span:first-child { font-size:21px; }
+.header[data-theme='venus'] .planetText>span:last-child,.header[data-theme='venus'] .planetOrdinal { color:#705d29; }
+.header[data-theme='venus'] .planetLink,.header[data-theme='venus'] .panelExplore { border-color:#231c1226; }
+.header[data-theme='venus'][data-entering='true'] .wordmark,.header[data-theme='venus'][data-entering='true'] .brandCaption,.header[data-theme='venus'][data-entering='true'] .key,.header[data-theme='venus'][data-entering='true'] .seal { color:#f1e5be; }
+@media(max-width:760px){.header[data-theme='venus'] .wordmark{font-size:26px}.header[data-theme='venus'] .planetText>span:first-child{font-size:19px}}
+
+/* Earth keeps navigation on the paper-and-forest atlas palette. */
+.header[data-theme='earth'] { --nav-paper:#173c36; --nav-accent:#326d80; color:#173c36; }
+.header[data-theme='earth']:not([data-entering='true'])::before { background:#e9e5dafa; border-color:#173c3633; }
+.header[data-theme='earth'] .wordmark { font-family:var(--font-newsreader),Georgia,serif; font-size:33px; letter-spacing:-.04em; text-transform:none; color:#173c36; }
+.header[data-theme='earth'] .brandCaption { color:#326d80; }
+.header[data-theme='earth'] .key[aria-expanded='true'] { color:#173c36; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey { background:#173c36; color:#e9e5da; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey::before { border-color:#326d8077; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='earth'] .planetPanel { background:#e9e5da; color:#173c36; border-color:#326d8055; }
+.header[data-theme='earth'] .panelHeading>span:first-child,.header[data-theme='earth'] .planetText>span:first-child { font-family:var(--font-newsreader),serif; color:#173c36; letter-spacing:-.025em; }
+.header[data-theme='earth'] .planetText>span:last-child,.header[data-theme='earth'] .planetOrdinal { color:#326d80; }
+.header[data-theme='earth'] .planetLink,.header[data-theme='earth'] .panelExplore { border-color:#173c3633; }
+.header[data-theme='earth'][data-entering='true'] .wordmark,.header[data-theme='earth'][data-entering='true'] .brandCaption,.header[data-theme='earth'][data-entering='true'] .key,.header[data-theme='earth'][data-entering='true'] .seal { color:#e9e5da; }
+@media(max-width:760px){.header[data-theme='earth'] .wordmark{font-size:29px}}

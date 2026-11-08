@@ -1,0 +1,11 @@
+.diagram { overflow: visible; }
+.guide { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: .27; }
+.trail, .tip, .echo { opacity: 0; pointer-events: none; }
+.source { transition: opacity 250ms; }
+.diagram[data-motion='playing'] .source { opacity: .25; }
+.control { cursor: pointer; outline: none; }
+.focusRing { opacity: 0; stroke-width: 1.5; }
+.control:hover .focusRing, .control:focus-visible .focusRing { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .source { transition: none; }
+}

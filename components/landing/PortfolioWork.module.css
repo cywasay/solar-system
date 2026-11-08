@@ -8,9 +8,6 @@
 .workTitle em { display: block; margin-top: 8px; font-family: var(--font-newsreader), serif; font-size: clamp(40px, 4.7vw, 70px); line-height: 1.05; letter-spacing: -.045em; font-weight: 400; }
 .sculpturePlay { display: grid; justify-items: center; width: 100%; padding: 0; border: 0; background: none; color: var(--color-ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .sculpturePlay svg { width: 100%; height: auto; overflow: visible; }
-.sculpturePlay > span { font-size: 12px; }
-.sculpturePlay > span span { display: inline-block; margin-left: 8px; font-size: 18px; }
-.sculpturePlay:hover > span { text-decoration: underline; text-underline-offset: 4px; }
 .workFoot { display: grid; grid-template-columns: .85fr 1.6fr auto; align-items: center; gap: 32px; border-top: 1px solid color-mix(in srgb, var(--color-ink) 25%, transparent); padding-top: 24px; }
 .workFoot h3 { font-family: var(--font-newsreader), serif; font-size: 30px; line-height: 1; letter-spacing: -.04em; font-weight: 500; }
 .workFoot h3 span { display: block; margin-top: 8px; font-family: var(--font-geist-sans), sans-serif; font-size: 12px; letter-spacing: 0; font-weight: 400; }
@@ -85,8 +82,6 @@
   .work[data-reveal='playing'] .workTitle em { animation: italicSweep 1050ms cubic-bezier(.22, 1, .36, 1) 1000ms both; }
   .work[data-reveal='playing'] .workFoot { animation: footerUnfold 950ms cubic-bezier(.22, 1, .36, 1) 1800ms both; }
 
-  .sculpturePlay[data-assembly='waiting'] > span { clip-path: inset(0 50%); }
-  .sculpturePlay[data-assembly='playing'] > span { animation: showInvitation 600ms cubic-bezier(.22, 1, .36, 1) 3300ms both; }
 }
 
 @keyframes unfoldSheet {
@@ -106,18 +101,15 @@
   from { clip-path: inset(0 100% 0 0); }
   to { clip-path: inset(0 -1% -5% 0); }
 }
-@keyframes showInvitation { from { clip-path: inset(0 50%); } to { clip-path: inset(0 0); } }
 
 
 /* Eight physical pieces, one assembled object. Only explicit interaction repeats. */
-.sculpturePlay svg { overflow: hidden; }
+.sculpturePlay svg { overflow: visible; pointer-events: none; }
 .sculptureBlock {
   transform: translate(0, 0);
-  transition: transform 1100ms cubic-bezier(.22, 1, .36, 1);
+  transition: opacity 180ms ease;
 }
-.sculpturePlay[data-open='true'] .sculptureBlock {
-  transform: translate(var(--piece-x), var(--piece-y));
-}
+
 .sculptureBlock polygon { stroke: color-mix(in srgb, var(--color-ivory) 25%, var(--color-ink)); stroke-width: .6; stroke-linejoin: round; }
 .blockTop { fill: color-mix(in srgb, var(--color-ink) 67%, var(--color-muted)); }
 .blockLeft { fill: var(--color-card); }
@@ -126,7 +118,6 @@
 .sculptureBlock[data-accent='true'] .blockTop { fill: var(--color-accent); }
 .sculptureBlock[data-accent='true'] .blockLeft { fill: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink)); }
 .sculptureBlock[data-accent='true'] .blockRight { fill: color-mix(in srgb, var(--color-accent) 65%, var(--color-ink)); }
-.sculptureToggle { min-width: 1em; font-weight: 400; }
 
 @media (prefers-reduced-motion: no-preference) {
   .sculpturePlay[data-assembly='waiting'] .blockArrival { opacity: 0; }
@@ -143,3 +134,12 @@
 @media (prefers-reduced-motion: reduce) {
   .sculptureBlock { transition: none; }
 }
+
+
+/* The section is the playground; only the red anchor receives pointer events. */
+.work { overflow: clip; }
+.sculpturePlay { cursor: default; padding-bottom: 28px; }
+.workTitle, .workFoot { position: relative; z-index: 1; }
+.sculptureBlock[data-accent='true'] { pointer-events: auto; cursor: pointer; outline: none; }
+.sculptureBlock[data-accent='true']:hover polygon,
+.sculptureBlock[data-accent='true']:focus-visible polygon { stroke: var(--color-ink); stroke-width: 1.8; }

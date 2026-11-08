@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { planets } from '@/data/planets';
 import styles from './SiteNav.module.css';
 import { useOrbitEntrance } from './useOrbitEntrance';
+import { venusDisplay } from '@/components/planets/planetFonts';
 
 function Arrow({ className = '' }: { className?: string }) {
   return (
@@ -56,6 +57,9 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const exploreRef = useRef<HTMLAnchorElement>(null);
   const onPlanetPage = pathname.startsWith('/planets/');
+  // Other planet identities opt in here as their pages are redesigned.
+  const theme = pathname === '/planets/mercury' ? 'mercury' : pathname === '/planets/venus' ? 'venus' : pathname === '/planets/earth' ? 'earth' : undefined;
+  const themeName = theme === 'earth' ? 'Earth' : theme === 'venus' ? 'Venus' : 'Mercury';
   const closePanel = useCallback(() => setPlanetsOpen(false), []);
   const { entering, overlay } = useOrbitEntrance({ rootRef, buttonRef: exploreRef, closePanel, onBegin, onNavigate, onComplete, onCancel });
 
@@ -104,7 +108,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
     const update = () => {
       frame = 0;
       if (root.dataset.entering === 'true') return;
-      const raw = Math.min(1, Math.max(0, (window.scrollY - 24) / 160));
+      const raw = theme ? 0 : Math.min(1, Math.max(0, (window.scrollY - 24) / 160));
       const progress = reducedMotion.matches ? (raw > 0.08 ? 1 : 0) : raw;
       if (progress === lastProgress || (progress > 0 && progress < 1 && Math.abs(progress - lastProgress) < 0.0001)) return;
       lastProgress = progress;
@@ -139,7 +143,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
       reducedMotion.removeEventListener('change', schedule);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     if (!planetsOpen) return;
@@ -161,8 +165,9 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
 
   return (<>
     <header
-      className={styles.header}
+      className={`${styles.header} ${theme === 'venus' ? venusDisplay.variable : ''}`}
       ref={rootRef}
+      data-theme={theme}
       data-absorbing={absorbing}
       aria-busy={entering}
       onBlur={(event) => {
@@ -174,17 +179,17 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
         <div className={`${styles.absorb} ${styles.brandSlot}`} data-absorb data-nav-content inert={absorbing || entering}>
           <Link href="/" className={styles.brand} aria-label="Thessaris home" onClick={() => setPlanetsOpen(false)}>
             <span className={styles.sealSlot} data-orbit-piece="emblem">
-            <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
+            {theme === 'earth' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><ellipse cx="26" cy="26" rx="9" ry="20"/><path d="M6 26h40M10 14h32M10 38h32"/></svg> : theme === 'venus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><path d="M8 18c13-7 23 7 36 0M6 26c14-7 26 7 40 0M8 34c13-7 23 7 36 0"/></svg> : theme ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="26" cy="26" r="19" stroke="currentColor" strokeWidth="1"/><path d="M26 7a19 19 0 0 0 0 38V7Z" fill="currentColor"/><path d="M26 0v5m0 42v5" stroke="currentColor"/></svg> : <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
               <circle cx="26" cy="26" r="17" stroke="currentColor" strokeWidth=".8" />
               <ellipse cx="26" cy="26" rx="25" ry="8" transform="rotate(-38 26 26)" stroke="currentColor" strokeWidth=".8" />
               <path d="M26 2v8m0 32v8M2 26h8m32 0h8" stroke="currentColor" strokeWidth=".6" />
               <circle cx="26" cy="26" r="3" fill="var(--color-accent-hover)" />
               <circle cx="39.4" cy="15.6" r="2" fill="currentColor" />
-            </svg>
+            </svg>}
             </span>
             <span className={styles.brandType} data-orbit-piece="wordmark">
               <span className={styles.wordmark}>Thessaris<span className={styles.brandDot}>.</span></span>
-              <span className={styles.brandCaption}>An independent observatory</span>
+              <span className={styles.brandCaption}>{theme === 'earth' ? 'Earth / A living atlas' : theme === 'venus' ? 'Venus / Beauty under pressure' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
             </span>
           </Link>
         </div>
@@ -193,7 +198,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
           <div className={styles.absorb} data-absorb style={{ '--lag': 0.035 } as CSSProperties}>
             <Link href="/" className={styles.key} data-orbit-piece="home" aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setPlanetsOpen(false)}>
               <span className={styles.navIndex} aria-hidden="true">01</span>
-              <span className={styles.navText}>Home</span>
+              <span className={styles.navText}>{theme ? 'Portfolio' : 'Home'}</span>
             </Link>
           </div>
           <div className={`${styles.absorb} ${styles.planetNavigation}`} data-absorb style={{ '--lag': 0.07 } as CSSProperties}>
@@ -201,7 +206,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
               aria-expanded={planetsOpen} aria-controls="navbar-planets"
               data-active={onPlanetPage || undefined} onClick={() => setPlanetsOpen((open) => !open)}>
               <span className={styles.navIndex} aria-hidden="true">02</span>
-              <span className={styles.navText}>Planets <span className={styles.toggleGlyph} aria-hidden="true" /></span>
+              <span className={styles.navText}>{theme ? themeName : 'Planets'} <span className={styles.toggleGlyph} aria-hidden="true" /></span>
             </button>
             {planetsOpen && (
               <div className={styles.planetPanel} id="navbar-planets" data-lenis-prevent>
@@ -239,15 +244,15 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
               <span className={styles.navText}>Contact</span>
             </Link>
           </div>
-          <div className={styles.absorb} data-absorb style={{ '--lag': 0.14 } as CSSProperties}>
+          {!theme && <div className={styles.absorb} data-absorb style={{ '--lag': 0.14 } as CSSProperties}>
             <Link href="/admin" className={`${styles.key} ${styles.adminKey}`} data-orbit-piece="admin" onClick={() => setPlanetsOpen(false)}>
               <span className={styles.navIndex} aria-hidden="true">04</span>
               <span className={styles.navText}>Admin</span>
             </Link>
-          </div>
+          </div>}
         </div>
 
-        <Link ref={exploreRef} href="/explore" className={styles.exploreKey} aria-label="Explore" onClick={() => setPlanetsOpen(false)}>
+        <Link ref={exploreRef} href={theme ? `/explore?focus=${themeName}` : '/explore'} className={styles.exploreKey} aria-label={theme ? `Explore ${themeName}` : 'Explore'} onClick={() => setPlanetsOpen(false)}>
           <span className={styles.exploreLabel}>Explore</span>
           <span className={styles.exploreArrow}><Arrow /></span>
         </Link>
