@@ -481,3 +481,19 @@
 .header[data-theme='earth'] .planetLink,.header[data-theme='earth'] .panelExplore { border-color:#173c3633; }
 .header[data-theme='earth'][data-entering='true'] .wordmark,.header[data-theme='earth'][data-entering='true'] .brandCaption,.header[data-theme='earth'][data-entering='true'] .key,.header[data-theme='earth'][data-entering='true'] .seal { color:#e9e5da; }
 @media(max-width:760px){.header[data-theme='earth'] .wordmark{font-size:29px}}
+
+/* Mars brings a heavy basalt, sediment, and iron-oxide palette. */
+.header[data-theme='mars'] { --nav-paper:#E7D3B8; --nav-accent:#BB6247; color:#E7D3B8; }
+.header[data-theme='mars']:not([data-entering='true'])::before { background:#241815fa; border-color:#BB624744; }
+.header[data-theme='mars'] .wordmark { font-family:var(--font-mars),sans-serif; font-size:26px; font-weight:400; letter-spacing:.04em; text-transform:uppercase; color:#E7D3B8; }
+.header[data-theme='mars'] .brandCaption { color:#BB6247; }
+.header[data-theme='mars'] .key[aria-expanded='true'] { color:#E7D3B8; }
+.header[data-theme='mars']:not([data-entering='true']) .exploreKey { background:#BB6247; color:#241815; }
+.header[data-theme='mars']:not([data-entering='true']) .exploreKey::before { border-color:#BB624777; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='mars'] .planetPanel { background:#241815; border-color:#BB624766; color:#E7D3B8; }
+.header[data-theme='mars'] .panelHeading>span:first-child, .header[data-theme='mars'] .planetText>span:first-child { font-family:var(--font-mars),sans-serif; color:#E7D3B8; letter-spacing:.02em; }
+.header[data-theme='mars'] .planetText>span:last-child, .header[data-theme='mars'] .planetOrdinal { color:#BB6247; }
+.header[data-theme='mars'] .planetLink, .header[data-theme='mars'] .panelExplore { border-color:#BB624733; }
+.header[data-theme='mars'][data-entering='true'] .wordmark, .header[data-theme='mars'][data-entering='true'] .brandCaption, .header[data-theme='mars'][data-entering='true'] .key, .header[data-theme='mars'][data-entering='true'] .seal { color:#E7D3B8; }
+@media(max-width:760px){.header[data-theme='mars'] .wordmark{font-size:22px}}
+

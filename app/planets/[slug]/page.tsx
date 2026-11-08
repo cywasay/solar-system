@@ -6,6 +6,7 @@ import { planetEditorial } from '@/data/planetEditorial';
 import MercuryPage from '@/components/planets/MercuryPage';
 import VenusPage from '@/components/planets/VenusPage';
 import EarthPage from '@/components/planets/EarthPage';
+import MarsPage from '@/components/planets/MarsPage';
 
 /** All eight pages are prerendered at build time from the simulation's own data. */
 export function generateStaticParams() {
@@ -22,7 +23,7 @@ export async function generateMetadata({
   if (!planet) return {};
   return {
     title: `${planet.name} — Thessaris`,
-    description: slug === 'earth' ? 'Explore Earth as a connected system: an interactive seasonal atlas, ocean heat, plate tectonics, carbon cycling, tides, and the evidence behind planetary change.' : planet.facts.description,
+    description: slug === 'earth' ? 'Explore Earth as a connected system: an interactive seasonal atlas, ocean heat, plate tectonics, carbon cycling, tides, and the evidence behind planetary change.' : slug === 'mars' ? 'Explore Mars as a landscape that keeps evidence: stratigraphic excavation, laser altimetry profiles of Valles Marineris and Olympus Mons, atmospheric stripping, and the water record.' : planet.facts.description,
   };
 }
 
@@ -33,6 +34,7 @@ export default async function PlanetPage({ params }: { params: Promise<{ slug: s
   if (slug === 'mercury') return <MercuryPage />;
   if (slug === 'venus') return <VenusPage />;
   if (slug === 'earth') return <EarthPage />;
+  if (slug === 'mars') return <MarsPage />;
 
   const planet = planets[index];
   const editorial = planetEditorial[planet.name];
