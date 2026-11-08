@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import HeroOrrery from '@/components/landing/HeroOrrery';
 import HeroStage from '@/components/landing/HeroStage';
+import PortfolioIntro from '@/components/landing/PortfolioIntro';
+import PortfolioWork from '@/components/landing/PortfolioWork';
 import SplitHeadline from '@/components/landing/SplitHeadline';
 import SmoothScroll from '@/components/landing/SmoothScroll';
 import BeginCta from '@/components/landing/BeginCta';
@@ -40,6 +42,8 @@ export default function LandingPage() {
         <HeroOrrery />
       </HeroStage>
 
+      <PortfolioIntro />
+      <PortfolioWork />
       <BeginCta />
       <footer className="border-t border-line relative w-full h-[24vw] min-h-[120px] overflow-hidden">
         <span className="sr-only">Thessaris</span>

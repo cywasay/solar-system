@@ -1,0 +1,309 @@
+.section {
+  position: relative;
+  border-top: 1px solid var(--color-line-strong);
+  padding: clamp(72px, 8.5vw, 132px) 7.5%;
+  scroll-margin-top: 5rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 80px);
+  max-width: 1260px;
+  margin-inline: auto;
+}
+
+.titleArea {
+  position: relative;
+  width: fit-content;
+  max-width: calc(100% + .28em);
+  margin: -.14em;
+  font-size: clamp(44px, 5.4vw, 88px);
+}
+
+.copy h2 {
+  padding: .14em;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: .96;
+  letter-spacing: -.046em;
+}
+
+.copy em {
+  font-weight: inherit;
+}
+
+.word {
+  white-space: nowrap;
+}
+
+.description {
+  position: relative;
+  max-width: 46ch;
+  margin-top: 24px;
+  color: var(--color-muted);
+  font-size: clamp(15px, 1.3vw, 18px);
+  line-height: 1.75;
+}
+
+.selection,
+.typeLayer {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy[data-reveal='waiting'] h2 {
+    clip-path: inset(0 100% 100% 0);
+  }
+
+  .copy[data-reveal='selecting'] h2 {
+    clip-path: inset(0 calc(100% - var(--drag-width, 0%)) calc(100% - var(--drag-height, 0%)) 0);
+  }
+
+  .copy[data-reveal='selecting'] .selection {
+    display: block;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: var(--drag-width, 0%);
+    height: var(--drag-height, 0%);
+    opacity: var(--drag-opacity, 0);
+  }
+
+  .selection::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 78%, transparent);
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--color-accent) 7%, transparent),
+      color-mix(in srgb, var(--color-accent) 15%, transparent));
+    opacity: var(--box-opacity, 0);
+  }
+
+  .selection::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--color-accent);
+    border-radius: 50%;
+    animation: selectionPress 410ms ease-out var(--press-delay) both;
+  }
+
+  @keyframes selectionPress {
+    0% { opacity: .75; scale: .3; }
+    100% { opacity: 0; scale: 1.45; }
+  }
+
+  .cursor {
+    position: absolute;
+    top: 100%;
+    left: 100%;
+    width: 18px;
+    height: 22px;
+    color: var(--color-fg);
+    transform-origin: 2px 2px;
+    transform: translate(-2px, -2px) rotate(var(--pointer-lean, 0deg));
+  }
+
+  .copy:is([data-reveal='waiting'], [data-reveal='selecting'], [data-reveal='typing'], [data-reveal='finishing']) .fullDescription {
+    opacity: 0;
+  }
+
+  .copy:is([data-reveal='typing'], [data-reveal='finishing']) .typeLayer {
+    display: block;
+    inset: 0;
+    user-select: none;
+  }
+
+  .pending {
+    visibility: hidden;
+  }
+
+  .typed::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 1em;
+    margin-inline-start: 2px;
+    background: var(--color-accent);
+    transform: translateY(.35em);
+  }
+
+  .copy[data-reveal='finishing'] .typed::after {
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+  }
+}
+
+.art {
+  width: 100%;
+  max-width: 530px;
+  justify-self: end;
+}
+
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.guide {
+  color: var(--color-line-strong);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .section[data-orbit='waiting'] .guide {
+    visibility: hidden;
+  }
+
+  .section[data-orbit='flying'] .guide {
+    --open-ease: cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .section[data-orbit='flying'] .corners path {
+    animation: openCorner 760ms var(--open-ease) both;
+  }
+
+  .corners path:nth-child(1) { --corner-start: 140px 81px; }
+  .corners path:nth-child(2) { --corner-start: -140px 81px; }
+  .corners path:nth-child(3) { --corner-start: 140px -81px; }
+  .corners path:nth-child(4) { --corner-start: -140px -81px; }
+
+  .section[data-orbit='flying'] .horizontalAxis {
+    animation: openHorizontal 620ms var(--open-ease) 540ms both;
+  }
+
+  .section[data-orbit='flying'] .verticalAxis {
+    animation: openVertical 820ms ease-in-out 390ms both;
+  }
+
+  .section[data-orbit='flying'] .innerCircle {
+    transform-origin: 160px 97px;
+    animation: expandInner 720ms var(--open-ease) 720ms both;
+  }
+
+  .section[data-orbit='flying'] :is(.outerCircle, .tiltedRing) {
+    stroke-dasharray: 1 1;
+    animation: drawOrbit 1100ms ease-in-out 950ms both;
+  }
+
+  .section[data-orbit='flying'] .tiltedRing {
+    animation: drawTiltedRing var(--ring-duration) ease-in-out var(--ring-start) both;
+  }
+
+  .section[data-orbit='waiting'] :is(.dockNode, .waypoint),
+  .section:is([data-orbit='waiting'], [data-orbit='flying']) .arrivalHalo {
+    visibility: hidden;
+  }
+
+  :is(.dockNode, .waypoint, .arrivalHalo) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .section[data-orbit='flying'] .dockNode {
+    animation: lightNode 200ms ease-out var(--dock-time) both;
+  }
+
+  .section[data-orbit='flying'] .waypoint {
+    animation: lightNode 180ms ease-out var(--waypoint-time) both;
+  }
+
+  .diagram[data-arrived='true'] .arrivalHalo {
+    animation: confirmArrival 560ms ease-out both;
+  }
+
+  @keyframes openCorner {
+    from { translate: var(--corner-start); }
+    to { translate: 0 0; }
+  }
+
+  @keyframes openHorizontal {
+    from { clip-path: inset(0 50%) view-box; }
+    to { clip-path: inset(0) view-box; }
+  }
+
+  @keyframes openVertical {
+    0% { clip-path: inset(50% 0 50%) view-box; }
+    48% { clip-path: inset(0 0 50%) view-box; }
+    100% { clip-path: inset(0) view-box; }
+  }
+
+  @keyframes expandInner {
+    from { scale: 0; }
+    to { scale: 1; }
+  }
+
+  @keyframes drawOrbit {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes drawTiltedRing {
+    from {
+      stroke-dashoffset: 1;
+      stroke: color-mix(in srgb, var(--color-accent) 55%, currentColor);
+    }
+    to { stroke-dashoffset: 0; stroke: currentColor; }
+  }
+
+  @keyframes lightNode {
+    from { opacity: 0; scale: .55; }
+    to { opacity: 1; scale: 1; }
+  }
+
+  @keyframes confirmArrival {
+    0% { opacity: .8; scale: .55; }
+    58% { opacity: .32; scale: 1.38; }
+    100% { opacity: .45; scale: 1; }
+  }
+}
+
+.flight {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  visibility: hidden;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 45%, transparent));
+}
+
+.section:is([data-orbit='waiting'], [data-orbit='flying']) .restingOrbit {
+  visibility: hidden;
+}
+
+.section[data-orbit='flying'] .flight {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section:is([data-orbit='waiting'], [data-orbit='flying']) .restingOrbit {
+    visibility: visible;
+  }
+
+  .section[data-orbit='flying'] .flight {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .art {
+    justify-self: center;
+    width: min(100%, 410px);
+  }
+}

@@ -1,0 +1,145 @@
+.work, .build { padding-inline: 7.5%; scroll-margin-top: 5rem; }
+.work { padding-block: clamp(40px, 4.5vw, 64px) 28px; background: var(--color-ivory); color: var(--color-ink); }
+.workInner, .grid { max-width: 1260px; margin-inline: auto; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, 5vw, 80px); }
+.workComposition { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: center; gap: 24px; padding-bottom: 32px; }
+.workTitle { margin: 0; font-weight: 400; }
+.workTitle > span { display: block; font-family: var(--font-bebas), sans-serif; font-size: clamp(72px, 8.5vw, 126px); line-height: .94; letter-spacing: -.025em; text-transform: uppercase; }
+.workTitle em { display: block; margin-top: 8px; font-family: var(--font-newsreader), serif; font-size: clamp(40px, 4.7vw, 70px); line-height: 1.05; letter-spacing: -.045em; font-weight: 400; }
+.sculpturePlay { display: grid; justify-items: center; width: 100%; padding: 0; border: 0; background: none; color: var(--color-ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sculpturePlay svg { width: 100%; height: auto; overflow: visible; }
+.sculpturePlay > span { font-size: 12px; }
+.sculpturePlay > span span { display: inline-block; margin-left: 8px; font-size: 18px; }
+.sculpturePlay:hover > span { text-decoration: underline; text-underline-offset: 4px; }
+.workFoot { display: grid; grid-template-columns: .85fr 1.6fr auto; align-items: center; gap: 32px; border-top: 1px solid color-mix(in srgb, var(--color-ink) 25%, transparent); padding-top: 24px; }
+.workFoot h3 { font-family: var(--font-newsreader), serif; font-size: 30px; line-height: 1; letter-spacing: -.04em; font-weight: 500; }
+.workFoot h3 span { display: block; margin-top: 8px; font-family: var(--font-geist-sans), sans-serif; font-size: 12px; letter-spacing: 0; font-weight: 400; }
+.workFoot p { max-width: 49ch; font-size: 14px; line-height: 1.65; }
+.launch { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; font-size: 13px; white-space: nowrap; }
+.launch span { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid var(--color-ink); border-radius: 50%; font-size: 24px; transition: background .2s, transform .2s; }
+.launch:hover span { background: var(--color-accent); transform: rotate(45deg); }
+.launch:focus-visible, .sculpturePlay:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 6px; }
+.build { padding-block: clamp(44px, 5vw, 74px); background: var(--color-ink); color: var(--color-fg); }
+.buildHeader { margin-bottom: clamp(24px, 3vw, 40px); }
+.buildHeader h2 { font-family: var(--font-bebas), sans-serif; font-size: clamp(38px, 4vw, 58px); font-weight: 400; line-height: 1; letter-spacing: -.015em; text-transform: uppercase; }
+.buildHeader h2 em { font-family: var(--font-newsreader), serif; text-transform: none; letter-spacing: -.045em; }
+.studyCopy h3 { margin-bottom: 9px; font-size: clamp(28px, 2.7vw, 39px); font-family: var(--font-newsreader), serif; font-weight: 400; font-style: italic; letter-spacing: -.035em; line-height: 1.1; }
+.buildHeader p, .studyCopy p { max-width: 48ch; color: var(--color-muted); font-size: clamp(15px, 1.2vw, 17px); line-height: 1.65; }
+.studyCopy .application { margin-top: 10px; color: var(--color-fg); }
+.studies { margin: 0; padding: 0; list-style: none; }
+.study { padding-block: clamp(24px, 3vw, 40px); border-top: 1px solid var(--color-line); }
+.study:last-child { padding-bottom: 0; }
+.studyReverse .studyCopy { text-align: right; }
+.studyReverse .studyCopy p { margin-left: auto; }
+@media (min-width: 761px) {
+  .studyReverse { grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr); }
+  .studyReverse .studyCopy { grid-column: 2; grid-row: 1; }
+  .studyReverse .motionStudy { grid-column: 1; grid-row: 1; justify-self: start; }
+}
+.study figure { margin: 0; }
+.study figcaption { margin-top: 7px; color: var(--color-muted); font-size: 12px; }
+.moonStudy, .motionStudy, .mobileStudy { width: 100%; max-width: 530px; justify-self: end; }
+.moonStudy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.moonImage { position: relative; background: var(--color-ink); aspect-ratio: 1.65; }
+.moonImage img { object-fit: cover; }
+.motionStudy { color: var(--color-muted); }
+.motionStudy svg { display: block; width: 100%; height: auto; }
+.mobileStudy { display: grid; place-items: center; background: radial-gradient(ellipse, var(--color-card), transparent 72%); }
+.mobileStudy img { width: min(100%, 120px); height: auto; border: 1px solid var(--color-line-strong); }
+@media (max-width: 760px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .buildHeader { gap: 10px; }
+  .moonStudy, .motionStudy, .mobileStudy { justify-self: start; }
+  .workComposition { grid-template-columns: 1fr; gap: 18px; padding-bottom: 24px; }
+  .workTitle > span { font-size: clamp(64px, 15vw, 106px); }
+  .workTitle em { font-size: clamp(34px, 8.2vw, 58px); }
+  .sculpturePlay { max-width: 300px; justify-self: center; }
+  .workFoot { grid-template-columns: 1fr; gap: 16px; }
+  .launch { justify-content: space-between; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sculptureBlock, .launch span { transition: none; }
+}
+
+/* A single reveal passes from the dark introduction into an ivory sheet. */
+.work { position: relative; isolation: isolate; background: var(--color-ink); }
+.work::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--color-ivory); }
+.titleLetter { display: inline-block; overflow: clip; vertical-align: bottom; padding-block: .04em; margin-block: -.04em; }
+.titleLetter > span { display: inline-block; }
+.titleLetter:nth-child(2) { --letter-delay: 35ms; }
+.titleLetter:nth-child(3) { --letter-delay: 70ms; }
+.titleLetter:nth-child(4) { --letter-delay: 105ms; }
+.titleLetter:nth-child(5) { --letter-delay: 140ms; }
+.titleLetter:nth-child(6) { --letter-delay: 175ms; }
+.titleLetter:nth-child(7) { --letter-delay: 210ms; }
+.titleLetter:nth-child(8) { --letter-delay: 245ms; }
+.titleLetter:nth-child(9) { --letter-delay: 280ms; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .work[data-reveal='waiting']::before { clip-path: polygon(0 0, 0 0, 0 0, 0 0); }
+  .work[data-reveal='playing']::before { animation: unfoldSheet 1200ms cubic-bezier(.65, 0, .25, 1) both; }
+  .work[data-reveal='waiting'] .titleLetter > span { transform: translateY(115%); }
+  .work[data-reveal='playing'] .titleLetter > span { animation: printLetter 850ms cubic-bezier(.2, .8, .2, 1) calc(450ms + var(--letter-delay, 0ms)) both; }
+  .work[data-reveal='waiting'] .workTitle em,
+  .work[data-reveal='waiting'] .workFoot { clip-path: inset(0 100% 0 0); }
+  .work[data-reveal='playing'] .workTitle em { animation: italicSweep 1050ms cubic-bezier(.22, 1, .36, 1) 1000ms both; }
+  .work[data-reveal='playing'] .workFoot { animation: footerUnfold 950ms cubic-bezier(.22, 1, .36, 1) 1800ms both; }
+
+  .sculpturePlay[data-assembly='waiting'] > span { clip-path: inset(0 50%); }
+  .sculpturePlay[data-assembly='playing'] > span { animation: showInvitation 600ms cubic-bezier(.22, 1, .36, 1) 3300ms both; }
+}
+
+@keyframes unfoldSheet {
+  0% { clip-path: polygon(0 0, 0 0, 0 0, 0 0); }
+  45% { clip-path: polygon(0 0, 100% 0, 75% 45%, 0 75%); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+@keyframes printLetter {
+  from { transform: translateY(115%) rotate(6deg); }
+  to { transform: translateY(0) rotate(0); }
+}
+@keyframes italicSweep {
+  from { clip-path: inset(-10% 100% -15% 0); transform: translateX(-16px); }
+  to { clip-path: inset(-10% -2% -15% 0); transform: translateX(0); }
+}
+@keyframes footerUnfold {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 -1% -5% 0); }
+}
+@keyframes showInvitation { from { clip-path: inset(0 50%); } to { clip-path: inset(0 0); } }
+
+
+/* Eight physical pieces, one assembled object. Only explicit interaction repeats. */
+.sculpturePlay svg { overflow: hidden; }
+.sculptureBlock {
+  transform: translate(0, 0);
+  transition: transform 1100ms cubic-bezier(.22, 1, .36, 1);
+}
+.sculpturePlay[data-open='true'] .sculptureBlock {
+  transform: translate(var(--piece-x), var(--piece-y));
+}
+.sculptureBlock polygon { stroke: color-mix(in srgb, var(--color-ivory) 25%, var(--color-ink)); stroke-width: .6; stroke-linejoin: round; }
+.blockTop { fill: color-mix(in srgb, var(--color-ink) 67%, var(--color-muted)); }
+.blockLeft { fill: var(--color-card); }
+.blockRight { fill: var(--color-ink); }
+.sculptureBlock[data-accent='true'] polygon { stroke: color-mix(in srgb, var(--color-accent) 80%, var(--color-ink)); }
+.sculptureBlock[data-accent='true'] .blockTop { fill: var(--color-accent); }
+.sculptureBlock[data-accent='true'] .blockLeft { fill: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink)); }
+.sculptureBlock[data-accent='true'] .blockRight { fill: color-mix(in srgb, var(--color-accent) 65%, var(--color-ink)); }
+.sculptureToggle { min-width: 1em; font-weight: 400; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sculpturePlay[data-assembly='waiting'] .blockArrival { opacity: 0; }
+  .sculpturePlay[data-assembly='playing'] .blockArrival {
+    animation: assemblePiece 1800ms cubic-bezier(.22, 1, .36, 1) calc(350ms + var(--piece-delay)) both;
+  }
+}
+@keyframes assemblePiece {
+  0% { opacity: 0; transform: translate(calc(var(--piece-x) * 2.5), calc(var(--piece-y) * 2.5)) rotate(var(--piece-angle)) scale(.75); }
+  20% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sculptureBlock { transition: none; }
+}
