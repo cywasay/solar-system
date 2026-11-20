@@ -1,87 +1,188 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { preload } from 'react-dom';
+import type { CSSProperties, ReactNode } from 'react';
+import MotionScope from '@/components/motion/MotionScope';
 import { venusDisplay } from './planetFonts';
-import styles from './VenusPage.module.css';
+import VenusHero from './VenusHero';
+import VenusDescent from './VenusDescent';
+import VenusBlink from './VenusBlink';
+import VenusDayClock from './VenusDayClock';
+import VenusVenera from './VenusVenera';
+import VenusLoader from './VenusLoader';
+import VenusSwaths from './VenusSwaths';
+import s from './VenusPage.module.css';
 
-const facts = 'https://science.nasa.gov/venus/venus-facts/';
-const radarSource = 'https://svs.gsfc.nasa.gov/30357';
+const SOURCES = {
+  facts: 'https://science.nasa.gov/venus/venus-facts/',
+  sheet: 'https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html',
+  globe: 'https://svs.gsfc.nasa.gov/30357',
+  magellan: 'https://science.nasa.gov/mission/magellan/',
+  vent: 'https://www.nasa.gov/missions/veritas/nasas-magellan-data-reveals-volcanic-activity-on-venus/',
+  venera: 'https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20190029198.pdf',
+  future: 'https://ntrs.nasa.gov/citations/20250006679',
+  textures: 'https://www.solarsystemscope.com/textures/',
+};
+
+function Source({ href, children }: { href: string; children: ReactNode }) {
+  return <a className={s.source} href={href} target="_blank" rel="noreferrer">{children} ↗</a>;
+}
+
+/** One altitude in the descent. Children haze into focus in order once the chapter arrives. */
+function Chapter({ altitude, name, reading, tone, indent, title, children }: {
+  altitude: number;
+  name: string;
+  reading: string;
+  tone: 'light' | 'dark';
+  indent: number;
+  title: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <article className={s.chapter} data-alt={altitude} data-tone={tone} data-cue style={{ '--indent': indent } as CSSProperties}>
+      <p className={`${s.altLabel} ${s.haze}`} style={{ '--i': 0 } as CSSProperties}><span>{altitude} km</span>{name}</p>
+      <h2 className={s.haze} style={{ '--i': 1 } as CSSProperties}>{title}</h2>
+      <div className={`${s.chapterBody} ${s.haze}`} style={{ '--i': 2 } as CSSProperties}>{children}</div>
+      <p className={`${s.chapterData} ${s.haze}`} style={{ '--i': 3 } as CSSProperties}>{reading}</p>
+    </article>
+  );
+}
 
 export default function VenusPage() {
-  const root = useRef<HTMLElement>(null);
-  const [view, setView] = useState<'cloud' | 'radar'>('cloud');
+  // Start every large image downloading with the HTML rather than when CSS or a script
+  // first asks for it, so sections further down are ready by the time they are reached.
+  preload('/images/venus/magellan-globe.jpg', { as: 'image', fetchPriority: 'high' });
+  preload('/textures/2k_venus_atmosphere.jpg', { as: 'image', fetchPriority: 'high' });
+  preload('/textures/2k_venus_surface.jpg', { as: 'image' });
 
-  useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const targets = root.current?.querySelectorAll<HTMLElement>('[data-venus-reveal]');
-    if (!targets || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        (entry.target as HTMLElement).dataset.venusReveal = 'seen';
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.12 });
-    targets.forEach(target => observer.observe(target));
-    return () => {
-      observer.disconnect();
-      targets.forEach(target => { target.dataset.venusReveal = ''; });
-    };
-  }, []);
+  return (
+    <MotionScope as="main" eager className={`${s.page} ${venusDisplay.variable}`}>
+      <VenusLoader />
+      <svg className={s.defs} aria-hidden="true" focusable="false">
+        <filter id="venus-heat" x="-10%" y="-20%" width="120%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.045" numOctaves="2" seed="4">
+            <animate attributeName="baseFrequency" dur="7s" values="0.011 0.045;0.015 0.06;0.011 0.045" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" scale="7" />
+        </filter>
+      </svg>
 
-  return <main ref={root} className={`${styles.page} ${venusDisplay.variable}`}>
-    <header className={styles.hero}>
-      <p className={styles.overline}>The second planet. An entirely different world.</p>
-      <h1>Venus</h1>
-      <div className={styles.heroCopy}><p>Beauty<br /><em>under pressure.</em></p><div><p>A luminous exterior.<br />An atmosphere that changes everything.</p><a href="#beneath">Look beneath the clouds <span aria-hidden="true">↓</span></a></div></div>
-      <div className={styles.cloudHorizon} aria-hidden="true"><div className={styles.cloudTexture}/><div className={styles.veilOne}/><div className={styles.veilTwo}/></div>
-      <p className={styles.heroNote}>Cloud study · illustrative texture</p>
-    </header>
+      <VenusHero />
 
-    <dl className={styles.facts}><div><dt>Diameter</dt><dd>12,104 <span>km</span></dd></div><div><dt>Distance from the Sun</dt><dd>0.72 <span>AU</span></dd></div><div><dt>One orbit</dt><dd>224.7 <span>Earth days</span></dd></div></dl>
+      <VenusDescent>
+        <Chapter altitude={70} name="Cloud tops" tone="light" indent={4} reading="≈ −43 °C · 0.04 bar"
+          title={<>Sunlight ends<br /><em>its journey here.</em></>}>
+          <p>From Earth, Venus is a bright, featureless disc. What reaches us is sunlight reflected off the top of a global cloud deck that spans roughly 45 to 70 kilometres above the ground. Its droplets are laced with sulfuric acid.</p>
+          <p>The air up here is fast. Winds at the cloud tops carry the clouds around the entire planet in about four Earth days, while the solid world beneath takes 243 days to turn once.</p>
+          <Source href={SOURCES.facts}>Clouds and winds · NASA</Source>
+        </Chapter>
 
-    <section id="beneath" className={styles.observation} aria-labelledby="venus-observation">
-      <div className={styles.observationHead} data-venus-reveal><p className={styles.eyebrow}>Appearance & evidence</p><h2 id="venus-observation">There is more<br />beneath <em>the veil.</em></h2><p>Visible light meets an opaque cloud deck. Radar gives us a different way to read the world below.</p></div>
-      <div className={styles.viewer} data-view={view}>
-        <div className={styles.viewerArt} role="img" aria-label={view === 'cloud' ? 'Illustrative Venus cloud globe, using an artistic texture' : 'NASA Magellan radar mosaic projected onto a globe, with simulated color'}>
-          <div className={styles.radarGlobe}><Image src="/images/venus/magellan-globe.jpg" alt="" fill sizes="(max-width: 760px) 85vw, 48vw" /></div>
-          <div className={styles.cloudGlobe} aria-hidden="true"/>
-          <span className={styles.viewLine} aria-hidden="true"/>
+        <Chapter altitude={50} name="The gentle layer" tone="light" indent={14} reading="≈ 77 °C · 1.1 bar"
+          title={<>For a moment,<br /><em>almost familiar.</em></>}>
+          <p>Around fifty kilometres up, the pressure is close to Earth’s at sea level and the temperature would only scald, not melt. Nowhere else in this atmosphere comes nearer to conditions we know. It is still inside acidic cloud.</p>
+        </Chapter>
+
+        <Chapter altitude={40} name="Beneath the deck" tone="light" indent={24} reading="≈ 144 °C · 3.5 bar"
+          title={<>The clouds give way.<br /><em>The view does not.</em></>}>
+          <p>Below the main deck the droplets thin to haze. Daylight still filters down, dim and yellowed, but in visible light the ground stays hidden from every camera above. Seeing it takes a different kind of light.</p>
+        </Chapter>
+
+        <Chapter altitude={20} name="An ocean of air" tone="dark" indent={10} reading="≈ 294 °C · 22.5 bar"
+          title={<>Air you could<br /><em>almost swim through.</em></>}>
+          <p>The atmosphere is about 96.5 percent carbon dioxide. It is so thick that it traps the heat the surface radiates: sunlight that reaches the ground warms it, and the infrared the ground gives back can barely escape. This is the greenhouse effect, taken to an extreme.</p>
+          <p>So much heat is held that day and night make little difference. The night side is about as hot as the day side.</p>
+          <Source href={SOURCES.sheet}>Composition & reference values · NASA fact sheet</Source>
+        </Chapter>
+
+        <article className={`${s.chapter} ${s.surface}`} data-alt={0} data-tone="dark" data-cue style={{ '--indent': 0 } as CSSProperties}>
+          <p className={`${s.altLabel} ${s.haze}`} style={{ '--i': 0 } as CSSProperties}><span>0 km</span>The ground</p>
+          <p className={`${s.heat} ${s.haze}`} data-heat style={{ '--i': 1 } as CSSProperties}>
+            <span>≈464</span><small>°C average</small>
+          </p>
+          <h2 className={s.haze} style={{ '--i': 2 } as CSSProperties}>Hotter than Mercury.<br /><em>Nearly twice as far from the Sun.</em></h2>
+          <div className={`${s.chapterBody} ${s.surfaceBody} ${s.haze}`} style={{ '--i': 3 } as CSSProperties}>
+            <p>The average surface temperature is about 464 °C (737 K), hot enough to melt lead. The pressure is 92 bar, about 90 times Earth’s at sea level, comparable to standing nearly a kilometre deep in the ocean.</p>
+            <p>The brightest world in our sky is the hottest planetary surface in the solar system.</p>
+            <Source href={SOURCES.sheet}>Surface values · NASA fact sheet</Source>
+          </div>
+        </article>
+      </VenusDescent>
+
+      <section id="radar" className={s.radar} aria-labelledby="venus-radar">
+        <div className={s.radarHead} data-reveal>
+          <div>
+            <p className={s.eyebrow}>Magellan · 1990 to 1994</p>
+            <h2 id="venus-radar">Mapping<br /><em>without daylight.</em></h2>
+          </div>
+          <p>Radar does not need the Sun, and clouds do not stop it. Magellan sent microwave pulses down through the deck and timed their echoes, building its images one long, narrow swath at a time.</p>
         </div>
-        <div className={styles.viewerInfo}>
-          <div className={styles.viewSwitch} role="group" aria-label="Choose an observation layer"><button type="button" aria-pressed={view === 'cloud'} onClick={() => setView('cloud')}>Cloud cover</button><button type="button" aria-pressed={view === 'radar'} onClick={() => setView('radar')}>Radar surface</button></div>
-          <div className={styles.viewDescription} aria-live="polite" aria-atomic="true"><span className={styles.smallLabel}>{view === 'cloud' ? 'What conceals' : 'What reveals'}</span><h3>{view === 'cloud' ? 'An atmosphere, not a surface.' : 'A landscape read by radar.'}</h3><p>{view === 'cloud' ? 'Sulfuric-acid clouds hide the ground. The soft colors here are an artistic cloud texture, not a calibrated spacecraft observation.' : 'Magellan radar data is projected onto a simulated globe. Color enhances structure; it is not the color a camera would see from orbit.'}</p><p className={styles.note}>{view === 'cloud' ? 'Switch layers to see the radar reconstruction. These views illustrate different observing methods; they are not a registered before-and-after pair.' : 'NASA/JPL · 180° east-centered view. Gaps use Pioneer Venus data or a constant value. The radar image has been cropped to its globe boundary.'}</p></div>
-          <a className={styles.source} href={radarSource} target="_blank" rel="noreferrer">Image & methodology · NASA/JPL ↗</a>
+        <VenusSwaths />
+        <div className={s.radarBody} data-reveal="stagger">
+          <p>Magellan reached Venus in 1990 and mapped about 98 percent of the surface. The maps revealed lava channels, volcanic domes, impact craters, and deformed terrain that no telescope had ever seen.</p>
+          <p>A bright patch in a radar image means a strong echo, usually from rough or steeply tilted ground. Brightness is not simply height.</p>
+          <p className={s.note}>Illustrative swath assembly from a Magellan-derived surface texture (Solar System Scope, CC BY 4.0). Not the mission’s actual swath geometry. <Source href={SOURCES.magellan}>The Magellan mission · NASA</Source></p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section className={styles.pressure} aria-labelledby="venus-pressure" data-venus-reveal>
-      <div className={styles.pressureTitle}><p className={styles.eyebrow}>Descending through the atmosphere</p><h2 id="venus-pressure">The weight<br />of <em>the sky.</em></h2><p>Mostly carbon dioxide, the atmosphere retains heat through an extreme greenhouse effect. Surface conditions are radically different from the bright clouds overhead.</p></div>
-      <div className={styles.pressureLayers}>
-        <div className={styles.layer}><span className={styles.layerRule} aria-hidden="true"/><span>Above the surface</span><h3>Cloud & chemistry</h3><p>Cloud droplets contain sulfuric acid. The atmosphere moves far faster than the solid planet beneath it.</p></div>
-        <div className={styles.layer}><span className={styles.layerRule} aria-hidden="true"/><span>At the ground</span><strong>≈93<span>×</span></strong><p>The atmospheric pressure at Earth’s sea level.</p></div>
-        <div className={styles.layer}><span className={styles.layerRule} aria-hidden="true"/><span>Surface temperature</span><strong>≈467<span>°C</span></strong><p>Hotter than Mercury, despite being farther from the Sun.</p></div>
-        <a className={styles.source} href={facts} target="_blank" rel="noreferrer">Atmosphere & reference values · NASA ↗</a>
-      </div>
-    </section>
+      <section id="change" className={s.change} aria-labelledby="venus-change">
+        <div className={s.changeText} data-reveal="stagger">
+          <p className={s.eyebrow}>Maat Mons · re-examined in 2023</p>
+          <h2 id="venus-change">Eight months.<br /><em>One vent changed.</em></h2>
+          <p>In 2023, researchers comparing Magellan radar images taken eight months apart in 1991 found a volcanic vent near Maat Mons that had changed shape and grown. It is evidence of volcanic activity during the mission, not a view of an eruption in progress.</p>
+          <p>Astronomers once searched for change by flicking between two images: whatever jumps is new. Pluto was found that way in 1930. The surroundings here stay still. Watch the vent.</p>
+          <Source href={SOURCES.vent}>Read the evidence · NASA</Source>
+        </div>
+        <VenusBlink />
+      </section>
 
-    <section className={styles.landscape} aria-labelledby="venus-landscape">
-      <div className={styles.landscapeTitle} data-venus-reveal><p className={styles.eyebrow}>A surface still changing</p><h2 id="venus-landscape">The clouds hide<br /><em>an active world.</em></h2></div>
-      <div className={styles.landscapeBody}><article><h3>Mapping without daylight</h3><p>Magellan arrived in 1990. Its synthetic-aperture radar revealed lava channels, volcanic domes, impact craters, and deformed terrain beneath the clouds. A radar image records returned microwave energy; brightness is not simply elevation.</p><a className={styles.source} href="https://science.nasa.gov/mission/magellan/" target="_blank" rel="noreferrer">The Magellan mission ↗</a></article><article><h3>Old observations. New evidence.</h3><p>A study published in 2023 identified a volcanic vent near Maat Mons that changed shape and grew between radar observations eight months apart in 1991. That change is evidence of volcanic activity—not a live view of an eruption.</p><a className={styles.source} href="https://www.nasa.gov/missions/veritas/nasas-magellan-data-reveals-volcanic-activity-on-venus/" target="_blank" rel="noreferrer">Read the evidence · NASA ↗</a></article></div>
-    </section>
+      <section id="time" className={s.time} aria-labelledby="venus-time">
+        <div className={s.timeHead} data-reveal>
+          <p className={s.eyebrow}>Rotation & time</p>
+          <h2 id="venus-time">A day longer<br /><em>than its year.</em></h2>
+          <div>
+            <p>Measured against the stars, Venus turns once every 243 Earth days, backwards compared with most planets. It circles the Sun in 224.7.</p>
+            <p>Put the two together and the Sun returns to the same place in the sky every 116.75 Earth days. Because the spin is retrograde, it rises in the west.</p>
+          </div>
+        </div>
+        <div data-reveal data-reveal-delay="150"><VenusDayClock /></div>
+        <p className={s.note}>Rounded reference periods. Orbit and planet are not to scale. <Source href={SOURCES.sheet}>NASA fact sheet</Source></p>
+      </section>
 
-    <section className={styles.rotation} aria-labelledby="venus-time" data-venus-reveal>
-      <div><p className={styles.eyebrow}>Rotation & time</p><h2 id="venus-time">A slower turn.<br /><em>The other way.</em></h2><p>Venus rotates retrograde. Measured against the stars, one turn takes longer than one orbit. A solar day measures something else: the interval between successive solar noons.</p></div>
-      <dl className={styles.timeLines}><div><dt>Sidereal rotation <span>retrograde</span></dt><dd>243 <small>Earth days</small></dd></div><div><dt>Orbit around the Sun</dt><dd>224.7 <small>Earth days</small></dd></div><div><dt>Solar day</dt><dd>116.75 <small>Earth days</small></dd></div></dl>
-      <p className={styles.note}>Rounded reference periods; lengths represent duration, not orbital paths. <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html" target="_blank" rel="noreferrer">NASA fact sheet ↗</a></p>
-    </section>
+      <section id="lander" className={s.lander} aria-labelledby="venus-lander">
+        <VenusVenera />
+        <div className={s.landerText} data-reveal="stagger">
+          <div>
+            <p className={s.eyebrow}>Venera 13 · 1 March 1982</p>
+            <h2 id="venus-lander">Built for 32 minutes.<br /><em>It lasted 127.</em></h2>
+          </div>
+          <div>
+          <p>The Soviet lander Venera 13 transmitted from the surface for 127 minutes, roughly four times its planned life, and returned the first colour pictures of the Venusian ground. Heat, pressure, and corrosive chemistry ended it, as they have ended every surface mission so far.</p>
+          <p>Its pictures describe one landing site, not the planet.</p>
+          <Source href={SOURCES.venera}>Surface operations & lander survival · NASA</Source>
+          </div>
+        </div>
+      </section>
 
-    <section className={styles.lander} aria-labelledby="venus-lander"><div className={styles.landerNumber} data-venus-reveal>127<span>minutes on the surface</span></div><div><p className={styles.eyebrow}>Venera 13 · 1982</p><h2 id="venus-lander">A brief visit.<br /><em>A lasting record.</em></h2><p>Venera 13 transmitted from the ground for 127 minutes. Its images and measurements are a local encounter with Venus—not a complete portrait of the planet. Heat, pressure, and reactive chemistry make long-lived surface instruments an engineering challenge.</p><a className={styles.source} href="https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20190029198.pdf" target="_blank" rel="noreferrer">Surface operations & lander survival · NASA ↗</a></div></section>
+      <section className={s.unresolved} aria-labelledby="venus-open">
+        <div className={s.unresolvedText} data-reveal="stagger">
+          <p className={s.eyebrow}>Still unresolved</p>
+          <h2 id="venus-open">How often does the surface<br /><em>remake itself?</em></h2>
+          <p>One changed vent opens a larger question: how widespread is the activity? Repeated observations, matching viewing geometry, and better surface measurements are needed to tell local events from a planet-wide pattern.</p>
+          <Source href={SOURCES.future}>Evidence, limitations & future observations</Source>
+        </div>
+        <Link href="/explore?focus=Venus" className={s.explore} data-reveal>
+          <span className={s.exploreOrb} aria-hidden="true" data-ambient><i /></span>
+          <span className={s.exploreLabel}>Explore Venus <span aria-hidden="true">↗</span></span>
+        </Link>
+      </section>
 
-    <section className={styles.questions}><p className={styles.eyebrow}>Still unresolved</p><h2>How often does the<br />surface <em>remake itself?</em></h2><p>Evidence of change opens a larger question: how widespread is the activity? Repeated observations, comparable viewing geometry, and better surface measurements are essential to distinguish local events from a planet-wide pattern.</p><a className={styles.source} href="https://ntrs.nasa.gov/citations/20250006679" target="_blank" rel="noreferrer">Evidence, limitations & future observations ↗</a></section>
-    <footer className={styles.footer}><div className={styles.footerTop}><Link href="/planets/mercury">← Mercury</Link><Link href="/explore?focus=Venus" className={styles.enter}>Explore Venus <span aria-hidden="true">↗</span></Link><Link href="/planets/earth">Earth →</Link></div><p>Cloud imagery: <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Solar System Scope</a>, CC BY 4.0. Radar globe: NASA/JPL. Illustrative cloud projection; simulated radar color. Values are rounded.</p><Link href="/">Back to Thessaris</Link></footer>
-  </main>;
+      <footer className={s.footer}>
+        <nav aria-label="Planets">
+          <Link href="/planets/mercury">← Mercury</Link>
+          <Link href="/">Back to Thessaris</Link>
+          <Link href="/planets/earth">Earth →</Link>
+        </nav>
+        <p>Cloud imagery: <a href={SOURCES.textures} target="_blank" rel="noreferrer">Solar System Scope</a>, CC BY 4.0, illustrative projection. Radar globe: <a href={SOURCES.globe} target="_blank" rel="noreferrer">NASA/JPL</a>, simulated colour. Atmosphere profile: reference-atmosphere values, rounded. The Maat Mons panels are schematic redraws.</p>
+      </footer>
+    </MotionScope>
+  );
 }

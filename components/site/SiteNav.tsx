@@ -6,7 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { planets } from '@/data/planets';
 import styles from './SiteNav.module.css';
 import { useOrbitEntrance } from './useOrbitEntrance';
-import { venusDisplay, marsDisplay } from '@/components/planets/planetFonts';
+import { venusDisplay, marsDisplay, jupiterDisplay, saturnDisplay, uranusDisplay, neptuneDisplay } from '@/components/planets/planetFonts';
+import { earthDisplay } from '@/components/planets/earthFont';
 
 function Arrow({ className = '' }: { className?: string }) {
   return (
@@ -32,7 +33,10 @@ export default function SiteNav() {
   const onCancel = useCallback(() => { setEntryOrigin(null); setEntryFinished(false); }, []);
   const handedOff = entryFinished && pathname.startsWith('/explore');
   useEffect(() => {
-    if (handedOff || (entryOrigin && pathname !== entryOrigin && !pathname.startsWith('/explore'))) onCancel();
+    if (!handedOff && !(entryOrigin && pathname !== entryOrigin && !pathname.startsWith('/explore'))) return;
+    // Release the retained masthead after the destination has painted.
+    const frame = requestAnimationFrame(onCancel);
+    return () => cancelAnimationFrame(frame);
   }, [handedOff, entryOrigin, pathname, onCancel]);
   // The simulation and admin already have dedicated navigation and controls.
   if (handedOff || (!entryOrigin && (pathname.startsWith('/explore') || pathname.startsWith('/admin') || pathname.startsWith('/lab')))) return null;
@@ -58,8 +62,8 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
   const exploreRef = useRef<HTMLAnchorElement>(null);
   const onPlanetPage = pathname.startsWith('/planets/');
   // Other planet identities opt in here as their pages are redesigned.
-  const theme = pathname === '/planets/mercury' ? 'mercury' : pathname === '/planets/venus' ? 'venus' : pathname === '/planets/earth' ? 'earth' : pathname === '/planets/mars' ? 'mars' : undefined;
-  const themeName = theme === 'mars' ? 'Mars' : theme === 'earth' ? 'Earth' : theme === 'venus' ? 'Venus' : 'Mercury';
+  const theme = pathname === '/planets/neptune' ? 'neptune' : pathname === '/planets/uranus' ? 'uranus' : pathname === '/planets/saturn' ? 'saturn' : pathname === '/planets/jupiter' ? 'jupiter' : pathname === '/planets/mercury' ? 'mercury' : pathname === '/planets/venus' ? 'venus' : pathname === '/planets/earth' ? 'earth' : pathname === '/planets/mars' ? 'mars' : undefined;
+  const themeName = theme === 'neptune' ? 'Neptune' : theme === 'uranus' ? 'Uranus' : theme === 'saturn' ? 'Saturn' : theme === 'jupiter' ? 'Jupiter' : theme === 'mars' ? 'Mars' : theme === 'earth' ? 'Earth' : theme === 'venus' ? 'Venus' : 'Mercury';
   const closePanel = useCallback(() => setPlanetsOpen(false), []);
   const { entering, overlay } = useOrbitEntrance({ rootRef, buttonRef: exploreRef, closePanel, onBegin, onNavigate, onComplete, onCancel });
 
@@ -165,7 +169,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
 
   return (<>
     <header
-      className={`${styles.header} ${theme === 'venus' ? venusDisplay.variable : theme === 'mars' ? marsDisplay.variable : ''}`}
+      className={`${styles.header} ${theme === 'venus' ? venusDisplay.variable : theme === 'earth' ? earthDisplay.variable : theme === 'mars' ? marsDisplay.variable : theme === 'jupiter' ? jupiterDisplay.variable : theme === 'saturn' ? saturnDisplay.variable : theme === 'uranus' ? uranusDisplay.variable : theme === 'neptune' ? neptuneDisplay.variable : ''}`}
       ref={rootRef}
       data-theme={theme}
       data-absorbing={absorbing}
@@ -179,7 +183,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
         <div className={`${styles.absorb} ${styles.brandSlot}`} data-absorb data-nav-content inert={absorbing || entering}>
           <Link href="/" className={styles.brand} aria-label="Thessaris home" onClick={() => setPlanetsOpen(false)}>
             <span className={styles.sealSlot} data-orbit-piece="emblem">
-            {theme === 'mars' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20" strokeWidth="1.2" /><path d="M6 24h40M8 31h36M12 37h28M10 18h32" strokeWidth="1.1" /><circle cx="26" cy="12" r="2.5" fill="currentColor" strokeWidth="0" /></svg> : theme === 'earth' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><ellipse cx="26" cy="26" rx="9" ry="20"/><path d="M6 26h40M10 14h32M10 38h32"/></svg> : theme === 'venus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><path d="M8 18c13-7 23 7 36 0M6 26c14-7 26 7 40 0M8 34c13-7 23 7 36 0"/></svg> : theme ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="26" cy="26" r="19" stroke="currentColor" strokeWidth="1"/><path d="M26 7a19 19 0 0 0 0 38V7Z" fill="currentColor"/><path d="M26 0v5m0 42v5" stroke="currentColor"/></svg> : <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
+            {theme === 'uranus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="16"/><path d="M1 29 51 23M25 6l3 40"/><circle cx="47" cy="23.5" r="2.5" fill="currentColor"/></svg> : theme === 'neptune' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><path d="M1 33C15 33 19 15 34 21S46 26 51 22M1 40C15 40 19 22 34 28S46 33 51 29"/><circle cx="34" cy="21" r="6"/><path d="M34 5v7m0 18v7M18 21h7m18 0h7"/></svg> : theme === 'saturn' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="12"/><ellipse cx="26" cy="26" rx="24" ry="7" transform="rotate(-22 26 26)"/><path d="M4 35 48 17" strokeOpacity=".42"/></svg> : theme === 'jupiter' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 14h40m-35 6h30M6 28h40m-35 6h9m17 0h4M6 41h40" strokeWidth="1.5"/><ellipse cx="29" cy="34" rx="8" ry="4" strokeWidth="1.5"/></svg> : theme === 'mars' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20" strokeWidth="1.2" /><path d="M6 24h40M8 31h36M12 37h28M10 18h32" strokeWidth="1.1" /><circle cx="26" cy="12" r="2.5" fill="currentColor" strokeWidth="0" /></svg> : theme === 'earth' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><ellipse cx="26" cy="26" rx="9" ry="20"/><path d="M6 26h40M10 14h32M10 38h32"/></svg> : theme === 'venus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><path d="M8 18c13-7 23 7 36 0M6 26c14-7 26 7 40 0M8 34c13-7 23 7 36 0"/></svg> : theme ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="26" cy="26" r="19" stroke="currentColor" strokeWidth="1"/><path d="M26 7a19 19 0 0 0 0 38V7Z" fill="currentColor"/><path d="M26 0v5m0 42v5" stroke="currentColor"/></svg> : <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
               <circle cx="26" cy="26" r="17" stroke="currentColor" strokeWidth=".8" />
               <ellipse cx="26" cy="26" rx="25" ry="8" transform="rotate(-38 26 26)" stroke="currentColor" strokeWidth=".8" />
               <path d="M26 2v8m0 32v8M2 26h8m32 0h8" stroke="currentColor" strokeWidth=".6" />
@@ -189,7 +193,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
             </span>
             <span className={styles.brandType} data-orbit-piece="wordmark">
               <span className={styles.wordmark}>Thessaris<span className={styles.brandDot}>.</span></span>
-              <span className={styles.brandCaption}>{theme === 'mars' ? 'Mars / A landscape that keeps evidence' : theme === 'earth' ? 'Earth / A living atlas' : theme === 'venus' ? 'Venus / Beauty under pressure' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
+              <span className={styles.brandCaption}>{theme === 'neptune' ? 'Neptune / Before it was seen' : theme === 'uranus' ? 'Uranus / A different orientation' : theme === 'saturn' ? 'Saturn / Through the ring plane' : theme === 'jupiter' ? 'Jupiter / Order in the storm' : theme === 'mars' ? 'Mars / Read the rock' : theme === 'earth' ? 'Earth / You are here' : theme === 'venus' ? 'Venus / Seen only by radar' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
             </span>
           </Link>
         </div>

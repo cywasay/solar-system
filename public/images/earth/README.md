@@ -21,3 +21,8 @@ Monthly, cloud-screened mosaics provide an aligned seasonal comparison. They are
 - Original: https://svs.gsfc.nasa.gov/vis/a030000/a030800/a030876/BlackMarble_2016_global_7km.png
 
 The night-light and seasonal surface datasets have different dates and processing. They are shown as separate observations, not simultaneous measurements. Night-light intensity is not a direct population or wealth measure.
+
+## Derived textures (18 November 2026)
+
+- `globe-day-jan.jpg`, `globe-day-jul.jpg`: the Blue Marble composites above, resized to 2048 x 1024 for the live globe.
+- `globe-night.jpg` (2048 x 1024) and `night-2016-map.jpg` (3600 x 1800): the map area of `night-2016.png` (top 5760 x 2880; the graphic's footer removed), resized. Same NASA/GSFC attribution.

@@ -49,8 +49,7 @@
 }
 
 html {
-  /* No `scroll-behavior: smooth` — Lenis (components/landing/SmoothScroll.tsx) owns the
-     scroll easing on the landing page, and the two fight each other if both are on. */
+  /* Landing routes handle wheel and chapter easing in SmoothScroll. */
   background-color: var(--color-ink);
   color: var(--color-fg);
   /* Tells the browser this is a dark UI: dark scrollbars, form controls and autofill
@@ -94,6 +93,25 @@ a {
  * The soft edge is low-contrast by nature, so the label must carry the affordance: keep
  * labels `fg`/`muted` or better, and leave the focus ring alone.
  */
+/*
+ * MOTION TOKENS — one vocabulary for every page. Each page keeps its own choreography;
+ * these keep the timing feeling like one site.
+ *   --ease-arrive  things entering (the landing hero's curve)
+ *   --ease-settle  things coming to rest after travelling (landing section sequences)
+ *   --ease-sweep   symmetric moves: wipes, line draws, camera pans
+ */
+:root {
+  --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-sweep: cubic-bezier(0.65, 0, 0.25, 1);
+  --dur-quick: 200ms;
+  --dur-ui: 400ms;
+  --dur-reveal: 850ms;
+  --dur-arrive: 1150ms;
+  --dur-scene: 1800ms;
+  --stagger: 90ms;
+}
+
 :root {
   --neo-face: #101012;
   --neo-light: rgba(138, 144, 152, 0.1);
@@ -310,7 +328,7 @@ a {
 
 .rise-in {
   opacity: 0;
-  animation: rise-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: rise-in 0.95s var(--ease-arrive) both;
   will-change: transform, opacity;
 }
 
@@ -348,7 +366,7 @@ a {
 
 .char-rise {
   display: inline-block;
-  animation: char-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: char-rise var(--dur-arrive) var(--ease-arrive) both;
   will-change: transform, opacity;
 }
 
@@ -435,8 +453,8 @@ a {
   opacity: 0;
   transform: translateY(32px);
   transition:
-    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -853,6 +871,52 @@ a {
   animation: capability-time-sweep 4s linear infinite;
 }
 .capability-scene--time .capability-orbit { border-style: dashed; }
+
+/* Shared scroll motion — driven by <MotionScope> (components/motion). Hidden states only
+   apply once the scope adds .motion-ready, so no-JS and reduced-motion visitors always
+   see the content. Variants:
+     data-reveal          rise + fade (same as the landing <Reveal>)
+     data-reveal="stagger" each direct child rises in turn
+     data-reveal="mask"    wiped open top to bottom
+     data-reveal="draw"    SVG strokes with pathLength="1" are drawn in sequence */
+.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.motion-ready [data-reveal][data-shown] { opacity: 1; transform: none; }
+
+.motion-ready [data-reveal='stagger'],
+.motion-ready [data-reveal='draw'] { opacity: 1; transform: none; }
+.motion-ready [data-reveal='stagger'] > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--stagger));
+}
+.motion-ready [data-reveal='stagger'][data-shown] > * { opacity: 1; transform: none; }
+
+.motion-ready [data-reveal='mask'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--dur-scene) var(--ease-sweep);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.motion-ready [data-reveal='mask'][data-shown] { clip-path: inset(0); }
+
+.motion-ready [data-reveal='draw'] [pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-scene) var(--ease-sweep);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--stagger) * 2);
+}
+.motion-ready [data-reveal='draw'][data-shown] [pathLength] { stroke-dashoffset: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .page-in,

@@ -1,64 +1,180 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import EarthAtlas from './EarthAtlas';
-import styles from './EarthPage.module.css';
+import type { CSSProperties, ReactNode } from 'react';
+import { preload } from 'react-dom';
+import MotionScope from '@/components/motion/MotionScope';
+import { earthDisplay } from './earthFont';
+import EarthGlobe from './EarthGlobe';
+import { EarthEnergy, EarthField, EarthPlates, EarthSeaLevel, EarthSeasons, EarthTides } from './EarthTiles';
+import s from './EarthPage.module.css';
 
-function Reference({href,children}:{href:string;children:React.ReactNode}) {
-  return <a className={styles.reference} href={href} target="_blank" rel="noreferrer">{children} ↗</a>;
+const SOURCES = {
+  system: 'https://science.nasa.gov/earth/explore/',
+  marble: 'https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/',
+  night: 'https://svs.gsfc.nasa.gov/30876/',
+  energy: 'https://science.nasa.gov/earth/earth-observatory/climate-and-earths-energy-budget/',
+  ocean: 'https://science.nasa.gov/earth/explore/earth-indicators/ocean-warming/',
+  plates: 'https://pubs.usgs.gov/gip/dynamic/understanding.html',
+  carbon: 'https://science.nasa.gov/earth/earth-observatory/the-carbon-cycle/',
+  field: 'https://www.ncei.noaa.gov/products/geomagnetism-frequently-asked-questions',
+  tides: 'https://oceanservice.noaa.gov/facts/moon-tide.html',
+  record: 'https://science.nasa.gov/photojournal/satellite-record-of-sea-level-rise-from-1993-to-2024/',
+  sea: 'https://science.nasa.gov/earth/explore/earth-indicators/sea-leve/',
+};
+
+function Source({ href, children }: { href: string; children: ReactNode }) {
+  return <a className={s.source} href={href} target="_blank" rel="noreferrer">{children} ↗</a>;
+}
+
+/** One instrument on the board. `span` is its width in the 12-column grid. */
+function Tile({ index, kind, span, tone = 'light', title, children, instrument, className = '' }: {
+  index: string;
+  kind: string;
+  span: number;
+  tone?: 'light' | 'dark';
+  title: ReactNode;
+  children: ReactNode;
+  instrument: ReactNode;
+  className?: string;
+}) {
+  return (
+    <article className={`${s.tile} ${className}`} data-tone={tone} data-cue style={{ '--span': span } as CSSProperties}>
+      <header className={s.tileHead}><span>{index}</span><span>{kind}</span></header>
+      <div className={s.instrument}>{instrument}</div>
+      <div className={s.tileCopy}>
+        <h3>{title}</h3>
+        {children}
+      </div>
+    </article>
+  );
 }
 
 export default function EarthPage() {
-  return <main className={styles.page}>
-    <header className={styles.hero}>
-      <div className={styles.heroHeading}><h1>Earth</h1><p>A planet in exchange.<br /><em>A place we belong.</em></p></div>
-      <div className={styles.heroMap}><Image src="/images/earth/july-2004.jpg" alt="Earth's continents and oceans in NASA's July 2004 surface composite" fill sizes="100vw" preload /><div className={styles.heroMapText}><span>Land. Water. Air. Life.</span><a href="#earth-atlas">Read the living atlas <span aria-hidden="true">↓</span></a></div></div>
-      <div className={styles.heroFoot}><span>NASA Blue Marble · July 2004 composite</span><span>Third planet from the Sun</span></div>
-    </header>
+  preload('/images/earth/globe-day-jan.jpg', { as: 'image', fetchPriority: 'high' });
+  preload('/images/earth/globe-day-jul.jpg', { as: 'image' });
+  preload('/images/earth/globe-night.jpg', { as: 'image', fetchPriority: 'high' });
 
-    <section className={styles.opening}>
-      <h2>Home is not<br />a fixed <em>condition.</em></h2>
-      <div><p className={styles.lead}>Earth is often described by what it has: an ocean, an atmosphere, a magnetic field, life. The more revealing question is what moves between them.</p><p>Water carries heat. Weathering moves carbon from air into rock. Living organisms alter the chemistry of their surroundings. The surface we inhabit is an interface between processes operating over seconds, seasons, and geological ages. Understanding the planet means following those exchanges—and noticing when their rates change.</p><p>This atlas moves from what satellites can see to the mechanisms behind the view. It separates a photograph from a measurement, a seasonal cycle from a long-term trend, and a useful simplified model from the messier planet it represents.</p><Reference href="https://science.nasa.gov/earth/explore/">Earth as a connected system · NASA</Reference></div>
-    </section>
+  return (
+    <MotionScope as="main" eager className={`${s.page} ${earthDisplay.variable}`}>
+      <header className={s.hero}>
+        <div className={s.heroCopy}>
+          <p className={s.heroIndex}><span>03</span>Third planet from the Sun</p>
+          <h1 className={s.title}>Earth</h1>
+          <p className={s.tagline}>You are here.<br /><em>Right now.</em></p>
+          <p className={s.heroLede}>
+            The one planet we watch from the inside: from orbit, from the ground, from the water.
+            This is it at this moment, sunlit where the Sun is up and lit by cities where it is not.
+          </p>
+          <a href="#board" className={s.heroLink}>Open the instrument board <span aria-hidden="true">↓</span></a>
+        </div>
+        <EarthGlobe />
+      </header>
 
-    <nav className={styles.contents} aria-label="Earth chapters"><a href="#earth-atlas">Observe</a><a href="#earth-energy">Energy & ocean</a><a href="#earth-geology">Rock & carbon</a><a href="#earth-field">Magnetic environment</a><a href="#earth-moon">Earth & Moon</a><a href="#earth-change">Measuring change</a></nav>
+      <section id="board" className={s.board} aria-labelledby="earth-board">
+        <div className={s.boardHead} data-reveal>
+          <p className={s.eyebrow}>The instruments of home</p>
+          <h2 id="earth-board">A planet<br /><em>in exchange.</em></h2>
+          <div>
+            <p>Earth is usually described by what it has: an ocean, an atmosphere, a magnetic field, life. The more revealing question is what moves between them. Water carries heat. Weathering moves carbon from air into rock. Living things change the chemistry around them.</p>
+            <p>Each instrument below follows one exchange, and keeps a measurement separate from a model, and a season separate from a trend.</p>
+            <Source href={SOURCES.system}>Earth as a connected system · NASA</Source>
+          </div>
+        </div>
 
-    <section id="earth-atlas" className={styles.observation}>
-      <div className={styles.sectionHeading}><p>Learning to read the view</p><h2>One world.<br /><em>Different signals.</em></h2><p>A map is a choice about what to measure. Compare the same geography through seasons, then change instruments to see the imprint of artificial light.</p></div>
-      <EarthAtlas />
-    </section>
+        <div className={s.grid}>
+          <Tile index="01" kind="Seasons" span={8} instrument={<EarthSeasons />}
+            title={<>A season is a pattern <em>across a planet.</em></>}>
+            <p>Drag across the map to compare January and July. Snow cover and vegetation shift between hemispheres. These NASA Blue Marble mosaics combine many cloud-screened observations into monthly composites: they show seasonality, not the weather on one day.</p>
+            <p className={s.note}>NASA Earth Observatory, Blue Marble Next Generation, 2004. Persistent cloud and polar darkness limit some retrievals. <Source href={SOURCES.marble}>Dataset notes</Source></p>
+          </Tile>
 
-    <section id="earth-energy" className={styles.energy}>
-      <div className={styles.sectionHeading}><p>The atmosphere–ocean system</p><h2>Sunlight arrives.<br /><em>Heat takes the long way.</em></h2></div>
-      <div className={styles.readingGrid}><article><h3>Climate begins with an energy budget</h3><p>Earth absorbs part of the sunlight it receives and returns energy to space as thermal infrared radiation. Clouds, aerosols, and bright surfaces reflect some sunlight before it can warm the system. Greenhouse gases absorb and emit infrared radiation, changing how efficiently heat escapes.</p><p>A sustained mismatch between absorbed sunlight and outgoing heat changes the planet’s stored energy. The warming response is not uniform: sunlight is distributed unevenly with latitude, while winds and currents transport energy. Evaporation removes heat from the surface; condensation releases it elsewhere. A rainstorm is therefore part of the energy system as well as the water cycle.</p><p>Clouds complicate the balance because they both reflect sunlight and influence infrared cooling. Their effect depends on properties such as altitude, thickness, and location. A single global cloud-cover number cannot describe all of those effects.</p><Reference href="https://science.nasa.gov/earth/earth-observatory/climate-and-earths-energy-budget/">Energy flows and radiative balance · NASA</Reference></article>
-      <article><h3>The ocean gives the system memory</h3><p>Water stores a large amount of heat, and the ocean exchanges it with the atmosphere through its surface. Winds, density differences, and mixing distribute that heat through a three-dimensional circulation. The surface can respond relatively quickly while deeper water adjusts much more slowly.</p><p>NASA estimates that the ocean has absorbed about 90 percent of the excess heat associated with planetary warming over the past century. That storage moderates immediate atmospheric warming; it does not make the energy disappear. Warming water expands, marine heatwaves stress ecosystems, and stored heat influences future conditions.</p><p>Sea-surface temperature and ocean heat content answer different questions. The first describes temperature near the top. The second accounts for heat held through a volume of water. Scientists combine satellite observations with measurements at depth because neither perspective is sufficient alone.</p><Reference href="https://science.nasa.gov/earth/explore/earth-indicators/ocean-warming/">Ocean heat storage and observations · NASA</Reference></article></div>
-      <figure className={styles.energyDiagram}><div><span>Sunlight</span><b>Absorption & reflection</b><span aria-hidden="true">↓</span></div><div><span>Surface ↔ atmosphere</span><b>Radiation, evaporation, convection</b><span aria-hidden="true">↔</span></div><div><span>Ocean interior</span><b>Storage & redistribution</b><span aria-hidden="true">↓</span></div><figcaption>A conceptual sequence, not a scaled energy budget. Energy also leaves the system as infrared radiation to space.</figcaption></figure>
-    </section>
+          <Tile index="02" kind="Night" span={4} tone="dark" className={s.nightTile}
+            instrument={<div className={s.nightMap} aria-hidden="true" data-ambient><i /></div>}
+            title={<>Human activity leaves <em>an optical signature.</em></>}>
+            <p>The VIIRS instrument detects faint light at night. Settled corridors and coastlines stand out, but brightness is not a direct measure of population or wealth, and a dark area is not necessarily empty.</p>
+            <p className={s.note}>NASA/GSFC Black Marble 2016. <Source href={SOURCES.night}>Processing notes</Source></p>
+          </Tile>
 
-    <section id="earth-geology" className={styles.geology}>
-      <div className={styles.geologyIntro}><p>From weather to deep time</p><h2>The ground moves.<br /><em>Carbon moves with it.</em></h2><p className={styles.lead}>The apparent permanence of a continent is a matter of human timescale.</p></div>
-      <div className={styles.geologyColumns}><article><h3>A mobile outer shell</h3><p>The lithosphere—the crust and rigid uppermost mantle—is divided into plates. At spreading boundaries, new oceanic crust forms. At convergent boundaries, one plate may descend beneath another, or continental collision may thicken the crust. At transform boundaries, plates slide past one another.</p><p>These boundaries organize much of Earth’s earthquake and volcanic activity. They also build mountain ranges and change the shapes of ocean basins. A coastline on a map is a temporary outline, not a permanent division.</p><p>Plate motion is established by several independent records: displaced geological features, the ages and magnetic patterns of seafloor rocks, and modern satellite geodesy. The mantle beneath is mostly solid rock that can deform over long periods—not a global ocean of liquid magma.</p><Reference href="https://pubs.usgs.gov/gip/dynamic/understanding.html">Plate motions and their evidence · USGS</Reference></article>
-      <article><h3>Two tempos of the carbon cycle</h3><p>Photosynthesis transfers carbon into living tissue; respiration and decomposition return much of it. Air and seawater exchange carbon dioxide. Those comparatively fast pathways connect ecosystems, ocean chemistry, and the atmosphere.</p><p>Slower pathways involve rock. Chemical weathering consumes carbon dioxide as minerals react with water and dissolved gases. Rivers carry dissolved material to the sea, where some carbon becomes part of sediments. Burial, tectonic recycling, and volcanic outgassing connect those reservoirs to Earth’s interior.</p><p>The distinction matters. Moving carbon stored in fossil fuels into the atmosphere rapidly does not give geological removal processes time to compensate. Calling the carbon cycle a “thermostat” can obscure this mismatch: feedbacks operating over hundreds of thousands of years cannot cancel a disturbance on the scale of decades.</p><Reference href="https://science.nasa.gov/earth/earth-observatory/the-carbon-cycle/">Fast and slow carbon pathways · NASA</Reference></article></div>
-      <div className={styles.carbonPath} aria-label="Simplified slow carbon pathway"><span>Atmosphere</span><span aria-hidden="true">→</span><span>Weathered rock</span><span aria-hidden="true">→</span><span>Ocean sediments</span><span aria-hidden="true">→</span><span>Interior & volcanism</span></div>
-      <p className={styles.note}>Selected pathways only. Carbon reservoirs exchange material in multiple directions and at very different rates.</p>
-    </section>
+          <Tile index="03" kind="Energy" span={5} instrument={<EarthEnergy />}
+            title={<>Sunlight arrives. <em>Heat takes the long way.</em></>}>
+            <p>Averaged over the globe, about 340 watts of sunlight reach each square metre at the top of the atmosphere. Clouds, aerosols, and bright surfaces send roughly 29 percent straight back; the rest warms the planet and eventually leaves as infrared heat. Greenhouse gases change how easily that heat escapes.</p>
+            <p>Turn the dial: every percentage point of reflectivity moves about 3.4 W/m² of sunlight. This is the arithmetic of the budget, not a forecast of how climate would respond.</p>
+            <Source href={SOURCES.energy}>Earth’s energy budget · NASA</Source>
+          </Tile>
 
-    <section id="earth-field" className={styles.field}>
-      <div className={styles.fieldHeading}><p>Connected to a star</p><h2>A magnetic boundary,<br /><em>not a sealed shell.</em></h2></div>
-      <div className={styles.fieldBody}><p>Motion in Earth’s electrically conducting liquid outer core generates most of the planet’s magnetic field. The field extends into space, where it interacts with the solar wind: a flowing plasma carrying the Sun’s magnetic field.</p><p>The solar wind compresses the dayside and stretches a long magnetic tail on the nightside. Energy and particles can enter and circulate through this environment. Auroras and geomagnetic storms are expressions of that interaction, not evidence that the field has simply switched off.</p><p>The magnetic environment redirects many charged particles, but it is not a universal radiation shield. Different particles and wavelengths interact with different parts of the Earth system. The atmosphere also plays a major protective role. Treating the magnetosphere as an impermeable bubble misses the exchanges that make space weather possible.</p><Reference href="https://www.ncei.noaa.gov/products/geomagnetism-frequently-asked-questions">The core field and magnetosphere · NOAA</Reference></div>
-      <figure className={styles.fieldDrawing}><svg viewBox="0 0 1000 230" role="img" aria-label="Conceptual magnetosphere: compressed toward incoming solar wind, extended into a nightside tail"><g fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 65h155m-155 50h130M20 165h155"/><path d="m160 58 15 7-15 7m-25 36 15 7-15 7m10 36 15 7-15 7"/><path d="M960 20C650 40 520 15 390 25C190 40 190 190 390 205C520 215 650 190 960 210"/><path d="M960 55C680 80 520 45 395 52C260 60 260 170 395 178C520 185 680 150 960 175"/><path d="M960 110C750 100 540 125 420 100M960 120C750 130 540 105 420 130"/><circle cx="365" cy="115" r="30" fill="#326d80" stroke="#e9e5da"/></g><g fill="currentColor" fontSize="14"><text x="20" y="215">Solar wind →</text><text x="338" y="165">Earth</text><text x="800" y="155">Nightside tail</text></g></svg><figcaption>Schematic geometry; distances and field strength are not to scale.</figcaption></figure>
-    </section>
+          <Tile index="04" kind="Ocean" span={7} tone="dark"
+            instrument={
+              <div className={s.ocean} aria-hidden="true" data-ambient>
+                <span className={s.oceanLayer} data-layer="surface">Surface<small>responds in months</small></span>
+                <span className={s.oceanLayer} data-layer="mixed">Mixed layer</span>
+                <span className={s.oceanLayer} data-layer="deep">Deep ocean<small>adjusts over centuries</small></span>
+                <i /><i /><i /><i /><i />
+                <b className={s.oceanStat}>≈90%<small>of the excess heat</small></b>
+              </div>
+            }
+            title={<>The ocean gives the system <em>memory.</em></>}>
+            <p>NASA estimates the ocean has absorbed about 90 percent of the excess heat from planetary warming over the past century. Storage moderates warming in the air; it does not make the energy disappear. Warmer water expands, and marine heatwaves stress ecosystems.</p>
+            <p>Sea-surface temperature and ocean heat content answer different questions: one describes the top, the other the heat held through a volume of water. Satellites and instruments at depth are combined because neither is enough alone.</p>
+            <Source href={SOURCES.ocean}>Ocean warming · NASA</Source>
+          </Tile>
 
-    <section id="earth-moon" className={styles.moon}>
-      <div><p>A coupled system</p><h2>The Moon reaches<br /><em>into the ocean.</em></h2><Link href="/explore?focus=Luna">Inspect the Earth–Moon system ↗</Link></div>
-      <article><h3>Gravity varies across a planet</h3><p>Tides arise from differences in gravitational attraction across Earth, principally from the Moon and also from the Sun. A simple two-bulge diagram is a useful starting model. It is not a map of where high water will occur at a particular hour.</p><p>Real oceans are interrupted by continents and have varying depths. Their response depends on basin geometry, rotation, friction, and resonance. Consequently, nearby coastlines can have very different tidal ranges and timing. The Moon being overhead does not, by itself, predict local high tide.</p><p>This is why operational predictions use local observations and harmonic analysis rather than a diagram alone. The lesson extends beyond tides: knowing the driving force is only part of understanding a system. Its shape and response matter too.</p><Reference href="https://oceanservice.noaa.gov/facts/moon-tide.html">Why local tides differ · NOAA</Reference></article>
-    </section>
+          <Tile index="05" kind="Plates" span={7} instrument={<EarthPlates />}
+            title={<>The ground moves, <em>and records it.</em></>}>
+            <p>The lithosphere, the crust and rigid uppermost mantle, is broken into plates. At spreading ridges new ocean floor forms; at convergent boundaries one plate can descend beneath another; at transform boundaries they slide past. Those edges organise most earthquakes and volcanoes.</p>
+            <p>As new crust cools it records the direction of Earth’s magnetic field, which flips from time to time. Matching stripes on both sides of a ridge, displaced geology, and satellite geodesy are independent evidence for plate motion. The mantle below is mostly solid rock, not an ocean of magma.</p>
+            <p className={s.note}>Illustrative: a spreading rate of 4 cm per year and schematic reversal timing. <Source href={SOURCES.plates}>Plate motions and their evidence · USGS</Source></p>
+          </Tile>
 
-    <section id="earth-change" className={styles.change}>
-      <div className={styles.sectionHeading}><p>A dated case study · 1993–2024</p><h2>Change is measured<br /><em>across observations.</em></h2></div>
-      <div className={styles.changeBody}><aside><span>The satellite sea-level record</span><strong>1993<br /><i>—</i>2024</strong><p>More than three decades of observations, linked across successive missions.</p></aside><article><h3>From returning radar pulses to a climate record</h3><p>Satellite altimeters measure the distance between a spacecraft and the sea surface. Combining those measurements with precise orbit information makes it possible to estimate sea-surface height. Successive missions must be carefully connected to distinguish real change from instrumental differences.</p><p>NASA’s analysis of the 1993–2024 record shows a rising global mean and an accelerating long-term rate. The increase in 2024 was about 5.9 millimetres, with thermal expansion contributing more than in many recent years. This is a dated annual result, not a constant rate to apply to every year or coastline.</p><p>Global mean sea level is also not the level at your nearest shore. Local land can rise or sink, and currents and other regional processes alter the ocean surface. A sound interpretation keeps the measurement’s geographic scale, time interval, and uncertainty attached to the number.</p><Reference href="https://science.nasa.gov/photojournal/satellite-record-of-sea-level-rise-from-1993-to-2024/">The 1993–2024 satellite record · NASA/JPL</Reference><Reference href="https://science.nasa.gov/earth/explore/earth-indicators/sea-leve/">Global and regional sea level · NASA</Reference></article></div>
-    </section>
+          <Tile index="06" kind="Carbon" span={5}
+            instrument={
+              <div className={s.carbon} aria-hidden="true" data-ambient>
+                <span className={s.loop} data-tempo="fast"><i /><i /><i /><i /><i /><i /></span>
+                <span className={s.loop} data-tempo="slow"><i /><i /><i /><i /><i /><i /><i /><i /></span>
+                <b data-label="fast">Fast loop<small>photosynthesis · respiration · air–sea exchange</small></b>
+                <b data-label="slow">Slow loop<small>weathering · rivers · sediments · volcanism</small></b>
+              </div>
+            }
+            title={<>Two tempos of <em>the carbon cycle.</em></>}>
+            <p>Plants draw carbon into living tissue and respiration returns it; air and sea trade carbon dioxide. Slower paths run through rock: weathering consumes carbon dioxide, rivers carry it to the sea, sediments bury it, and tectonics and volcanoes return it.</p>
+            <p>The difference matters. Fossil carbon released in decades cannot be balanced by geological processes that work over hundreds of thousands of years.</p>
+            <Source href={SOURCES.carbon}>The carbon cycle · NASA</Source>
+          </Tile>
 
-    <section className={styles.closing}><h2>The familiar planet<br />is still <em>an open question.</em></h2><p>Earth offers something the other planets cannot: the opportunity to compare distant observations with instruments in the water, on the ground, and in the air. That access makes our picture richer, not complete. Every new dataset is most useful when it helps test an explanation—and when we are clear about what it cannot tell us.</p><Link href="/explore?focus=Earth">Explore Earth <span aria-hidden="true">↗</span></Link></section>
-    <footer className={styles.footer}><Link href="/planets/venus">← Venus</Link><Link href="/">Back to Thessaris</Link><Link href="/planets/mars">Mars →</Link><p>Maps: NASA Earth Observatory / Blue Marble Next Generation (2004); NASA/GSFC / Black Marble (2016). Composites, not live feeds. Scientific references accompany each chapter.</p></footer>
-  </main>;
+          <Tile index="07" kind="Magnetosphere" span={8} tone="dark" instrument={<EarthField />}
+            title={<>A magnetic boundary, <em>not a sealed shell.</em></>}>
+            <p>Motion in Earth’s liquid outer core generates most of its magnetic field. In space it meets the solar wind, which compresses the day side and stretches a long tail on the night side. Push the wind harder and the boundary moves in: it usually sits about ten Earth radii out, closer during strong storms.</p>
+            <p>The field redirects many charged particles but is not a universal shield; the atmosphere protects too. Auroras and geomagnetic storms show energy getting in, not the field switching off.</p>
+            <p className={s.note}>Boundary drawn with a standard empirical shape; field lines are schematic. <Source href={SOURCES.field}>Geomagnetism FAQ · NOAA</Source></p>
+          </Tile>
+
+          <Tile index="08" kind="Tides" span={4} instrument={<EarthTides />}
+            title={<>The Moon reaches <em>into the ocean.</em></>}>
+            <p>Tides come from differences in gravitational pull across Earth, mainly from the Moon and also from the Sun. The two-bulge picture is a starting model, not a tide table: coastlines, depth, rotation, and resonance make neighbouring shores differ.</p>
+            <p><Link href="/explore?focus=Luna">Inspect the Earth–Moon system ↗</Link> <Source href={SOURCES.tides}>Why local tides differ · NOAA</Source></p>
+          </Tile>
+
+          <Tile index="09" kind="Sea level · 1993 to 2024" span={12} className={s.seaTile} instrument={<EarthSeaLevel />}
+            title={<>Change is measured <em>across observations.</em></>}>
+            <p>Satellite altimeters time radar pulses down to the sea surface. Combined with precise orbits, and carefully linked across successive missions, they give more than three decades of global mean sea level, rising at an accelerating rate.</p>
+            <p>The rise in 2024 alone was about 5.9 millimetres, with thermal expansion contributing more than in many recent years. That is one dated annual result, not a rate to apply to every year or coastline. Global mean sea level is not the level at your nearest shore: land rises or sinks, and currents reshape the surface.</p>
+            <p><Source href={SOURCES.record}>The 1993–2024 satellite record · NASA/JPL</Source> <Source href={SOURCES.sea}>Global and regional sea level · NASA</Source></p>
+          </Tile>
+        </div>
+      </section>
+
+      <section className={s.closing} aria-labelledby="earth-open" data-reveal>
+        <h2 id="earth-open">The familiar planet<br /><em>is still an open question.</em></h2>
+        <p>Earth offers what no other planet can: distant observations checked against instruments in the water, on the ground, and in the air. That makes the picture richer, not complete. Every dataset is most useful when it tests an explanation, and when we are clear about what it cannot tell us.</p>
+        <Link href="/explore?focus=Earth" className={s.explore}>Explore Earth <span aria-hidden="true">↗</span></Link>
+      </section>
+
+      <footer className={s.footer}>
+        <nav aria-label="Planets">
+          <Link href="/planets/venus">← Venus</Link>
+          <Link href="/">Back to Thessaris</Link>
+          <Link href="/planets/mars">Mars →</Link>
+        </nav>
+        <p>Maps: NASA Earth Observatory / Blue Marble Next Generation (2004); NASA/GSFC Black Marble (2016). Composites, not live feeds; only the globe’s lighting is computed live. Diagrams are schematic where marked.</p>
+      </footer>
+    </MotionScope>
+  );
 }

@@ -1,7 +1,7 @@
 # Planet pages overhaul — art direction and implementation brief
 
-Status: Mercury, Venus, Earth, and Mars implemented for review. Pause after Mars; Jupiter and subsequent planets await the next instruction.
-Updated: 8 November 2026
+Status: All eight planet compositions are implemented. Mercury now has a separate motion pass for review before applying a comparable level of interaction to the other planets. Mars motion polish remains deferred.
+Updated: 12 November 2026
 
 The user authorized implementation on 8 November 2026, starting with Mercury and stopping after each planet for an update. Mercury now has an isolated composition, Barlow Condensed typography, carbon/mineral/bronze colors, directional mask entrances, a keyboard-accessible procedural lighting study, surface/interior/resonance/mission content, and responsive layouts. Other planets remain pending. Existing unrelated landing-page work is preserved.
 
@@ -268,21 +268,73 @@ Mercury now opts into a route-specific masthead: an eclipse emblem, condensed wo
 - Verified desktop and mobile reading layouts, chapter anchors, layer switching, region controls, keyboard slider endpoints, mobile navigation, page-height stability across datasets, and horizontal overflow. TypeScript and targeted lint passed. The preserved black-hole handoff opened the simulation with Earth selected and rendered; the Earth page produced no captured console warnings or errors.
 - Mercury and Venus content, design, and interactions were not revised in this step. Stop here for the user's review; Mars is next.
 
-### Mars implementation — 8 November 2026
+### Mars ground-up replacement — 10 November 2026
 
-- Separate `MarsPage` composition: Basalt `#241815`, Pale sediment `#E7D3B8`, and Iron oxide `#BB6247` palette; heavy `Archivo Black` typography with geological stratified cuts.
-- Wide panoramic hero featuring the Valles Marineris canyon system (`valles-marineris.jpg`) with NASA/USGS attribution and explicit scale labeling.
-- Two signature interactive studies:
-  1. `MarsStudy.tsx`: Stratigraphic excavation interactive model demonstrating vertical strata separation (Surface cover, Sedimentary beds, Fractured foundation) with keyboard accessibility, layer explanations, and disclosure that geometry is conceptual.
-  2. `MarsElevation.tsx`: Topographic laser altimetry explorer profiling Valles Marineris (4,000 km, -7.2 km depth), Olympus Mons (21.9 km peak shield), and Jezero Crater delta (Perseverance landing site). Scrubbable waypoint tracker with MOLA datum context and vertical exaggeration labeled.
-- Substantial editorial progression (~1,400 words):
-  - 4-billion-year stratigraphic preservation due to rapid interior cooling and lack of plate tectonics.
-  - Aqueous history: valley networks, lakebed mudstones, and the three mineral eras (Noachian smectite clays → Hesperian sulfates → Amazonian ferric rust).
-  - Atmospheric stripping: loss of the core dynamo ~4 Ga, MAVEN in-situ ion escape measurements during solar wind sputtering, and why low surface pressure (~6.1 mbar) prevents stable surface liquid water.
-  - Polar layered deposits (Planum Boreum / Planum Australe) recording chaotic Milankovitch obliquity swings (15° to 35°+).
-  - Phobos & Deimos: captured asteroid vs. giant impact ring accretion hypotheses, plus Phobos’s 1.8 cm/year tidal decay toward destruction or ring formation in 30–50 million years.
-- Masthead integration in `SiteNav.tsx` and `SiteNav.module.css`:
-  - Mars-specific geological strata emblem, Basalt/Rust palette, brand caption *"Mars / A landscape that keeps evidence"*, and preserved black-hole handoff to `/explore?focus=Mars`.
-  - Adjacent navigation: `← Earth` and `Jupiter →`.
-- Full TypeScript validation, zero new lint warnings, clean responsive mobile layout, and Next.js static page generation confirmed.
-- Stop here for the user's review; Jupiter is next.
+The user rejected the previous Mars implementation and authorized a full redo with extensive motion. The previous commit remains the rollback point. Mercury, Venus, and Earth are unchanged.
+
+- Rebuilt the composition around an exposed landscape: oversized Archivo Black lettering, a fractured Viking mosaic opening, rust canyon chapter, pale excavation section, dark atmosphere chapter, and an ice-colored climate chapter. Alternating alignment replaces repeated card grids.
+- Authored motion: staggered title settlement; three terrain slices move into registration; canyon imagery opens from a central cut; sedimentary bands slide into place; atmospheric paths draw outward. Decorative sequences trigger once when the graphic itself is substantially visible, not when a large section barely enters the viewport. Text stays visible and stationary after entrance.
+- New MarsExcavation interaction: continuous layer separation, material selection, accessible native range control, and reassembly. Fixed geometry and reserved copy space avoid changing document height. Reduced motion keeps the interaction functional and makes state changes immediate.
+- Rewrote content around evidence, geological sequence, Jezero, atmospheric escape, buried ice, and competing moon-origin explanations. Replaced unsupported precision and categorical claims with qualified explanatory prose and contextual primary references.
+- Removed the old hand-authored elevation profiles and their claims of MOLA provenance. The new cutaway is explicitly illustrative; no invented distances or elevations are presented as measurements.
+- Corrected image attribution to NASA / JPL / USGS, Viking mosaic PIA00422. Removed incorrect MRO and ESA credits. Original source and derivative URL are retained in the imagery README.
+- Native scrolling, scoped styles, no perpetual animation or new WebGL scene. Existing Mars-themed masthead and black-hole simulation handoff retained.
+- Stop after Mars for review. Jupiter is not redesigned in this step.
+- Validation: TypeScript and targeted ESLint passed. Desktop and 390px mobile layouts checked, with no horizontal overflow. Material selection preserved document height on mobile; range keyboard endpoints and reassembly verified. Earlier planet files remain unchanged.
+- Final walkthrough: no captured Mars-page console warnings/errors. Header Explore completed the black-hole handoff with Mars selected in the simulation. Dev preview remains available on port 3001. No push was requested for this redesign.
+
+### Jupiter implementation — 10 November 2026
+
+- Cream, espresso, and storm brick with wide Anybody typography. A Jupiter-specific band-and-vortex masthead retains the Explore handoff, focused on Jupiter.
+- The title assembles in horizontally offset bands, and five sections of Cassini’s cloud mosaic move in opposing directions before registering. The motion is illustrative and replayable, with a shorter mobile pass.
+- A JunoCam photograph folds into a shelf over a depth comparison. The storm and the larger jets share a single depth axis, with estimates labeled as inferences. Three keyboard-accessible view buttons and overlapping readout layouts keep the document height stable.
+- An orbital timing study animates the 4:2:1 rhythm of Io, Europa, and Ganymede along a common time axis. It is finite and replayable, and the static count remains available with reduced motion.
+- The text covers atmospheric jets and shear, imaging versus microwave and gravity observations, metallic hydrogen and a dilute core, auroral connections, and four distinct moon studies. Primary references and all image credits accompany the content.
+- CSS transitions and finite animations; no added WebGL. Jupiter is a dedicated route composition. Leave Mars motion polish for a later pass and stop before Saturn.
+
+### Jupiter motion pass — 10 November 2026
+
+- Used the portfolio introduction and Curiosity section as the benchmark for timing, visibility, and visual payoff. Jupiter’s motions are tied to its clouds, vortex, pressure, magnetic environment, and orbital timing.
+- The opening now has a longer counterflow sequence, drawn fronts, and opposing responses to desktop pointer movement. A replay restarts the cloud sequence.
+- Added a full-width, illustrative flow study. Tracers move through a stylized velocity field as opposing streams bend around an oval vortex. The one-time introduction begins when most of the graphic is visible. The strength control updates the current run, and the replay starts a new one. The renderer pauses offscreen and when the tab is hidden, and uses fewer tracers at a lower resolution on mobile.
+- The storm acquires its target on arrival and scans downward when a depth view is selected. Pressure lines compress, auroral traces draw, and the moon image and rhythm get separate viewport cues. Content remains readable throughout. Reduced motion leaves static graphics and still allows storm view changes.
+
+### Saturn implementation — 10 November 2026
+
+- Bodoni Moda, parchment, dark ink, and restrained gold. Saturn’s masthead leads to the simulation with Saturn selected.
+- One reversible camera track follows native scroll. A shared stage changes from open rings to edge-on, moves sideways into the radial bands, passes the north pole and two moons, and closes with a scroll-driven illustration of Cassini’s last pass.
+- The stage alternates sides while the prose remains in normal document flow. Chapter links navigate directly, and the mobile layout gives the stage a smaller sticky area above the prose. Reduced motion presents the text with in-flow photographs.
+- Cassini images cover the hexagon, Titan, Enceladus, and Saturn’s farewell portrait. Ring geometry and the trajectory are labeled as illustrations, with the image credits and references alongside the story.
+- The closing discussion separates the measured mass and contamination of the rings from the assumptions used to infer age. Stop after Saturn for review.
+
+### Uranus implementation — 12 November 2026
+
+- Frost, deep teal, and Manrope. A textured globe pivots from its opening orientation onto the sideways axis as the reader scrolls. The reading layout remains upright, with ordinary smooth scrolling.
+- The season study keeps the projected north axes parallel while the planet moves around the Sun. It calculates solar declination from the adopted 97.77° obliquity, with a continuous range input and four seasonal presets. Presets follow a short, interruptible arc; direct slider input is immediate. Time, distances, and body sizes are explicitly illustrative.
+- Webb imagery opens through a horizontal aperture; energy paths trace from incoming sunlight to outgoing radiation; Miranda emerges from below its frame. Entrances trigger once when the graphic is substantially visible. No additional WebGL renderer or idle frame loop.
+- Content distinguishes visible and assigned-color infrared observations, the revised 2025 heat budget, uncertain interior models, Miranda's terrain, potential oceans in the larger moons, and the exceptional solar-wind conditions sampled by Voyager. Primary references and image-processing disclosures sit beside the relevant material.
+- Season descriptions share a reserved grid footprint. Keyboard range endpoints and mobile presets were exercised without changing the document height. Desktop and 390px phone layouts fit without horizontal overflow.
+- Route-specific masthead, emblem, dropdown, font, metadata, adjacent-planet links, and Uranus-focused simulation link. Earlier planet designs remain intact.
+
+### Neptune implementation — 12 November 2026
+
+- Midnight blue, ice-colored type, atmospheric blue, and Syne. The name arrives as a lateral transmission, with a small Voyager portrait framed as an observation rather than an oversized globe.
+- An interactive conceptual discovery plate separates the discrepancy in Uranus' motion, the prediction of a search region, and the identification of Neptune. Search marks contract into alignment; the observed point acquires its target. All paths and offsets are explicitly illustrative rather than historical astrometry. The three reading states occupy the same document space.
+- A finite wind sweep and scroll-linked lateral displacement introduce the atmospheric chapter. A photographic wipe reveals Voyager's storm portrait, the two-clock motif aligns on arrival, and Triton's mosaic enters sideways while its surrounding passage responds to scroll. These motions are distinct from Jupiter's persistent counterflow and Saturn's shared perspective stage.
+- The text covers the discovery's attribution, transient vortices, dated Hubble tracking, the proposed solar-cycle/cloud relationship, unexpected stratospheric temperature changes, internal energy, Triton's retrograde capture evidence and plume record, and wavelength-dependent appearance. The enhanced Voyager color and synthesized Triton mosaic are identified; the interface blue is not presented as natural planetary color.
+- Matching masthead and planetary menu, dedicated metadata, adjacent navigation, and Neptune-focused simulation links. The black-hole Explore handoff was exercised on mobile and rendered the simulation with Neptune selected.
+- Both pages include reduced-motion alternatives, stationary reading copy, native keyboard/touch controls, responsive image sizes, sourced captions, and bounded motion. Shared scroll/visibility plumbing does not impose a shared composition. No push is included in this step.
+- Verification: TypeScript and targeted ESLint passed. Desktop and 390px phone layouts, matching planetary menus, range keyboard input, reserved readout heights, lazy imagery, one-time visibility cues, and the Neptune simulation handoff were exercised. Fresh page reloads produced no captured console warnings or errors. Primary body-copy color pairs exceed 4.5:1 contrast. Earlier planet designs and simulation code were not revised.
+
+### Mercury motion prototype — 12 November 2026
+
+The user requested the interaction quality of the main landing page's Begin section, starting with one planet or the first three for review. This pass covers Mercury only. Its composition and palette are retained; its motion is developed around illumination, occlusion, etching, and a deliberate return to rest.
+
+- The name opens in offset shutters. A light boundary and the textured globe respond to a weighted desktop pointer and native scroll. Reading areas remain steady.
+- The light instrument supports pointer-directed azimuth/elevation, two native sliders, grazing/high-Sun presets, and a finite replay. Inputs interrupt the introduction. The existing Mercury texture supplies albedo over explicitly procedural relief; this is not measured topography. Geometry uses integer hashing to keep server and client markup identical.
+- Three surface processes have selectable, animated geological sections. The crater is etched, the scarp compresses, and grazing rays stop at a polar crater rim. The explanatory text and the document height stay stable across modes.
+- The core opens through a cutting plane and includes a direct section-reveal slider. A metallic reflection responds to the pointer without moving the reading layout. A MESSENGER reference accompanies the explanation.
+- A finite, pausable 3:2 model follows a marked place on Mercury over two orbital circuits. The marker returns to the same noon alignment after three rotations. The geometry represents phase, not a measured orbit or ephemeris. The native range can scrub the model; reduced motion uses direct alignment steps. ESA's explanation is linked.
+- Mariner's illustrative flyby traces and MESSENGER's mapping passes have different, one-time arrivals. The new Get Closer CTA uses a weighted light aperture that reveals dark lettering beneath the surface; its arrow follows the light and returns to its post.
+- Pointer loops stop when settled. The light and clock pause offscreen and in hidden tabs; narrow/coarse-pointer rendering is limited to roughly 30 updates per second. Reduced motion preserves all content and controls. No new WebGL scene or project dependency.
+- Rollback checkpoint: `E:\Personal\Solar system simulation\mercury-motion-checkpoint-20261112`. It contains the previous Mercury page and stylesheet, including the existing smooth-scroll anchor change. New Mercury motion components are separate files. Other planet pages, the shared masthead, the portfolio, and simulation code are unchanged in this pass.

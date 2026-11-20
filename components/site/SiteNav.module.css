@@ -468,32 +468,89 @@
 @media(max-width:760px){.header[data-theme='venus'] .wordmark{font-size:26px}.header[data-theme='venus'] .planetText>span:first-child{font-size:19px}}
 
 /* Earth keeps navigation on the paper-and-forest atlas palette. */
-.header[data-theme='earth'] { --nav-paper:#173c36; --nav-accent:#326d80; color:#173c36; }
-.header[data-theme='earth']:not([data-entering='true'])::before { background:#e9e5dafa; border-color:#173c3633; }
-.header[data-theme='earth'] .wordmark { font-family:var(--font-newsreader),Georgia,serif; font-size:33px; letter-spacing:-.04em; text-transform:none; color:#173c36; }
-.header[data-theme='earth'] .brandCaption { color:#326d80; }
-.header[data-theme='earth'] .key[aria-expanded='true'] { color:#173c36; }
-.header[data-theme='earth']:not([data-entering='true']) .exploreKey { background:#173c36; color:#e9e5da; }
-.header[data-theme='earth']:not([data-entering='true']) .exploreKey::before { border-color:#326d8077; border-left-color:transparent; border-bottom-color:transparent; }
-.header[data-theme='earth'] .planetPanel { background:#e9e5da; color:#173c36; border-color:#326d8055; }
-.header[data-theme='earth'] .panelHeading>span:first-child,.header[data-theme='earth'] .planetText>span:first-child { font-family:var(--font-newsreader),serif; color:#173c36; letter-spacing:-.025em; }
-.header[data-theme='earth'] .planetText>span:last-child,.header[data-theme='earth'] .planetOrdinal { color:#326d80; }
-.header[data-theme='earth'] .planetLink,.header[data-theme='earth'] .panelExplore { border-color:#173c3633; }
-.header[data-theme='earth'][data-entering='true'] .wordmark,.header[data-theme='earth'][data-entering='true'] .brandCaption,.header[data-theme='earth'][data-entering='true'] .key,.header[data-theme='earth'][data-entering='true'] .seal { color:#e9e5da; }
+.header[data-theme='earth'] { --nav-paper:#0b2533; --nav-accent:#1d6a93; color:#0b2533; }
+.header[data-theme='earth']:not([data-entering='true'])::before { background:#eef2eefa; border-color:#0b25331f; }
+.header[data-theme='earth'] .wordmark { font-family:var(--font-earth),sans-serif; font-weight:700; font-variation-settings:'wdth' 80; font-size:31px; letter-spacing:-.03em; text-transform:none; color:#0b2533; }
+.header[data-theme='earth'] .brandCaption { color:#1d6a93; }
+.header[data-theme='earth'] .key[aria-expanded='true'] { color:#0b2533; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey { background:#0b2533; color:#eef2ee; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey::before { border-color:#1d6a9377; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='earth'] .planetPanel { background:#eef2ee; color:#0b2533; border-color:#1d6a9355; }
+.header[data-theme='earth'] .panelHeading>span:first-child,.header[data-theme='earth'] .planetText>span:first-child { font-family:var(--font-earth),sans-serif; font-weight:650; color:#0b2533; letter-spacing:-.025em; }
+.header[data-theme='earth'] .planetText>span:last-child,.header[data-theme='earth'] .planetOrdinal { color:#1d6a93; }
+.header[data-theme='earth'] .planetLink,.header[data-theme='earth'] .panelExplore { border-color:#0b25331f; }
+.header[data-theme='earth'][data-entering='true'] .wordmark,.header[data-theme='earth'][data-entering='true'] .brandCaption,.header[data-theme='earth'][data-entering='true'] .key,.header[data-theme='earth'][data-entering='true'] .seal { color:#eef2ee; }
 @media(max-width:760px){.header[data-theme='earth'] .wordmark{font-size:29px}}
 
 /* Mars brings a heavy basalt, sediment, and iron-oxide palette. */
 .header[data-theme='mars'] { --nav-paper:#E7D3B8; --nav-accent:#BB6247; color:#E7D3B8; }
 .header[data-theme='mars']:not([data-entering='true'])::before { background:#241815fa; border-color:#BB624744; }
-.header[data-theme='mars'] .wordmark { font-family:var(--font-mars),sans-serif; font-size:26px; font-weight:400; letter-spacing:.04em; text-transform:uppercase; color:#E7D3B8; }
+.header[data-theme='mars'] .wordmark { font-family:var(--font-mars),sans-serif; font-size:30px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#E7D3B8; }
 .header[data-theme='mars'] .brandCaption { color:#BB6247; }
 .header[data-theme='mars'] .key[aria-expanded='true'] { color:#E7D3B8; }
 .header[data-theme='mars']:not([data-entering='true']) .exploreKey { background:#BB6247; color:#241815; }
 .header[data-theme='mars']:not([data-entering='true']) .exploreKey::before { border-color:#BB624777; border-left-color:transparent; border-bottom-color:transparent; }
 .header[data-theme='mars'] .planetPanel { background:#241815; border-color:#BB624766; color:#E7D3B8; }
-.header[data-theme='mars'] .panelHeading>span:first-child, .header[data-theme='mars'] .planetText>span:first-child { font-family:var(--font-mars),sans-serif; color:#E7D3B8; letter-spacing:.02em; }
+.header[data-theme='mars'] .panelHeading>span:first-child, .header[data-theme='mars'] .planetText>span:first-child { font-family:var(--font-mars),sans-serif; font-weight:800; text-transform:uppercase; color:#E7D3B8; letter-spacing:.02em; }
 .header[data-theme='mars'] .planetText>span:last-child, .header[data-theme='mars'] .planetOrdinal { color:#BB6247; }
 .header[data-theme='mars'] .planetLink, .header[data-theme='mars'] .panelExplore { border-color:#BB624733; }
 .header[data-theme='mars'][data-entering='true'] .wordmark, .header[data-theme='mars'][data-entering='true'] .brandCaption, .header[data-theme='mars'][data-entering='true'] .key, .header[data-theme='mars'][data-entering='true'] .seal { color:#E7D3B8; }
 @media(max-width:760px){.header[data-theme='mars'] .wordmark{font-size:22px}}
 
+
+.header[data-theme='jupiter'] { --nav-paper:#35251f; --nav-accent:#8b4337; color:#35251f; }
+.header[data-theme='jupiter']:not([data-entering='true'])::before { background:#e8d8befa; border-color:#35251f33; }
+.header[data-theme='jupiter'] .wordmark { font-family:var(--font-jupiter),sans-serif; font-size:28px; font-weight:780; letter-spacing:-.055em; text-transform:none; color:#35251f; }
+.header[data-theme='jupiter'] .brandCaption { color:#8b4337; }
+.header[data-theme='jupiter'] .key[aria-expanded='true'] { color:#35251f; }
+.header[data-theme='jupiter']:not([data-entering='true']) .exploreKey { background:#8b4337; color:#fff0db; }
+.header[data-theme='jupiter']:not([data-entering='true']) .exploreKey::before { border-color:#8b433777; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='jupiter'] .planetPanel { background:#e8d8be; color:#35251f; border-color:#8b433755; }
+.header[data-theme='jupiter'] .panelHeading>span:first-child,.header[data-theme='jupiter'] .planetText>span:first-child { font-family:var(--font-jupiter),sans-serif; font-weight:650; color:#35251f; letter-spacing:-.035em; }
+.header[data-theme='jupiter'] .planetText>span:last-child,.header[data-theme='jupiter'] .planetOrdinal { color:#8b4337; }
+.header[data-theme='jupiter'] .planetLink,.header[data-theme='jupiter'] .panelExplore { border-color:#35251f33; }
+.header[data-theme='jupiter'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#e8d8be; }
+@media(max-width:760px){.header[data-theme='jupiter'] .wordmark{font-size:25px}}
+
+.header[data-theme='saturn'] { --nav-paper:#27231f; --nav-accent:#735b37; color:#27231f; }
+.header[data-theme='saturn']:not([data-entering='true'])::before { background:#ede4d3fa; border-color:#27231f33; }
+.header[data-theme='saturn'] .wordmark { font-family:var(--font-saturn),Georgia,serif; font-size:34px; letter-spacing:-.065em; text-transform:none; color:#27231f; }
+.header[data-theme='saturn'] .brandCaption { color:#735b37; }
+.header[data-theme='saturn'] .key[aria-expanded='true'] { color:#27231f; }
+.header[data-theme='saturn']:not([data-entering='true']) .exploreKey { background:#27231f; color:#ede4d3; }
+.header[data-theme='saturn']:not([data-entering='true']) .exploreKey::before { border-color:#735b3788; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='saturn'] .planetPanel { background:#ede4d3; color:#27231f; border-color:#735b3766; }
+.header[data-theme='saturn'] .panelHeading>span:first-child,.header[data-theme='saturn'] .planetText>span:first-child { font-family:var(--font-saturn),Georgia,serif; font-weight:500; color:#27231f; letter-spacing:-.04em; }
+.header[data-theme='saturn'] .planetText>span:last-child,.header[data-theme='saturn'] .planetOrdinal { color:#735b37; }
+.header[data-theme='saturn'] .planetLink,.header[data-theme='saturn'] .panelExplore { border-color:#27231f33; }
+.header[data-theme='saturn'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#ede4d3; }
+@media(max-width:760px){.header[data-theme='saturn'] .wordmark{font-size:29px}}
+
+/* Uranus: pale field, a fixed axis, open geometric lettering. */
+.header[data-theme='uranus'] { --nav-paper:#193a40; --nav-accent:#45696a; color:#193a40; }
+.header[data-theme='uranus']:not([data-entering='true'])::before { background:#e2efeb; border-color:#193a4033; }
+.header[data-theme='uranus'] .wordmark { font-family:var(--font-uranus),sans-serif; font-size:28px; font-weight:500; letter-spacing:-.065em; text-transform:none; color:#193a40; }
+.header[data-theme='uranus'] .brandCaption { color:#45696a; }
+.header[data-theme='uranus'] .key[aria-expanded='true'] { color:#193a40; }
+.header[data-theme='uranus']:not([data-entering='true']) .exploreKey { background:#193a40; color:#e2efeb; }
+.header[data-theme='uranus']:not([data-entering='true']) .exploreKey::before { border-color:#45696a88; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='uranus'] .planetPanel { background:#e2efeb; color:#193a40; border-color:#193a4066; }
+.header[data-theme='uranus'] .panelHeading>span:first-child,.header[data-theme='uranus'] .planetText>span:first-child { font-family:var(--font-uranus),sans-serif; font-weight:500; color:#193a40; letter-spacing:-.04em; }
+.header[data-theme='uranus'] .planetText>span:last-child,.header[data-theme='uranus'] .planetOrdinal { color:#45696a; }
+.header[data-theme='uranus'] .planetLink,.header[data-theme='uranus'] .panelExplore { border-color:#193a4033; }
+.header[data-theme='uranus'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#e2efeb; }
+
+/* Neptune: a dark observation plate and a broad, low wordmark. */
+.header[data-theme='neptune'] { --nav-paper:#dfecee; --nav-accent:#9bbfce; color:#dfecee; }
+.header[data-theme='neptune']:not([data-entering='true'])::before { background:#101d2c; border-color:#9bbfce42; }
+.header[data-theme='neptune'] .wordmark { font-family:var(--font-neptune),sans-serif; font-size:30px; font-weight:600; letter-spacing:-.055em; text-transform:none; color:#dfecee; }
+.header[data-theme='neptune'] .brandCaption { color:#9bbfce; }
+.header[data-theme='neptune'] .key[aria-expanded='true'] { color:#dfecee; }
+.header[data-theme='neptune']:not([data-entering='true']) .exploreKey { background:#dfecee; color:#101d2c; }
+.header[data-theme='neptune']:not([data-entering='true']) .exploreKey::before { border-color:#9bbfce88; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='neptune'] .planetPanel { background:#101d2c; color:#dfecee; border-color:#9bbfce66; }
+.header[data-theme='neptune'] .panelHeading>span:first-child,.header[data-theme='neptune'] .planetText>span:first-child { font-family:var(--font-neptune),sans-serif; font-weight:500; color:#dfecee; letter-spacing:-.04em; }
+.header[data-theme='neptune'] .planetText>span:last-child,.header[data-theme='neptune'] .planetOrdinal { color:#9bbfce; }
+.header[data-theme='neptune'] .planetLink,.header[data-theme='neptune'] .panelExplore { border-color:#9bbfce42; }
+.header[data-theme='neptune'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#dfecee; }
+@media(max-width:760px){.header[data-theme='uranus'] .wordmark{font-size:25px}.header[data-theme='neptune'] .wordmark{font-size:27px}}

@@ -1,56 +1,80 @@
 'use client';
 
 import { useEffect } from 'react';
+import type Lenis from 'lenis';
 
-/**
- * Lerped ("smooth") scrolling — the single biggest contributor to the fluid feel of
- * award-site scrolling. Native wheel scroll jumps in discrete ~100px steps; Lenis
- * intercepts the wheel and eases the scroll position toward the target every frame, so
- * motion is continuous and every scroll-linked animation inherits that smoothness.
- *
- * Lenis drives the real scroll position (not a transformed container), so `window.scrollY`
- * stays truthful and JourneyRail / Reveal keep working untouched.
- *
- * Renders nothing. Mounted on the landing page only — /explore is a fixed full-screen
- * canvas with nothing to scroll, and hijacking its wheel events would be wrong.
- */
+const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+
+/** Ease the real document scroll so the landing pages can read window.scrollY. */
 export default function SmoothScroll() {
   useEffect(() => {
-    // DIAGNOSTIC: `?lite=1` kills every decorative animation on the page (via the
-    // .motion-idle rule) and skips smooth scrolling. Load the page with and without it
-    // to tell in seconds whether perceived jank comes from this motion layer or from
-    // something else entirely — layout, the dev-server build, or the machine.
-    const lite = new URLSearchParams(window.location.search).has('lite');
-    if (lite) {
-      document.documentElement.classList.add('motion-idle');
-      return;
+    if (new URLSearchParams(window.location.search).has('lite')) {
+      const root = document.documentElement;
+      root.classList.add('motion-idle');
+      return () => root.classList.remove('motion-idle');
     }
 
-    // Honour the OS setting: smoothing a scroll is exactly the kind of motion that
-    // triggers vestibular discomfort, so opt out entirely rather than merely shortening.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    let lenis: { destroy: () => void } | undefined;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let lenis: Lenis | undefined;
     let cancelled = false;
 
-    // Dynamic import keeps Lenis out of the initial bundle; the page paints first.
-    void import('lenis').then(({ default: Lenis }) => {
-      if (cancelled) return;
-      lenis = new Lenis({
-        // ~0.09 gives a long, weighty glide without feeling detached from the input.
+    const cancelGlide = () => {
+      if (lenis?.isScrolling !== 'smooth') return;
+      lenis.stop();
+      lenis.start();
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (scrollKeys.has(event.key)) cancelGlide();
+    };
+
+    const followChapterLink = (event: MouseEvent) => {
+      if (!lenis || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
+      if (!link?.hash || (link.target && link.target !== '_self') || link.hasAttribute('download')) return;
+      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+      if (!target) return;
+
+      // Handle the fragment once, so the browser's immediate jump cannot compete with the glide.
+      event.preventDefault();
+      if (window.location.hash !== link.hash) window.history.pushState(null, '', link.hash);
+      if (!target.hasAttribute('tabindex')) {
+        target.setAttribute('tabindex', '-1');
+        target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+      }
+      target.focus({ preventScroll: true });
+      lenis.scrollTo(target, { duration: 0.85 });
+    };
+
+    const syncMotion = async () => {
+      if (motion.matches) {
+        lenis?.destroy();
+        lenis = undefined;
+        return;
+      }
+      const { default: ScrollEngine } = await import('lenis');
+      if (cancelled || motion.matches || lenis) return;
+      lenis = new ScrollEngine({
         lerp: 0.09,
-        wheelMultiplier: 1,
-        // Touch devices already have momentum scrolling; a second easing layer fights it.
         smoothWheel: true,
         syncTouch: false,
-        // Let Lenis ease in-page anchor jumps too, instead of the removed CSS smooth.
-        anchors: true,
+        stopInertiaOnNavigate: true,
         autoRaf: true,
       });
-    });
+    };
+
+    void syncMotion();
+    motion.addEventListener('change', syncMotion);
+    window.addEventListener('click', followChapterLink);
+    window.addEventListener('popstate', cancelGlide);
+    window.addEventListener('keydown', onKeyDown);
 
     return () => {
       cancelled = true;
+      motion.removeEventListener('change', syncMotion);
+      window.removeEventListener('click', followChapterLink);
+      window.removeEventListener('popstate', cancelGlide);
+      window.removeEventListener('keydown', onKeyDown);
       lenis?.destroy();
     };
   }, []);
