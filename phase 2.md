@@ -74,7 +74,7 @@ Phase 2 solved this through a **Lazy JavaScript Proxy pattern**:
    - Inserts record into Neon Postgres with initial status `"UNREAD"`.
    - Triggers non-blocking background notification email to the platform owner.
 2. **`GET /api/admin/messages`**:
-   - Authorized via `Bearer <ADMIN_PASSWORD>` (default fallback secret: `admin123secret`).
+   - Authorized by the signed `thessaris_admin_session` cookie issued by `POST /api/admin/session` (see §5.1). No default password: admin access is disabled unless a 12+ character `ADMIN_PASSWORD` is set.
    - Returns all contact messages ordered chronologically (`createdAt: 'desc'`).
 3. **`PATCH /api/admin/messages`**:
    - Modifies message status flags (`UNREAD` $\rightarrow$ `READ` / `REPLIED`).
@@ -97,7 +97,7 @@ Phase 2 introduced a complete, standalone administration application embedded un
 ### 5.1 Sci-Fi HUD Lock Screen (`components/admin/ProtectedShell.tsx`)
 - **HTML5 Space Canvas**: Custom particle system rendering 400 twinkling stars with parallax mouse movement, deep space nebula glows, and periodic meteor trails.
 - **HUD Passcode Authentication**: Interactive circular target rings with continuous CSS rotation animations (`spin-slow`, `spin-slow-reverse`), laser scanlines (`scan`), and password field eye-toggle controls.
-- **Session Persistence**: Saves authorized session token to `localStorage` (`thessaris_admin_token`) and validates against server route authorization headers.
+- **Session Persistence**: `POST /api/admin/session` checks the password (constant-time; 5 failed attempts per IP per 15 min) and sets a signed, `httpOnly`, `SameSite=Strict` cookie scoped to `/api/admin` with a 12-hour lifetime. The password is never stored in the browser; `DELETE /api/admin/session` signs out. *(Originally the raw password was kept in `localStorage` — replaced.)*
 
 ### 5.2 State Context Provider (`components/admin/AdminProvider.tsx`)
 - **Single-Fetch Navigation**: Wraps admin layouts to cache message lists across route transitions (`/admin` $\leftrightarrow$ `/admin/messages` $\leftrightarrow$ `/admin/settings`), eliminating redundant API calls.
@@ -145,7 +145,8 @@ Phase 2 introduced a complete, standalone administration application embedded un
 | Variable Key | Purpose & Scope | Behavior when Missing |
 | :--- | :--- | :--- |
 | `DATABASE_URL` | Neon Postgres Connection String | Deferred until first query via `lib/db.ts` proxy. |
-| `ADMIN_PASSWORD` | Bearer Auth key for Admin Portal & API | Defaults to fallback secret `admin123secret`. |
+| `ADMIN_PASSWORD` | Admin Portal password (12+ chars); also keys session signatures, so changing it signs everyone out | Admin access disabled — sign-in returns 503, admin API returns 401. |
+| `ADMIN_SESSION_SECRET` | Optional extra secret mixed into session signing | Sessions are signed with the password alone. |
 | `RESEND_API_KEY` | Transactional email dispatch API key | Disables email gracefully; DB records persist normally. |
 | `CONTACT_NOTIFY_EMAIL` | Owner target address for submission alerts | Skips owner notification emails; returns skipped status. |
 

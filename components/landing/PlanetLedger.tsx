@@ -127,16 +127,16 @@ export default function PlanetLedger() {
                 href={`/planets/${planet.name.toLowerCase()}`}
                 onMouseEnter={() => activate(index)}
                 onFocus={() => activate(index)}
-                className={`group relative flex min-h-20 items-center gap-3 border-b border-[#1E293B] py-4 transition-[background-color,color] duration-500 first:border-t focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#EA580C] sm:gap-5 sm:py-5 md:min-h-28 md:gap-7 md:py-7 ${selected ? 'bg-[#F8FAFC]/[0.025]' : 'hover:bg-[#F8FAFC]/[0.018]'}`}
+                className={`group relative flex min-h-20 items-center gap-3 border-b border-line py-4 transition-[background-color,color] duration-500 first:border-t focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent sm:gap-5 sm:py-5 md:min-h-28 md:gap-7 md:py-7 ${selected ? 'bg-fg/[0.025]' : 'hover:bg-fg/[0.018]'}`}
               >
                 <span
                   aria-hidden
-                  className={`absolute inset-y-0 left-0 w-px origin-center bg-[#EA580C] transition-transform duration-500 ${EASE} ${selected ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-50'}`}
+                  className={`absolute inset-y-0 left-0 w-px origin-center bg-accent transition-transform duration-500 ${EASE} ${selected ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-50'}`}
                 />
 
                 <span
                   aria-hidden
-                  className={`relative hidden h-8 w-8 shrink-0 rounded-full border transition-[border-color,transform] duration-500 sm:inline-block ${selected ? 'scale-110 border-[#EA580C]/70' : 'border-[#1E293B]'}`}
+                  className={`relative hidden h-8 w-8 shrink-0 rounded-full border transition-[border-color,transform] duration-500 sm:inline-block ${selected ? 'scale-110 border-accent/70' : 'border-line'}`}
                 >
                   <span
                     className="orbit-arm absolute inset-0"
@@ -155,11 +155,11 @@ export default function PlanetLedger() {
                   </span>
                 </span>
 
-                <span className={`w-6 text-sm tabular-nums transition-colors duration-300 ${selected ? 'text-[#EA580C]' : 'text-slate-500'}`}>
+                <span className={`w-6 text-sm tabular-nums transition-colors duration-300 ${selected ? 'text-accent' : 'text-quiet'}`}>
                   {String(index + 1).padStart(2, '0')}
                 </span>
 
-                <span className={`flex-1 font-serif text-2xl leading-none transition-[transform,color] duration-500 sm:text-3xl md:text-5xl ${EASE} ${selected ? 'translate-x-2 text-white' : 'text-slate-200 group-hover:translate-x-2 group-hover:text-white'}`}>
+                <span className={`flex-1 font-serif text-2xl leading-none transition-[transform,color] duration-500 sm:text-3xl md:text-5xl ${EASE} ${selected ? 'translate-x-2 text-fg' : 'text-soft group-hover:translate-x-2 group-hover:text-fg'}`}>
                   {planet.name}
                 </span>
 
@@ -172,19 +172,19 @@ export default function PlanetLedger() {
                   }}
                 />
 
-                <span className="hidden w-24 text-right text-sm tabular-nums text-slate-500 sm:block">
+                <span className="hidden w-24 text-right text-sm tabular-nums text-quiet sm:block">
                   {auOf(planet.name)} AU
                 </span>
-                <span className="hidden w-28 text-right text-sm text-slate-500 xl:block">
+                <span className="hidden w-28 text-right text-sm text-quiet xl:block">
                   {planet.facts.orbitalPeriod}
                 </span>
-                <span className="hidden w-28 text-right text-sm tabular-nums text-slate-500 xl:block">
+                <span className="hidden w-28 text-right text-sm tabular-nums text-quiet xl:block">
                   {velocityOf(planet.name)}
                 </span>
 
                 <span
                   aria-hidden
-                  className={`text-lg text-[#EA580C] transition-[opacity,transform] duration-500 ${EASE} ${selected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`}
+                  className={`text-lg text-accent transition-[opacity,transform] duration-500 ${EASE} ${selected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`}
                 >
                   →
                 </span>
@@ -195,16 +195,16 @@ export default function PlanetLedger() {
       </ul>
 
       <aside className="relative hidden lg:block" aria-live="polite">
-        <div className="sticky top-[16vh] flex h-[68vh] min-h-[480px] flex-col overflow-hidden border-l border-[#1E293B] pl-10 xl:pl-14">
-          <div className="flex items-center justify-between border-b border-[#1E293B] pb-4 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+        <div className="sticky top-[16vh] flex h-[68vh] min-h-[480px] flex-col overflow-hidden border-l border-line pl-10 xl:pl-14">
+          <div className="flex items-center justify-between border-b border-line pb-4 text-[11px] uppercase tracking-[0.2em] text-quiet">
             <span>Live encounter</span>
-            <span className="text-[#EA580C]">Tracking {String(activeIndex + 1).padStart(2, '0')}</span>
+            <span className="text-accent">Tracking {String(activeIndex + 1).padStart(2, '0')}</span>
           </div>
 
           <div className="relative flex flex-1 items-center justify-center">
-            <span className="absolute h-[82%] aspect-square rounded-full border border-[#1E293B]/70" />
-            <span className="absolute h-[58%] aspect-square rounded-full border border-[#1E293B]" />
-            <span className="absolute h-px w-full bg-[#1E293B]/70" />
+            <span className="absolute h-[82%] aspect-square rounded-full border border-line/70" />
+            <span className="absolute h-[58%] aspect-square rounded-full border border-line" />
+            <span className="absolute h-px w-full bg-line/70" />
 
             <div
               key={active.name}
@@ -219,12 +219,12 @@ export default function PlanetLedger() {
             </div>
           </div>
 
-          <div className="border-t border-[#1E293B] pt-5">
+          <div className="border-t border-line pt-5">
             <div className="flex items-end justify-between gap-5">
-              <h3 className="font-serif text-4xl text-white xl:text-5xl">{active.name}</h3>
-              <span className="pb-1 text-xs tabular-nums text-[#EA580C]">{auOf(active.name)} AU</span>
+              <h3 className="font-serif text-4xl text-fg xl:text-5xl">{active.name}</h3>
+              <span className="pb-1 text-xs tabular-nums text-accent">{auOf(active.name)} AU</span>
             </div>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-400">
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
               {active.facts.description}
             </p>
           </div>

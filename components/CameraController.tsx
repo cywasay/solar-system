@@ -20,7 +20,8 @@ type ControlsWithTarget = { target: THREE.Vector3 };
  * fights an animation. maxDistance must stay inside the starfield shell (radius 500
  * in Scene.tsx) or the camera can exit the universe and see a black void behind it.
  */
-const MIN_DISTANCE = 2;
+// Small moons need a closer inspection distance to reveal their surface texture.
+const MIN_DISTANCE = 0.25;
 const MAX_DISTANCE = 350;
 
 export default function CameraController() {

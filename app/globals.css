@@ -1,22 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #020617; /* Slate 950 for deep space base */
-  --foreground: #F8FAFC;
+/*
+ * DESIGN TOKENS — colour.
+ *
+ * The one palette for the public site. Components use these as utilities (`bg-ink`,
+ * `text-quiet`, `border-line`, `text-accent`, with the usual `/opacity` suffix) and never
+ * a raw hex value, so a colour exists in exactly one place.
+ *
+ * Text, lightest to dimmest — every step clears WCAG AA (4.5:1) on `ink` AND `card`:
+ *   fg 19.3 · soft 13.6 · muted 7.9 · quiet 5.8   (ratios on ink)
+ * `faint` is the exception: for decoration and disabled states only, never readable text.
+ *
+ * Rules that go with the palette:
+ *   1. One accent. Text sitting ON an accent fill is `ink`, never #8A9098 (5.7:1 vs 3.4:1).
+ *   2. Hairlines are `line`; use `line-strong` only where a rule must hold its own.
+ *   3. Nothing readable is dimmer than `quiet`.
+ *
+ * `static` so every variable is always emitted: plain CSS below (and inline styles in
+ * components) read them with var(--color-*), which Tailwind would otherwise prune.
+ */
+@theme static {
+  --color-ivory: #E6DED0; /* Warm light for primary type and contrasting controls. */
+  --color-ink: #101012; /* page background — deep space */
+  --color-card: #1A191B; /* panels, inputs, raised surfaces */
+  --color-line: #8A909824; /* hairlines and borders */
+  --color-line-strong: #8A90984D;
+  --color-fg: #E6DED0; /* headlines, primary text */
+  --color-soft: #E6DED0; /* body copy */
+  --color-muted: #8A9098; /* secondary text */
+  --color-quiet: #8A9098; /* labels, footnotes, placeholders */
+  --color-faint: #8A9098; /* decoration and disabled only */
+  --color-accent: #FF6A3D;
+  --color-accent-hover: #FF6A3D;
+  --color-danger: #FF6A3D; /* form errors */
 }
 
+/*
+ * DESIGN TOKENS — type. Three families, one job each:
+ *   serif (Newsreader)  display headlines and long-form prose
+ *   sans  (Geist)       body copy, buttons and every small uppercase label
+ *   mono  (Geist Mono)  DATA ONLY — numbers, indices, readouts, URLs
+ * Wordmark display (Bebas Neue) is scoped to the footer canvas and not a utility.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-serif: var(--font-newsreader);
   --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {
-  /* No `scroll-behavior: smooth` — Lenis (components/landing/SmoothScroll.tsx) owns the
-     scroll easing on the landing page, and the two fight each other if both are on. */
-  background-color: var(--background);
-  color: var(--foreground);
+  /* Landing routes handle wheel and chapter easing in SmoothScroll. */
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  /* Tells the browser this is a dark UI: dark scrollbars, form controls and autofill
+     instead of the light defaults that were glaring against the navy. */
+  color-scheme: dark;
 }
 
 body {
@@ -37,6 +75,164 @@ body {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/*
+ * BUTTONS — NASA-HUD, soft-extruded.
+ *
+ * A raised keycap (dual light/dark shadow) carrying HUD corner brackets; a toggle that is
+ * ON (`aria-pressed="true"`) sits pushed in with a lit LED. This is SURFACE only: size,
+ * type, colour utilities, hover fills and every transition stay on the element's own
+ * classes, which is why it lives in the components layer (utilities still win over it).
+ *
+ *   btn-neo          the standard key
+ *   btn-neo-accent   the primary action (accent face, ink label)
+ *   btn-neo-sm       compact key for chips and small controls
+ *
+ * Pressed, toggled-on and disabled states are instant: no new transitions are added here.
+ * The soft edge is low-contrast by nature, so the label must carry the affordance: keep
+ * labels `fg`/`muted` or better, and leave the focus ring alone.
+ */
+/*
+ * MOTION TOKENS — one vocabulary for every page. Each page keeps its own choreography;
+ * these keep the timing feeling like one site.
+ *   --ease-arrive  things entering (the landing hero's curve)
+ *   --ease-settle  things coming to rest after travelling (landing section sequences)
+ *   --ease-sweep   symmetric moves: wipes, line draws, camera pans
+ */
+:root {
+  --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-sweep: cubic-bezier(0.65, 0, 0.25, 1);
+  --dur-quick: 200ms;
+  --dur-ui: 400ms;
+  --dur-reveal: 850ms;
+  --dur-arrive: 1150ms;
+  --dur-scene: 1800ms;
+  --stagger: 90ms;
+}
+
+:root {
+  --neo-face: #101012;
+  --neo-light: rgba(138, 144, 152, 0.1);
+  --neo-dark: rgba(16, 16, 18, 0.7);
+  --neo-bracket: rgba(138, 144, 152, 0.5);
+}
+
+@layer components {
+  .btn-neo {
+    --neo-tick: 7px;
+    position: relative;
+    border-radius: 4px;
+    background-color: var(--neo-face);
+    background-image: linear-gradient(145deg, rgba(138, 144, 152, 0.05), rgba(16, 16, 18, 0.28));
+    box-shadow:
+      6px 6px 14px var(--neo-dark),
+      -5px -5px 12px var(--neo-light),
+      inset 1px 1px 0 rgba(138, 144, 152, 0.06),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.4);
+  }
+
+  /* HUD corner brackets: eight hairline gradients, no extra elements. */
+  .btn-neo::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 0 / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 0 / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 0 / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 0 / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 100% / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 0 100% / 1px var(--neo-tick),
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 100% / var(--neo-tick) 1px,
+      linear-gradient(var(--neo-bracket), var(--neo-bracket)) 100% 100% / 1px var(--neo-tick);
+    background-repeat: no-repeat;
+  }
+
+  .btn-neo:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* Status LED, only on real toggles. Top-right so it never touches the label. */
+  .btn-neo[aria-pressed]::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 4px;
+    height: 4px;
+    background: var(--color-faint);
+  }
+
+  .btn-neo:active,
+  .btn-neo[aria-pressed='true'] {
+    background-image: linear-gradient(145deg, rgba(16, 16, 18, 0.4), rgba(16, 16, 18, 0.12));
+    box-shadow:
+      inset 5px 5px 11px var(--neo-dark),
+      inset -4px -4px 9px var(--neo-light);
+  }
+
+  .btn-neo[aria-pressed='true']::before {
+    background: var(--color-accent);
+    box-shadow: 0 0 6px 1px rgba(255, 106, 61, 0.7);
+  }
+
+  .btn-neo-accent {
+    background-color: var(--color-accent);
+    background-image: linear-gradient(145deg, rgba(138, 144, 152, 0.16), rgba(16, 16, 18, 0.18));
+    color: var(--color-ink);
+    box-shadow:
+      6px 6px 14px var(--neo-dark),
+      -4px -4px 10px rgba(255, 106, 61, 0.14),
+      inset 1px 1px 0 rgba(138, 144, 152, 0.28),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.28);
+  }
+
+  .btn-neo-accent::after {
+    --neo-bracket: rgba(16, 16, 18, 0.55);
+  }
+
+  .btn-neo-accent:active {
+    background-image: linear-gradient(145deg, rgba(16, 16, 18, 0.3), rgba(16, 16, 18, 0.08));
+    box-shadow:
+      inset 5px 5px 11px rgba(16, 16, 18, 0.45),
+      inset -4px -4px 9px rgba(255, 106, 61, 0.18);
+  }
+
+  .btn-neo-sm {
+    --neo-tick: 5px;
+    border-radius: 3px;
+    box-shadow:
+      3px 3px 8px var(--neo-dark),
+      -3px -3px 7px var(--neo-light),
+      inset 1px 1px 0 rgba(138, 144, 152, 0.06),
+      inset -1px -1px 0 rgba(16, 16, 18, 0.4);
+  }
+
+  .btn-neo-sm::after {
+    inset: 3px;
+  }
+
+  .btn-neo-sm:active,
+  .btn-neo-sm[aria-pressed='true'] {
+    box-shadow:
+      inset 3px 3px 7px var(--neo-dark),
+      inset -3px -3px 6px var(--neo-light);
+  }
+
+  /* Disabled: flat and inert, no extrusion. Placed last so it beats :active. */
+  .btn-neo:disabled {
+    background-image: none;
+    box-shadow: inset 1px 1px 0 rgba(138, 144, 152, 0.04);
+    cursor: not-allowed;
+  }
+
+  .btn-neo:disabled::after {
+    opacity: 0.35;
+  }
 }
 
 /* Route-entry rise-and-fade (used by /planets and /contact mains). */
@@ -132,7 +328,7 @@ a {
 
 .rise-in {
   opacity: 0;
-  animation: rise-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: rise-in 0.95s var(--ease-arrive) both;
   will-change: transform, opacity;
 }
 
@@ -170,7 +366,7 @@ a {
 
 .char-rise {
   display: inline-block;
-  animation: char-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: char-rise var(--dur-arrive) var(--ease-arrive) both;
   will-change: transform, opacity;
 }
 
@@ -257,8 +453,8 @@ a {
   opacity: 0;
   transform: translateY(32px);
   transition:
-    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -360,10 +556,10 @@ a {
 
 @keyframes loader-sun {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.35), 0 0 28px rgba(234, 88, 12, 0.6);
+    box-shadow: 0 0 0 0 rgba(255, 106, 61, 0.35), 0 0 28px rgba(255, 106, 61, 0.6);
   }
   50% {
-    box-shadow: 0 0 0 11px rgba(234, 88, 12, 0), 0 0 42px rgba(234, 88, 12, 0.85);
+    box-shadow: 0 0 0 11px rgba(255, 106, 61, 0), 0 0 42px rgba(255, 106, 61, 0.85);
   }
 }
 
@@ -378,14 +574,14 @@ a {
 
 .explore-loader-grid {
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.32) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.32) 1px, transparent 1px);
+    linear-gradient(rgba(16, 16, 18, 0.32) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 16, 18, 0.32) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  mask-image: radial-gradient(circle at center, #101012, transparent 72%);
 }
 
 .explore-loader-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.28) 46%, #020617 100%);
+  background: radial-gradient(circle at center, transparent 0%, rgba(16, 16, 18, 0.28) 46%, var(--color-ink) 100%);
 }
 
 .explore-loader-orbit {
@@ -430,14 +626,14 @@ a {
   display: block;
   position: relative;
   overflow: hidden;
-  background-color: var(--planet-color, #64748b);
+  background-color: var(--planet-color, var(--color-quiet));
   background-position: 0 center;
   background-repeat: repeat-x;
   background-size: auto 100%;
   box-shadow:
-    inset -18px -6px 24px rgba(2, 6, 23, 0.9),
-    inset 7px 5px 10px rgba(248, 250, 252, 0.13),
-    0 0 18px color-mix(in srgb, var(--planet-color, #64748b) 25%, transparent);
+    inset -18px -6px 24px rgba(16, 16, 18, 0.9),
+    inset 7px 5px 10px rgba(138, 144, 152, 0.13),
+    0 0 18px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 25%, transparent);
 }
 
 .planet-row-sphere::after,
@@ -446,16 +642,16 @@ a {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at 30% 25%, transparent 0 30%, rgba(2, 6, 23, 0.12) 48%, rgba(2, 6, 23, 0.88) 100%);
+  background: radial-gradient(circle at 30% 25%, transparent 0 30%, rgba(16, 16, 18, 0.12) 48%, rgba(16, 16, 18, 0.88) 100%);
 }
 
 .planet-preview-sphere {
   z-index: 10;
   animation: planet-surface-drift 32s linear infinite;
   box-shadow:
-    inset -70px -12px 72px rgba(2, 6, 23, 0.94),
-    inset 18px 12px 28px rgba(248, 250, 252, 0.13),
-    0 0 54px color-mix(in srgb, var(--planet-color, #64748b) 24%, transparent);
+    inset -70px -12px 72px rgba(16, 16, 18, 0.94),
+    inset 18px 12px 28px rgba(138, 144, 152, 0.13),
+    0 0 54px color-mix(in srgb, var(--planet-color, var(--color-quiet)) 24%, transparent);
 }
 
 .planet-preview-in {
@@ -472,7 +668,7 @@ a {
   max-width: none;
   pointer-events: none;
   transform: translate(-50%, -50%) rotateZ(-12deg) rotateX(67deg);
-  filter: drop-shadow(0 0 7px rgba(226, 211, 180, 0.16));
+  filter: drop-shadow(0 0 7px rgba(255, 106, 61, 0.16));
 }
 
 .saturn-ring-canvas--back {
@@ -530,23 +726,23 @@ a {
   position: absolute;
   inset: 0;
   animation: capability-arrive 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  background: radial-gradient(circle at 50% 48%, rgba(234, 88, 12, 0.07), transparent 31%);
+  background: radial-gradient(circle at 50% 48%, rgba(255, 106, 61, 0.07), transparent 31%);
 }
 .capability-grid {
   position: absolute;
   inset: 0;
   opacity: 0.55;
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.28) 1px, transparent 1px);
+    linear-gradient(rgba(16, 16, 18, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 16, 18, 0.28) 1px, transparent 1px);
   background-size: 42px 42px;
-  mask-image: radial-gradient(circle at center, black 20%, transparent 72%);
+  mask-image: radial-gradient(circle at center, #101012 20%, transparent 72%);
 }
 .capability-axis {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #1e293b;
+  background: var(--color-line);
   opacity: 0.8;
 }
 .capability-axis--x { width: 78%; height: 1px; transform: translate(-50%, -50%); }
@@ -555,7 +751,7 @@ a {
   position: absolute;
   left: 50%;
   top: 48%;
-  border: 1px solid rgba(71, 85, 105, 0.62);
+  border: 1px solid rgba(138, 144, 152, 0.62);
   border-radius: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
 }
@@ -566,14 +762,14 @@ a {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #94a3b8;
+  background: var(--color-muted);
   transform: translate(-50%, -50%);
 }
 .capability-orbit--1 { animation: capability-orbit-spin 7s linear infinite; }
 .capability-orbit--2 { animation: capability-orbit-spin 11s linear infinite reverse; }
 .capability-orbit--3 { animation: capability-orbit-spin 17s linear infinite; }
 .capability-orbit--4 { animation: capability-orbit-spin 25s linear infinite reverse; }
-.capability-orbit--2 .capability-orbit-body { background: #ea580c; box-shadow: 0 0 12px rgba(234, 88, 12, 0.8); }
+.capability-orbit--2 .capability-orbit-body { background: var(--color-accent); box-shadow: 0 0 12px rgba(255, 106, 61, 0.8); }
 .capability-sun {
   position: absolute;
   left: 50%;
@@ -582,8 +778,8 @@ a {
   height: 28px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #f8fafc;
-  box-shadow: 0 0 20px rgba(248, 250, 252, 0.65), 0 0 52px rgba(234, 88, 12, 0.55);
+  background: var(--color-fg);
+  box-shadow: 0 0 20px rgba(138, 144, 152, 0.65), 0 0 52px rgba(255, 106, 61, 0.55);
 }
 .capability-target,
 .capability-satellite,
@@ -591,7 +787,7 @@ a {
 .capability-time-hand { opacity: 0; }
 
 .capability-scene--topology .capability-orbit-body { opacity: 1; }
-.capability-scene--motion .capability-orbit { border-color: rgba(234, 88, 12, 0.36); }
+.capability-scene--motion .capability-orbit { border-color: rgba(255, 106, 61, 0.36); }
 .capability-scene--motion .capability-orbit-body { width: 8px; height: 8px; }
 
 .capability-target {
@@ -600,7 +796,7 @@ a {
   top: 32%;
   width: 70px;
   height: 70px;
-  border: 1px solid #ea580c;
+  border: 1px solid var(--color-accent);
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -610,7 +806,7 @@ a {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #ea580c;
+  background: var(--color-accent);
   transform: translate(-50%, -50%);
 }
 .capability-target::before { width: 94px; height: 1px; }
@@ -618,7 +814,7 @@ a {
 .capability-target span {
   position: absolute;
   inset: 12px;
-  border: 1px dashed rgba(234, 88, 12, 0.55);
+  border: 1px dashed rgba(255, 106, 61, 0.55);
   border-radius: 50%;
 }
 .capability-scene--tracking .capability-target {
@@ -633,8 +829,8 @@ a {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #f8fafc;
-  box-shadow: 0 0 8px rgba(248, 250, 252, 0.5);
+  background: var(--color-fg);
+  box-shadow: 0 0 8px rgba(138, 144, 152, 0.5);
 }
 .capability-satellite--one { transform: translate(74px, -49px); }
 .capability-satellite--two { transform: translate(96px, 28px); }
@@ -648,8 +844,8 @@ a {
   right: 10%;
   top: 14%;
   height: 1px;
-  background: #ea580c;
-  box-shadow: 0 0 18px rgba(234, 88, 12, 0.7);
+  background: var(--color-accent);
+  box-shadow: 0 0 18px rgba(255, 106, 61, 0.7);
 }
 .capability-scene--render .capability-scan {
   opacity: 1;
@@ -658,7 +854,7 @@ a {
 .capability-scene--render .capability-sun {
   width: 54px;
   height: 54px;
-  box-shadow: 0 0 28px #fff, 0 0 80px rgba(234, 88, 12, 0.85), 0 0 150px rgba(234, 88, 12, 0.28);
+  box-shadow: 0 0 28px #8A9098, 0 0 80px rgba(255, 106, 61, 0.85), 0 0 150px rgba(255, 106, 61, 0.28);
 }
 
 .capability-time-hand {
@@ -667,7 +863,7 @@ a {
   top: 48%;
   width: 1px;
   height: 30%;
-  background: linear-gradient(to top, #ea580c, transparent);
+  background: linear-gradient(to top, var(--color-accent), transparent);
   transform-origin: 50% 100%;
 }
 .capability-scene--time .capability-time-hand {
@@ -675,6 +871,52 @@ a {
   animation: capability-time-sweep 4s linear infinite;
 }
 .capability-scene--time .capability-orbit { border-style: dashed; }
+
+/* Shared scroll motion — driven by <MotionScope> (components/motion). Hidden states only
+   apply once the scope adds .motion-ready, so no-JS and reduced-motion visitors always
+   see the content. Variants:
+     data-reveal          rise + fade (same as the landing <Reveal>)
+     data-reveal="stagger" each direct child rises in turn
+     data-reveal="mask"    wiped open top to bottom
+     data-reveal="draw"    SVG strokes with pathLength="1" are drawn in sequence */
+.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.motion-ready [data-reveal][data-shown] { opacity: 1; transform: none; }
+
+.motion-ready [data-reveal='stagger'],
+.motion-ready [data-reveal='draw'] { opacity: 1; transform: none; }
+.motion-ready [data-reveal='stagger'] > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-arrive),
+    transform var(--dur-reveal) var(--ease-arrive);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--stagger));
+}
+.motion-ready [data-reveal='stagger'][data-shown] > * { opacity: 1; transform: none; }
+
+.motion-ready [data-reveal='mask'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--dur-scene) var(--ease-sweep);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.motion-ready [data-reveal='mask'][data-shown] { clip-path: inset(0); }
+
+.motion-ready [data-reveal='draw'] [pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-scene) var(--ease-sweep);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--stagger) * 2);
+}
+.motion-ready [data-reveal='draw'][data-shown] [pathLength] { stroke-dashoffset: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .page-in,
@@ -728,3 +970,7 @@ a {
   .manifest-line { transform: scaleX(1); }
   .manifest-stop { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+/* Preserve logo artwork and alpha while applying the brand ink. */
+img[src*="/logos/"] { filter: url(#brand-seal); }
+img[src*="/logos/black-logo"] { filter: url(#brand-galaxy); }

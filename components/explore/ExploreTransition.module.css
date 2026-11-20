@@ -1,0 +1,15 @@
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  overflow: clip;
+  overscroll-behavior: none;
+  opacity: 1;
+}
+.cover[data-loader-phase='entry'] { opacity: 0; pointer-events: none; }
+.cover[data-loader-phase='exiting'] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 650ms cubic-bezier(.22,.61,.36,1);
+}
+@media (prefers-reduced-motion: reduce) { .cover[data-loader-phase='exiting'] { transition-duration: 200ms; } }

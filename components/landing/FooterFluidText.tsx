@@ -39,7 +39,7 @@ const fragmentShader = `
     float edge = fwidth(uv.y * 40.0);
     float scanline = 1.0 - smoothstep(0.075 - edge, 0.075 + edge, line);
     float textAlpha = mask * scanline * 0.35;
-    vec3 textColor = vec3(248.0, 250.0, 252.0) / 255.0;
+    vec3 textColor = vec3(138.0, 144.0, 152.0) / 255.0;
 
     // Sample the wordmark beneath the black hole and around its rim. Radiance only
     // appears when that footprint overlaps a letter, so empty space stays untouched.
@@ -51,7 +51,7 @@ const fragmentShader = `
     contact = max(contact, texture2D(uTexture, uHole.xy - vec2(0.0, probe.y)).a);
     contact = smoothstep(0.08, 0.72, contact) * smoothstep(0.25, 0.9, uHole.z);
     float lineRadiance = contact * influence;
-    vec3 glowColor = vec3(1.0, 0.29, 0.035);
+    vec3 glowColor = vec3(1.0, 0.415686, 0.239216);
     textColor = mix(textColor, glowColor, lineRadiance * 0.42);
     textAlpha = min(1.0, textAlpha * (1.0 + lineRadiance * 0.38));
     vec4 hole = vec4(0.0);
@@ -70,7 +70,7 @@ const fragmentShader = `
     float underAlpha = textAlpha + halo * (1.0 - textAlpha);
     vec3 underColor = textColor * textAlpha + glowColor * halo * (1.0 - textAlpha);
     float alpha = hole.a + underAlpha * (1.0 - hole.a);
-    vec3 color = (hole.rgb * hole.a + underColor * (1.0 - hole.a)) / max(alpha, 0.0001);
+    vec3 color = (mix(vec3(16.0,16.0,18.0)/255.0, glowColor, dot(hole.rgb, vec3(0.299,0.587,0.114))) * hole.a + underColor * (1.0 - hole.a)) / max(alpha, 0.0001);
     gl_FragColor = vec4(color, alpha);
   }
 `;

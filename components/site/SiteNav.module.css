@@ -1,0 +1,556 @@
+/* The masthead shares the hero's editorial grid. The only solid object is the
+   solar-coloured Explore disc; the rules and type converge into it on scroll. */
+.header {
+  --collapse: 0;
+  --sink-x: 95%;
+  --sink-y: 50%;
+  position: sticky;
+  top: max(16px, env(safe-area-inset-top));
+  z-index: 60;
+  flex: none;
+  width: 85%;
+  margin: 16px auto 0;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.rule {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform-origin: var(--sink-x) var(--sink-y);
+  transform: scaleX(calc(1 - var(--collapse) * var(--collapse))) scaleY(calc(1 - var(--collapse)));
+}
+.rule::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, #8A90984d, #8A909826 72%, #FF6A3D5c);
+}
+.rule::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 5px;
+  height: 5px;
+  background: var(--color-ink);
+  border: 1px solid #FF6A3D;
+  border-radius: 50%;
+}
+
+.bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) auto 78px;
+  align-items: center;
+  gap: clamp(28px, 3.6vw, 64px);
+  min-height: 96px;
+  padding-bottom: 18px;
+  pointer-events: none;
+}
+.absorb {
+  --lag: 0;
+  --local: clamp(0, (var(--collapse) - var(--lag)) / (1 - var(--lag)), 1);
+  --pull: calc(var(--local) * var(--local));
+  transform-origin: center;
+  transform: translate3d(calc(var(--travel-x, 0px) * var(--pull)), calc(var(--travel-y, 0px) * var(--pull)), 0) scaleX(calc(1 - var(--pull))) scaleY(calc(1 - var(--local)));
+  pointer-events: auto;
+}
+.header[data-absorbing='true'] .absorb { pointer-events: none; }
+.header[data-compact='true'] .rule,
+.header[data-compact='true'] .absorb { visibility: hidden; }
+
+.brandSlot { justify-self: start; }
+.sealSlot { display: grid; place-items: center; flex: none; }
+.brand { display: inline-flex; align-items: center; gap: 15px; color: #8A9098; }
+.seal { flex: none; width: 48px; height: 48px; color: #8A9098; transition: transform 500ms cubic-bezier(.2,.7,.2,1); }
+.brandType { display: flex; flex-direction: column; gap: 7px; }
+.wordmark { font-family: var(--font-serif), Georgia, serif; font-size: 38px; line-height: .86; letter-spacing: -.055em; }
+.brandDot { color: #FF6A3D; }
+.brandCaption { color: #8A9098; font-size: 8px; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; }
+
+.destinations { display: flex; align-items: center; gap: clamp(24px, 2.9vw, 46px); }
+.key {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  min-width: 48px;
+  min-height: 58px;
+  padding: 5px 0 10px;
+  background: transparent;
+  color: #8A9098;
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.navIndex { color: #8A9098; font-family: var(--font-mono), monospace; font-size: 8px; letter-spacing: .06em; transition: color 180ms; }
+.navText { display: flex; align-items: center; gap: 10px; transition: color 180ms, translate 180ms; }
+.key::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 18px;
+  height: 1px;
+  background: #FF6A3D;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 220ms ease;
+}
+.key[aria-current='page'],
+.key[data-active='true'],
+.key[aria-expanded='true'] { color: #8A9098; }
+.key[aria-current='page'] .navIndex,
+.key[data-active='true'] .navIndex,
+.key[aria-expanded='true'] .navIndex { color: #FF6A3D; }
+.key[aria-current='page']::after,
+.key[data-active='true']::after,
+.key[aria-expanded='true']::after { transform: scaleX(1); }
+.adminKey { color: #8A9098; }
+.toggleGlyph { position: relative; width: 9px; height: 9px; color: #FF6A3D; transition: transform 220ms ease; }
+.toggleGlyph::before,
+.toggleGlyph::after { content: ''; position: absolute; background: currentColor; }
+.toggleGlyph::before { left: 0; top: 4px; width: 9px; height: 1px; }
+.toggleGlyph::after { left: 4px; top: 0; width: 1px; height: 9px; }
+.key[aria-expanded='true'] .toggleGlyph { transform: rotate(45deg); }
+
+.exploreKey {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #FF6A3D;
+  color: #101012;
+  box-shadow: inset 0 1px 0 #FF6A3D7a, 0 4px 18px #10101222;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.exploreKey::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px solid #FF6A3D4d;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-28deg);
+  pointer-events: none;
+  transition: transform 500ms cubic-bezier(.2,.7,.2,1);
+}
+.exploreLabel { font-size: 9px; font-weight: 600; line-height: 1; letter-spacing: .09em; text-transform: uppercase; }
+.exploreArrow { display: grid; place-items: center; width: 25px; height: 25px; overflow: hidden; }
+.exploreArrow > svg { width: 25px; height: 25px; transition: transform 280ms cubic-bezier(.2,.7,.2,1); }
+.exploreKey:active { background: #FF6A3D; }
+
+/* Actual masthead nodes become orbital bodies. The scroll-driven parent
+   transforms are suspended so each body has one unambiguous coordinate system. */
+.header[data-entering='true'] { z-index: 200; }
+.header[data-entering='true'] .bar {
+  position: absolute;
+  left: var(--entry-header-left);
+  top: var(--entry-header-top);
+  width: var(--entry-header-width);
+}
+.header[data-entering='true'] .absorb { transform: none; visibility: visible; pointer-events: none; }
+.header[data-entering='true'] .rule { visibility: visible; transform: scale(0); transition: transform 700ms cubic-bezier(.5,0,.2,1); }
+.header[data-entering='true'] [data-orbit-piece] { will-change: transform; transform-origin: center; pointer-events: none; }
+.header[data-entering='true'] .seal { transform: none; transition: none; }
+.header[data-entering='true'] .exploreKey {
+  z-index: 30;
+  outline: none;
+  pointer-events: none;
+  will-change: transform;
+  background: #FF6A3D;
+  box-shadow: inset 0 1px 0 #FF6A3D7a, 0 0 35px #FF6A3D3b;
+}
+.header[data-entering='true'] .exploreKey::before {
+  inset: -12px;
+  border-width: 1px;
+  border-top-color: #FF6A3D;
+  border-right-color: #FF6A3D59;
+  animation: horizonSpin 850ms linear infinite;
+  transition: none;
+}
+.header[data-entering='true'] .exploreKey::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid #FF6A3D4d;
+  border-radius: 50%;
+  background: #101012;
+  box-shadow: 0 0 8px 2px #101012, inset 0 0 4px #FF6A3D26;
+  animation: horizonOpen 5s both;
+  pointer-events: none;
+}
+@keyframes horizonSpin { to { transform: rotate(360deg); } }
+@keyframes horizonOpen {
+  0%, 8% { transform: scale(0); }
+  22%, 100% { transform: scale(1); }
+}
+
+.key:focus-visible,
+.brand:focus-visible,
+.exploreKey:focus-visible { outline: 2px solid #FF6A3D; outline-offset: 6px; }
+.planetLink:focus-visible,
+.panelExplore:focus-visible { outline: 2px solid #FF6A3D; outline-offset: 2px; }
+
+.planetNavigation { position: relative; z-index: 4; }
+.planetPanel {
+  position: absolute;
+  top: calc(100% + var(--panel-drop, 30px));
+  left: 50%;
+  width: min(680px, var(--panel-width, 680px));
+  max-height: min(620px, 74svh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateX(calc(-50% + var(--panel-offset, 0px)));
+  padding: 29px 32px 20px;
+  border: 1px solid #8A9098;
+  border-radius: 3px;
+  background: #8A9098;
+  color: #101012;
+  box-shadow: 0 20px 55px #10101255;
+  animation: atlasIn 220ms cubic-bezier(.2,.7,.2,1);
+}
+.panelHeading { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-bottom: 22px; }
+.panelHeading > span:first-child { font-family: var(--font-serif), Georgia, serif; font-size: 34px; line-height: 1.05; letter-spacing: -.035em; }
+.panelDot { color: #FF6A3D; }
+.panelEdition { flex: none; color: #8A9098; font-family: var(--font-mono), monospace; font-size: 8px; text-align: right; line-height: 1.8; letter-spacing: .04em; text-transform: uppercase; }
+.planetGrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; }
+.planetLink { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 12px 0; border-top: 1px solid #1010122b; }
+.planetOrdinal { color: #8A9098; font-family: var(--font-mono), monospace; font-size: 9px; }
+.planetSphere { position: relative; flex: 0 0 28px; height: 28px; border-radius: 50%; background-color: var(--planet-color); background-position: 35% center; background-size: auto 100%; box-shadow: inset -9px -3px 9px #101012d9, inset 1px 1px 3px #8A909833; }
+.planetText { display: flex; flex-direction: column; gap: 5px; transition: translate 180ms ease; }
+.planetText > span:first-child { font-family: var(--font-serif), Georgia, serif; font-size: 24px; line-height: 1; letter-spacing: -.025em; }
+.planetText > span:last-child { font-family: var(--font-mono), monospace; color: #8A9098; font-size: 8px; }
+.planetArrow { width: 15px; height: 15px; margin-left: auto; color: #8A9098; transition: color 180ms, translate 180ms; }
+.planetLink[aria-current='page'] { color: #FF6A3D; }
+.panelExplore { display: flex; justify-content: space-between; align-items: center; margin-top: 7px; padding-top: 17px; min-height: 44px; border-top: 1px solid #10101255; color: #FF6A3D; font-size: 11px; }
+.panelExplore > svg { width: 18px; height: 18px; }
+@keyframes atlasIn {
+  from { translate: 0 -8px; clip-path: inset(0 0 100% 0); }
+  to { translate: 0 0; clip-path: inset(0); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover .seal { transform: rotate(-12deg); }
+  .key:hover .navText { color: #8A9098; translate: 0 -2px; }
+  .key:hover .navIndex { color: #FF6A3D; }
+  .key:hover::after { transform: scaleX(1); }
+  .exploreKey:hover::before { transform: rotate(62deg); }
+  .exploreKey:hover .exploreArrow > svg { transform: translate(2px, -2px); }
+  .planetLink:hover .planetText { translate: 3px 0; }
+  .planetLink:hover .planetArrow { color: #FF6A3D; translate: 2px -2px; }
+}
+
+@media (max-width: 1100px) {
+  .header { width: 90%; }
+  .bar { grid-template-columns: minmax(190px, 1fr) auto 72px; gap: 28px; min-height: 96px; }
+  .wordmark { font-size: 34px; }
+  .seal { width: 42px; height: 42px; }
+  .brand { gap: 12px; }
+  .brandCaption { font-size: 7px; letter-spacing: .09em; }
+  .destinations { gap: 24px; }
+  .key { font-size: 12px; min-width: 44px; }
+  .exploreKey { width: 70px; height: 70px; }
+}
+
+@media (max-width: 800px) {
+  .header { width: calc(100% - 44px); top: max(12px, env(safe-area-inset-top)); margin-top: 12px; }
+  .bar { grid-template-columns: 1fr 62px; min-height: 0; gap: 10px 18px; padding-bottom: 9px; }
+  .wordmark { font-size: 34px; }
+  .brandSlot { grid-column: 1; grid-row: 1; }
+  .brandCaption { font-size: 7px; }
+  .seal { width: 40px; height: 40px; }
+  .destinations { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+  .key { min-height: 47px; width: 100%; min-width: 0; flex-direction: row; align-items: center; justify-content: flex-start; gap: 7px; padding: 0; font-size: 11px; }
+  .navText { gap: 7px; }
+  .navIndex { font-size: 7px; }
+  .key::after { bottom: 1px; width: 14px; }
+  .exploreKey { grid-column: 2; grid-row: 1; width: 62px; height: 62px; gap: 5px; }
+  .exploreKey::before { inset: -4px; }
+  .exploreLabel { font-size: 8px; }
+  .exploreArrow, .exploreArrow > svg { width: 22px; height: 22px; }
+  .planetPanel { max-height: 65svh; padding: 20px 19px 16px; }
+  .panelHeading { gap: 12px; padding-bottom: 17px; }
+  .panelHeading > span:first-child { max-width: 180px; font-size: 30px; }
+  .panelEdition { font-size: 7px; }
+  .planetGrid { column-gap: 16px; }
+  .planetLink { gap: 9px; min-height: 70px; }
+  .planetOrdinal { display: none; }
+  .planetText > span:first-child { font-size: 21px; }
+  .planetSphere { flex-basis: 23px; height: 23px; }
+  .planetArrow { width: 12px; height: 12px; }
+}
+
+@media (max-width: 359px) {
+  .header { width: calc(100% - 32px); }
+  .brand { gap: 9px; }
+  .wordmark { font-size: 30px; }
+  .seal { width: 33px; height: 33px; }
+  .brandCaption { font-size: 6px; letter-spacing: .07em; }
+  .key { font-size: 10px; gap: 5px; }
+  .navIndex { font-size: 6px; }
+  .navText { gap: 5px; }
+  .panelHeading > span:first-child { font-size: 27px; }
+  .planetPanel { padding-inline: 15px; }
+  .planetGrid { column-gap: 13px; }
+  .planetLink { gap: 7px; }
+  .planetText > span:first-child { font-size: 19px; }
+  .planetArrow { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal, .navIndex, .navText, .key::after, .toggleGlyph,
+  .exploreKey::before, .exploreArrow > svg, .planetText, .planetArrow { transition: none; }
+  .planetPanel { animation: none; }
+  .header[data-entering='true'] .exploreKey::before,
+  .header[data-entering='true'] .exploreKey::after { animation: none; }
+  .header[data-entering='true'] .rule { transition: none; }
+}
+@media (prefers-contrast: more) {
+  .navIndex, .adminKey, .brandCaption { color: #8A9098; }
+  .rule::before { background: #8A9098; }
+}
+@media (forced-colors: active) {
+  .exploreKey, .planetPanel { border: 1px solid ButtonText; }
+  .key[aria-current='page'], .key[aria-expanded='true'] { outline: 1px solid Highlight; }
+}
+
+/* Seal Grey atlas surface with Galaxy Black ink. */
+.planetPanel { background: #8A9098; color: #101012; border-color: #8A9098; }
+.panelEdition, .planetOrdinal, .planetText > span:last-child, .planetArrow, .panelExplore, .panelDot, .planetLink[aria-current="page"] { color: #101012; }
+.planetLink, .panelExplore { border-color: #10101255; }
+.planetLink:hover .planetArrow { color: #101012; }
+.exploreKey { color: #101012; }
+
+/* Keep the atlas in the same dark space as the masthead. */
+.planetPanel { background: #101012; color: #8A9098; border-color: #8A909838; }
+.panelEdition, .planetOrdinal, .planetText > span:last-child, .planetArrow { color: #8A9098; }
+.panelExplore, .panelDot, .planetLink[aria-current="page"], .planetLink:hover .planetArrow { color: #FF6A3D; }
+.planetLink, .panelExplore { border-color: #8A909838; }
+
+/* Warm ivory establishes a clear primary type level. */
+.wordmark, .key[aria-current="page"], .key[aria-expanded="true"], .planetText > span:first-child { color: #E6DED0; }
+
+/* Mercury: an etched masthead with a lit hemisphere, not the portfolio chrome. */
+.header[data-theme] {
+  --nav-paper: #ded9cf;
+  --nav-accent: #bda68a;
+  width: 85%;
+  top: 0;
+  margin-top: 0;
+  color: var(--nav-paper);
+}
+.header[data-theme] .bar {
+  grid-template-columns: minmax(220px, 1fr) auto 58px;
+  min-height: 94px;
+  padding: 16px 0;
+  gap: 34px;
+}
+.header[data-theme]:not([data-entering='true'])::before {
+  content: '';
+  position: absolute;
+  inset: 0 -8.8235%;
+  background: #111214f5;
+  border-bottom: 1px solid #ded9cf26;
+  z-index: -1;
+  pointer-events: none;
+}
+.header[data-theme] .rule { display: none; }
+.header[data-theme] .brand { gap: 15px; }
+.header[data-theme] .seal { width: 35px; height: 35px; color: var(--nav-accent); }
+.header[data-theme] .wordmark {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+.header[data-theme] .brandDot,
+.header[data-theme] .navIndex,
+.header[data-theme] .panelEdition { display: none; }
+.header[data-theme] .brandCaption {
+  font-size: 9px;
+  letter-spacing: .035em;
+  text-transform: none;
+  color: #bda68a;
+}
+.header[data-theme] .destinations { gap: 28px; }
+.header[data-theme] .key {
+  min-height: 42px;
+  min-width: 0;
+  padding: 8px 0;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--nav-paper);
+}
+.header[data-theme] .key::after { background: var(--nav-accent); bottom: 0; }
+.header[data-theme] .toggleGlyph { color: var(--nav-accent); }
+.header[data-theme] .key:hover .navText { color: var(--nav-accent); translate: none; }
+.header[data-theme] .exploreKey { width: 58px; height: 58px; gap: 3px; }
+.header[data-theme]:not([data-entering='true']) .exploreKey {
+  background: var(--nav-paper);
+  color: #111214;
+  box-shadow: none;
+}
+.header[data-theme]:not([data-entering='true']) .exploreKey::before {
+  border-color: #bda68a70;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  inset: -4px;
+}
+.header[data-theme] .exploreLabel { font-size: 7px; letter-spacing: .055em; }
+.header[data-theme] .exploreArrow,
+.header[data-theme] .exploreArrow>svg { width: 22px; height: 22px; }
+.header[data-theme] .planetPanel {
+  background: #191a1c;
+  border: 1px solid #bda68a55;
+  color: var(--nav-paper);
+  border-radius: 0;
+  box-shadow: 0 22px 45px #0007;
+}
+.header[data-theme] .panelHeading>span:first-child,
+.header[data-theme] .planetText>span:first-child { font-family: var(--font-bebas), sans-serif; letter-spacing: .025em; }
+.header[data-theme] .planetLink { border-color: #ded9cf26; }
+.header[data-theme] .planetLink[aria-current='page'],
+.header[data-theme] .planetArrow,
+.header[data-theme] .panelDot,
+.header[data-theme] .panelExplore { color: var(--nav-accent); }
+.header[data-theme] .panelExplore { border-color: #ded9cf26; }
+.header[data-theme] :focus-visible { outline-color: var(--nav-accent); }
+@media(max-width:760px) {
+  .header[data-theme] { width: 88%; }
+  .header[data-theme] .bar { grid-template-columns: 1fr 48px; gap: 9px 18px; padding: 14px 0 7px; }
+  .header[data-theme] .wordmark { font-size: 26px; }
+  .header[data-theme] .brandCaption { font-size: 8px; }
+  .header[data-theme] .seal { width: 29px; height: 29px; }
+  .header[data-theme] .brand { gap: 10px; }
+  .header[data-theme] .exploreKey { grid-column: 2; grid-row: 1; width: 48px; height: 48px; }
+  .header[data-theme] .destinations { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; gap: 24px; }
+  .header[data-theme] .key { min-height: 32px; font-size: 11px; }
+  .header[data-theme] .planetPanel { padding: 20px 17px; max-height: 65svh; }
+}
+
+@media(max-width:760px){.header[data-theme]:not([data-entering='true'])::before{inset:0 -6.8181%}}
+
+
+
+/* Venus takes the same navigation mechanics into a soft, luminous atmosphere. */
+.header[data-theme='venus'] { --nav-paper:#231c12; --nav-accent:#705d29; color:#231c12; }
+.header[data-theme='venus']:not([data-entering='true'])::before { background:#f1e5befa; border-color:#231c1226; }
+.header[data-theme='venus'] .wordmark { font-family:var(--font-venus),Georgia,serif; font-size:28px; font-weight:500; letter-spacing:-.06em; text-transform:none; color:#231c12; }
+.header[data-theme='venus'] .brandCaption { color:#705d29; }
+.header[data-theme='venus'] .key[aria-expanded='true'] { color:#231c12; }
+.header[data-theme='venus']:not([data-entering='true']) .exploreKey { background:#231c12; color:#f1e5be; }
+.header[data-theme='venus']:not([data-entering='true']) .exploreKey::before { border-color:#705d2966; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='venus'] .planetPanel { background:#f1e5be; border-color:#705d2966; border-radius:15px; color:#231c12; }
+.header[data-theme='venus'] .panelHeading>span:first-child,.header[data-theme='venus'] .planetText>span:first-child { font-family:var(--font-venus),serif; color:#231c12; letter-spacing:-.04em; }
+.header[data-theme='venus'] .planetText>span:first-child { font-size:21px; }
+.header[data-theme='venus'] .planetText>span:last-child,.header[data-theme='venus'] .planetOrdinal { color:#705d29; }
+.header[data-theme='venus'] .planetLink,.header[data-theme='venus'] .panelExplore { border-color:#231c1226; }
+.header[data-theme='venus'][data-entering='true'] .wordmark,.header[data-theme='venus'][data-entering='true'] .brandCaption,.header[data-theme='venus'][data-entering='true'] .key,.header[data-theme='venus'][data-entering='true'] .seal { color:#f1e5be; }
+@media(max-width:760px){.header[data-theme='venus'] .wordmark{font-size:26px}.header[data-theme='venus'] .planetText>span:first-child{font-size:19px}}
+
+/* Earth keeps navigation on the paper-and-forest atlas palette. */
+.header[data-theme='earth'] { --nav-paper:#0b2533; --nav-accent:#1d6a93; color:#0b2533; }
+.header[data-theme='earth']:not([data-entering='true'])::before { background:#eef2eefa; border-color:#0b25331f; }
+.header[data-theme='earth'] .wordmark { font-family:var(--font-earth),sans-serif; font-weight:700; font-variation-settings:'wdth' 80; font-size:31px; letter-spacing:-.03em; text-transform:none; color:#0b2533; }
+.header[data-theme='earth'] .brandCaption { color:#1d6a93; }
+.header[data-theme='earth'] .key[aria-expanded='true'] { color:#0b2533; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey { background:#0b2533; color:#eef2ee; }
+.header[data-theme='earth']:not([data-entering='true']) .exploreKey::before { border-color:#1d6a9377; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='earth'] .planetPanel { background:#eef2ee; color:#0b2533; border-color:#1d6a9355; }
+.header[data-theme='earth'] .panelHeading>span:first-child,.header[data-theme='earth'] .planetText>span:first-child { font-family:var(--font-earth),sans-serif; font-weight:650; color:#0b2533; letter-spacing:-.025em; }
+.header[data-theme='earth'] .planetText>span:last-child,.header[data-theme='earth'] .planetOrdinal { color:#1d6a93; }
+.header[data-theme='earth'] .planetLink,.header[data-theme='earth'] .panelExplore { border-color:#0b25331f; }
+.header[data-theme='earth'][data-entering='true'] .wordmark,.header[data-theme='earth'][data-entering='true'] .brandCaption,.header[data-theme='earth'][data-entering='true'] .key,.header[data-theme='earth'][data-entering='true'] .seal { color:#eef2ee; }
+@media(max-width:760px){.header[data-theme='earth'] .wordmark{font-size:29px}}
+
+/* Mars brings a heavy basalt, sediment, and iron-oxide palette. */
+.header[data-theme='mars'] { --nav-paper:#E7D3B8; --nav-accent:#BB6247; color:#E7D3B8; }
+.header[data-theme='mars']:not([data-entering='true'])::before { background:#241815fa; border-color:#BB624744; }
+.header[data-theme='mars'] .wordmark { font-family:var(--font-mars),sans-serif; font-size:30px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#E7D3B8; }
+.header[data-theme='mars'] .brandCaption { color:#BB6247; }
+.header[data-theme='mars'] .key[aria-expanded='true'] { color:#E7D3B8; }
+.header[data-theme='mars']:not([data-entering='true']) .exploreKey { background:#BB6247; color:#241815; }
+.header[data-theme='mars']:not([data-entering='true']) .exploreKey::before { border-color:#BB624777; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='mars'] .planetPanel { background:#241815; border-color:#BB624766; color:#E7D3B8; }
+.header[data-theme='mars'] .panelHeading>span:first-child, .header[data-theme='mars'] .planetText>span:first-child { font-family:var(--font-mars),sans-serif; font-weight:800; text-transform:uppercase; color:#E7D3B8; letter-spacing:.02em; }
+.header[data-theme='mars'] .planetText>span:last-child, .header[data-theme='mars'] .planetOrdinal { color:#BB6247; }
+.header[data-theme='mars'] .planetLink, .header[data-theme='mars'] .panelExplore { border-color:#BB624733; }
+.header[data-theme='mars'][data-entering='true'] .wordmark, .header[data-theme='mars'][data-entering='true'] .brandCaption, .header[data-theme='mars'][data-entering='true'] .key, .header[data-theme='mars'][data-entering='true'] .seal { color:#E7D3B8; }
+@media(max-width:760px){.header[data-theme='mars'] .wordmark{font-size:22px}}
+
+
+.header[data-theme='jupiter'] { --nav-paper:#35251f; --nav-accent:#8b4337; color:#35251f; }
+.header[data-theme='jupiter']:not([data-entering='true'])::before { background:#e8d8befa; border-color:#35251f33; }
+.header[data-theme='jupiter'] .wordmark { font-family:var(--font-jupiter),sans-serif; font-size:28px; font-weight:780; letter-spacing:-.055em; text-transform:none; color:#35251f; }
+.header[data-theme='jupiter'] .brandCaption { color:#8b4337; }
+.header[data-theme='jupiter'] .key[aria-expanded='true'] { color:#35251f; }
+.header[data-theme='jupiter']:not([data-entering='true']) .exploreKey { background:#8b4337; color:#fff0db; }
+.header[data-theme='jupiter']:not([data-entering='true']) .exploreKey::before { border-color:#8b433777; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='jupiter'] .planetPanel { background:#e8d8be; color:#35251f; border-color:#8b433755; }
+.header[data-theme='jupiter'] .panelHeading>span:first-child,.header[data-theme='jupiter'] .planetText>span:first-child { font-family:var(--font-jupiter),sans-serif; font-weight:650; color:#35251f; letter-spacing:-.035em; }
+.header[data-theme='jupiter'] .planetText>span:last-child,.header[data-theme='jupiter'] .planetOrdinal { color:#8b4337; }
+.header[data-theme='jupiter'] .planetLink,.header[data-theme='jupiter'] .panelExplore { border-color:#35251f33; }
+.header[data-theme='jupiter'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#e8d8be; }
+@media(max-width:760px){.header[data-theme='jupiter'] .wordmark{font-size:25px}}
+
+.header[data-theme='saturn'] { --nav-paper:#27231f; --nav-accent:#735b37; color:#27231f; }
+.header[data-theme='saturn']:not([data-entering='true'])::before { background:#ede4d3fa; border-color:#27231f33; }
+.header[data-theme='saturn'] .wordmark { font-family:var(--font-saturn),Georgia,serif; font-size:34px; letter-spacing:-.065em; text-transform:none; color:#27231f; }
+.header[data-theme='saturn'] .brandCaption { color:#735b37; }
+.header[data-theme='saturn'] .key[aria-expanded='true'] { color:#27231f; }
+.header[data-theme='saturn']:not([data-entering='true']) .exploreKey { background:#27231f; color:#ede4d3; }
+.header[data-theme='saturn']:not([data-entering='true']) .exploreKey::before { border-color:#735b3788; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='saturn'] .planetPanel { background:#ede4d3; color:#27231f; border-color:#735b3766; }
+.header[data-theme='saturn'] .panelHeading>span:first-child,.header[data-theme='saturn'] .planetText>span:first-child { font-family:var(--font-saturn),Georgia,serif; font-weight:500; color:#27231f; letter-spacing:-.04em; }
+.header[data-theme='saturn'] .planetText>span:last-child,.header[data-theme='saturn'] .planetOrdinal { color:#735b37; }
+.header[data-theme='saturn'] .planetLink,.header[data-theme='saturn'] .panelExplore { border-color:#27231f33; }
+.header[data-theme='saturn'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#ede4d3; }
+@media(max-width:760px){.header[data-theme='saturn'] .wordmark{font-size:29px}}
+
+/* Uranus: pale field, a fixed axis, open geometric lettering. */
+.header[data-theme='uranus'] { --nav-paper:#193a40; --nav-accent:#45696a; color:#193a40; }
+.header[data-theme='uranus']:not([data-entering='true'])::before { background:#e2efeb; border-color:#193a4033; }
+.header[data-theme='uranus'] .wordmark { font-family:var(--font-uranus),sans-serif; font-size:28px; font-weight:500; letter-spacing:-.065em; text-transform:none; color:#193a40; }
+.header[data-theme='uranus'] .brandCaption { color:#45696a; }
+.header[data-theme='uranus'] .key[aria-expanded='true'] { color:#193a40; }
+.header[data-theme='uranus']:not([data-entering='true']) .exploreKey { background:#193a40; color:#e2efeb; }
+.header[data-theme='uranus']:not([data-entering='true']) .exploreKey::before { border-color:#45696a88; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='uranus'] .planetPanel { background:#e2efeb; color:#193a40; border-color:#193a4066; }
+.header[data-theme='uranus'] .panelHeading>span:first-child,.header[data-theme='uranus'] .planetText>span:first-child { font-family:var(--font-uranus),sans-serif; font-weight:500; color:#193a40; letter-spacing:-.04em; }
+.header[data-theme='uranus'] .planetText>span:last-child,.header[data-theme='uranus'] .planetOrdinal { color:#45696a; }
+.header[data-theme='uranus'] .planetLink,.header[data-theme='uranus'] .panelExplore { border-color:#193a4033; }
+.header[data-theme='uranus'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#e2efeb; }
+
+/* Neptune: a dark observation plate and a broad, low wordmark. */
+.header[data-theme='neptune'] { --nav-paper:#dfecee; --nav-accent:#9bbfce; color:#dfecee; }
+.header[data-theme='neptune']:not([data-entering='true'])::before { background:#101d2c; border-color:#9bbfce42; }
+.header[data-theme='neptune'] .wordmark { font-family:var(--font-neptune),sans-serif; font-size:30px; font-weight:600; letter-spacing:-.055em; text-transform:none; color:#dfecee; }
+.header[data-theme='neptune'] .brandCaption { color:#9bbfce; }
+.header[data-theme='neptune'] .key[aria-expanded='true'] { color:#dfecee; }
+.header[data-theme='neptune']:not([data-entering='true']) .exploreKey { background:#dfecee; color:#101d2c; }
+.header[data-theme='neptune']:not([data-entering='true']) .exploreKey::before { border-color:#9bbfce88; border-left-color:transparent; border-bottom-color:transparent; }
+.header[data-theme='neptune'] .planetPanel { background:#101d2c; color:#dfecee; border-color:#9bbfce66; }
+.header[data-theme='neptune'] .panelHeading>span:first-child,.header[data-theme='neptune'] .planetText>span:first-child { font-family:var(--font-neptune),sans-serif; font-weight:500; color:#dfecee; letter-spacing:-.04em; }
+.header[data-theme='neptune'] .planetText>span:last-child,.header[data-theme='neptune'] .planetOrdinal { color:#9bbfce; }
+.header[data-theme='neptune'] .planetLink,.header[data-theme='neptune'] .panelExplore { border-color:#9bbfce42; }
+.header[data-theme='neptune'][data-entering='true'] :is(.wordmark,.brandCaption,.key,.seal) { color:#dfecee; }
+@media(max-width:760px){.header[data-theme='uranus'] .wordmark{font-size:25px}.header[data-theme='neptune'] .wordmark{font-size:27px}}

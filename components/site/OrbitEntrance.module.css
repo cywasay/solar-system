@@ -1,0 +1,16 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  background: radial-gradient(ellipse at 56% 43%, #101012f5, #101012ed 65%);
+  pointer-events: auto;
+  touch-action: none;
+}
+.announcement {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

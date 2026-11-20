@@ -23,10 +23,14 @@ export interface ContactMessage {
   createdAt: string;
 }
 
-const TOKEN_KEY = 'thessaris_admin_token';
+/**
+ * Where older builds kept the raw admin password. Auth is now an httpOnly session cookie
+ * the browser sends by itself; this key is only read in order to delete it.
+ */
+const LEGACY_TOKEN_KEY = 'thessaris_admin_token';
 
 interface AdminContextValue {
-  token: string | null;
+  authenticated: boolean;
   ready: boolean;
   signIn: (password: string) => Promise<boolean>;
   signOut: () => void;
@@ -38,7 +42,21 @@ interface AdminContextValue {
   refresh: () => Promise<void>;
 
   setStatus: (id: string, status: MessageStatus) => Promise<void>;
-  sendReply: (id: string, replyText: string) => Promise<{ ok: boolean; note: string }>;
+  sendReply: (id: string, replyText: string, options?: SendReplyOptions) => Promise<ReplyResult>;
+}
+
+export interface SendReplyOptions {
+  /** Store the reply and mark the message REPLIED without emailing — "I sent it myself". */
+  recordOnly?: boolean;
+}
+
+export interface ReplyResult {
+  ok: boolean;
+  /** Human-readable outcome, including the real reason when something failed. */
+  note: string;
+  /** True when nothing was recorded because the email could not be sent. The caller can
+   *  offer the record-only fallback. */
+  emailFailed?: boolean;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
@@ -57,7 +75,7 @@ export function useAdmin() {
  * of refetching, which is the single biggest perceived-speed win in a dashboard.
  */
 export default function AdminProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
   const [ready, setReady] = useState(false);
   const [authError, setAuthError] = useState('');
 
@@ -68,43 +86,50 @@ export default function AdminProvider({ children }: { children: React.ReactNode 
   // Guards against overlapping fetches (fast navigation, double refresh clicks).
   const inFlight = useRef(false);
 
-  const load = useCallback(async (authToken: string) => {
-    if (inFlight.current) return;
+  /** Any 401 from the admin API means the cookie is missing, expired, or revoked. */
+  const sessionLost = useCallback(() => {
+    setAuthenticated(false);
+    setMessages([]);
+    setAuthError('Session expired. Sign in again.');
+  }, []);
+
+  /**
+   * Fetches the inbox. Doubles as the session check: the cookie is httpOnly, so the only
+   * way the client can learn whether it is signed in is to ask the server.
+   * Resolves to whether the session was valid.
+   */
+  const load = useCallback(async (): Promise<boolean> => {
+    if (inFlight.current) return true;
     inFlight.current = true;
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch('/api/admin/messages', {
-        headers: { Authorization: `Bearer ${authToken}` },
-        cache: 'no-store',
-      });
-
-      if (res.status === 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        setToken(null);
-        setAuthError('Session expired. Sign in again.');
-        return;
+      const res = await fetch('/api/admin/messages', { cache: 'no-store' });
+      if (res.status === 401) return false;
+      if (!res.ok) {
+        throw new Error(`The server returned an error (${res.status}) — the database may be unreachable`);
       }
-      if (!res.ok) throw new Error(`Request failed (${res.status})`);
 
       const data = await res.json();
       setMessages(data.messages ?? []);
+      return true;
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Could not load messages');
+      return true;
     } finally {
       inFlight.current = false;
       setLoading(false);
     }
   }, []);
 
-  // Restore the session after hydration. localStorage cannot be read during render.
+  // Restore an existing session on mount.
   useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_KEY);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only source
-    setReady(true);
-    if (!saved) return;
-    setToken(saved);
-    void load(saved);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- server is the only source
+    void load().then((valid) => {
+      setAuthenticated(valid);
+      setReady(true);
+    });
   }, [load]);
 
   const signIn = useCallback(
@@ -113,92 +138,110 @@ export default function AdminProvider({ children }: { children: React.ReactNode 
       if (!candidate) return false;
       setAuthError('');
 
-      // Validate before persisting, so a wrong key never gets stored.
-      const res = await fetch('/api/admin/messages', {
-        headers: { Authorization: `Bearer ${candidate}` },
-        cache: 'no-store',
-      });
-
-      if (res.status === 401) {
-        setAuthError('That key was not accepted.');
+      try {
+        const res = await fetch('/api/admin/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: candidate }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          setAuthError(data.error ?? `Sign-in failed (${res.status}).`);
+          return false;
+        }
+      } catch {
+        setAuthError('Could not reach the server.');
         return false;
       }
-      if (!res.ok) {
-        setAuthError(`Sign-in failed (${res.status}).`);
-        return false;
-      }
 
-      const data = await res.json();
-      localStorage.setItem(TOKEN_KEY, candidate);
-      setToken(candidate);
-      setMessages(data.messages ?? []);
+      setAuthenticated(true);
+      await load();
       return true;
     },
-    []
+    [load]
   );
 
   const signOut = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
+    // Clear local state immediately; the cookie is cleared server-side.
+    void fetch('/api/admin/session', { method: 'DELETE' }).catch(() => {});
+    setAuthenticated(false);
     setMessages([]);
     setAuthError('');
   }, []);
 
   const refresh = useCallback(async () => {
-    if (token) await load(token);
-  }, [token, load]);
+    if (authenticated && !(await load())) sessionLost();
+  }, [authenticated, load, sessionLost]);
 
   const setStatus = useCallback(
     async (id: string, status: MessageStatus) => {
-      if (!token) return;
+      if (!authenticated) return;
       const previous = messages;
       // Optimistic: the table updates on click, not on round-trip.
       setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
       try {
         const res = await fetch('/api/admin/messages', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, status }),
         });
-        if (!res.ok) setMessages(previous);
+        if (res.status === 401) sessionLost();
+        else if (!res.ok) setMessages(previous);
       } catch {
         setMessages(previous);
       }
     },
-    [token, messages]
+    [authenticated, messages, sessionLost]
   );
 
   const sendReply = useCallback(
-    async (id: string, replyText: string): Promise<{ ok: boolean; note: string }> => {
-      if (!token) return { ok: false, note: 'Not signed in.' };
+    async (id: string, replyText: string, options?: SendReplyOptions): Promise<ReplyResult> => {
+      if (!authenticated) return { ok: false, note: 'Not signed in.' };
+      const recordOnly = options?.recordOnly === true;
       try {
         const res = await fetch('/api/admin/reply', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ id, replyText }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, replyText, recordOnly }),
         });
-        const data = await res.json();
-        if (!res.ok) return { ok: false, note: data.error ?? 'Reply failed.' };
+        if (res.status === 401) {
+          sessionLost();
+          return { ok: false, note: 'Session expired. Sign in again.' };
+        }
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          // 502 = the email could not be sent and nothing was recorded. Surface the real
+          // reason (not configured / rejected by Resend / ...) rather than a guess.
+          if (res.status === 502) {
+            return {
+              ok: false,
+              emailFailed: true,
+              note: `Email not sent: ${data.reason ?? 'unknown error'}. The message has NOT been marked as replied.`,
+            };
+          }
+          return { ok: false, note: data.error ?? `Reply failed (${res.status}).` };
+        }
 
         setMessages((prev) =>
           prev.map((m) => (m.id === id ? { ...m, status: 'REPLIED', replyText } : m))
         );
         return {
           ok: true,
-          note: data.emailSent
-            ? 'Reply sent by email.'
-            : 'Reply saved. Email delivery is disabled until RESEND_API_KEY is set.',
+          note: recordOnly
+            ? 'Recorded as replied. No email was sent — you are responsible for sending it.'
+            : 'Reply sent by email.',
         };
       } catch (err) {
         return { ok: false, note: err instanceof Error ? err.message : 'Reply failed.' };
       }
     },
-    [token]
+    [authenticated, sessionLost]
   );
 
   const value = useMemo<AdminContextValue>(
     () => ({
-      token,
+      authenticated,
       ready,
       signIn,
       signOut,
@@ -210,7 +253,7 @@ export default function AdminProvider({ children }: { children: React.ReactNode 
       setStatus,
       sendReply,
     }),
-    [token, ready, signIn, signOut, authError, messages, loading, loadError, refresh, setStatus, sendReply]
+    [authenticated, ready, signIn, signOut, authError, messages, loading, loadError, refresh, setStatus, sendReply]
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
