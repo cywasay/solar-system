@@ -193,7 +193,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
             </span>
             <span className={styles.brandType} data-orbit-piece="wordmark">
               <span className={styles.wordmark}>Thessaris<span className={styles.brandDot}>.</span></span>
-              <span className={styles.brandCaption}>{theme === 'neptune' ? 'Neptune / Before it was seen' : theme === 'uranus' ? 'Uranus / A different orientation' : theme === 'saturn' ? 'Saturn / Through the ring plane' : theme === 'jupiter' ? 'Jupiter / Order in the storm' : theme === 'mars' ? 'Mars / Read the rock' : theme === 'earth' ? 'Earth / You are here' : theme === 'venus' ? 'Venus / Seen only by radar' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
+              <span className={styles.brandCaption}>{theme === 'neptune' ? 'Neptune / Before it was seen' : theme === 'uranus' ? 'Uranus / A different orientation' : theme === 'saturn' ? 'Saturn / Through the ring plane' : theme === 'jupiter' ? 'Jupiter / Stir the weather' : theme === 'mars' ? 'Mars / Read the rock' : theme === 'earth' ? 'Earth / You are here' : theme === 'venus' ? 'Venus / Seen only by radar' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
             </span>
           </Link>
         </div>
