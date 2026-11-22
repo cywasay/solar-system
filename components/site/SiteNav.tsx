@@ -6,8 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { planets } from '@/data/planets';
 import styles from './SiteNav.module.css';
 import { useOrbitEntrance } from './useOrbitEntrance';
-import { venusDisplay, marsDisplay, jupiterDisplay, saturnDisplay, uranusDisplay, neptuneDisplay } from '@/components/planets/planetFonts';
-import { earthDisplay } from '@/components/planets/earthFont';
 
 function Arrow({ className = '' }: { className?: string }) {
   return (
@@ -17,7 +15,34 @@ function Arrow({ className = '' }: { className?: string }) {
   );
 }
 
-/** Route changes remount only the small navigation, dismissing its disclosure. */
+/** The header is one design on every page: only its palette changes with the planet. */
+type Theme = 'mercury' | 'venus' | 'earth' | 'mars' | 'jupiter' | 'saturn' | 'uranus' | 'neptune';
+const THEMES: Record<Theme, { name: string; caption: string }> = {
+  mercury: { name: 'Mercury', caption: 'A world cut by light' },
+  venus: { name: 'Venus', caption: 'Seen only by radar' },
+  earth: { name: 'Earth', caption: 'You are here' },
+  mars: { name: 'Mars', caption: 'From orbit to grain' },
+  jupiter: { name: 'Jupiter', caption: 'Stir the weather' },
+  saturn: { name: 'Saturn', caption: 'Moons sculpt the rings' },
+  uranus: { name: 'Uranus', caption: 'The planet on its side' },
+  neptune: { name: 'Neptune', caption: 'Before it was seen' },
+};
+const themeFor = (pathname: string): Theme | undefined => {
+  const slug = pathname.startsWith('/planets/') ? pathname.slice('/planets/'.length).split('/')[0] : '';
+  return slug in THEMES ? (slug as Theme) : undefined;
+};
+
+/**
+ * The ruler: every planet on one line, placed by its real distance from the Sun on a log scale
+ * (0.3 AU to 32 AU). It is also the planet navigation.
+ */
+const RULER_MIN = Math.log10(0.3);
+const RULER_SPAN = Math.log10(32) - RULER_MIN;
+const rulerX = (au: number) => (Math.log10(au) - RULER_MIN) / RULER_SPAN;
+const RULER = planets.map((planet) => ({ planet, au: parseFloat(planet.facts.distance), href: `/planets/${planet.name.toLowerCase()}` }));
+const TICKS = [{ au: 1, label: '1 AU' }, { au: 10, label: '10 AU' }];
+
+/** Route changes remount only the small navigation. */
 export default function SiteNav() {
   const pathname = usePathname();
   const router = useRouter();
@@ -54,18 +79,17 @@ interface NavigationBarProps {
   onCancel: () => void;
 }
 
+const noop = () => {};
+
 function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: NavigationBarProps) {
-  const [planetsOpen, setPlanetsOpen] = useState(false);
   const [absorbing, setAbsorbing] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const exploreRef = useRef<HTMLAnchorElement>(null);
-  const onPlanetPage = pathname.startsWith('/planets/');
-  // Other planet identities opt in here as their pages are redesigned.
-  const theme = pathname === '/planets/neptune' ? 'neptune' : pathname === '/planets/uranus' ? 'uranus' : pathname === '/planets/saturn' ? 'saturn' : pathname === '/planets/jupiter' ? 'jupiter' : pathname === '/planets/mercury' ? 'mercury' : pathname === '/planets/venus' ? 'venus' : pathname === '/planets/earth' ? 'earth' : pathname === '/planets/mars' ? 'mars' : undefined;
-  const themeName = theme === 'neptune' ? 'Neptune' : theme === 'uranus' ? 'Uranus' : theme === 'saturn' ? 'Saturn' : theme === 'jupiter' ? 'Jupiter' : theme === 'mars' ? 'Mars' : theme === 'earth' ? 'Earth' : theme === 'venus' ? 'Venus' : 'Mercury';
-  const closePanel = useCallback(() => setPlanetsOpen(false), []);
-  const { entering, overlay } = useOrbitEntrance({ rootRef, buttonRef: exploreRef, closePanel, onBegin, onNavigate, onComplete, onCancel });
+  const rulerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const theme = themeFor(pathname);
+  const themeInfo = theme ? THEMES[theme] : undefined;
+  const { entering, overlay } = useOrbitEntrance({ rootRef, buttonRef: exploreRef, closePanel: noop, onBegin, onNavigate, onComplete, onCancel });
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -96,12 +120,6 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
       const target = centerWithinHeader(explore);
       root.style.setProperty('--sink-x', `${target.x}px`);
       root.style.setProperty('--sink-y', `${target.y}px`);
-      root.style.setProperty('--panel-width', `${root.offsetWidth}px`);
-      if (triggerRef.current) {
-        const triggerCenter = centerWithinHeader(triggerRef.current);
-        root.style.setProperty('--panel-offset', `${root.offsetWidth / 2 - triggerCenter.x}px`);
-        root.style.setProperty('--panel-drop', `${root.offsetHeight - triggerCenter.y - triggerRef.current.offsetHeight / 2 + 12}px`);
-      }
       for (const slot of slots) {
         const center = centerWithinHeader(slot);
         slot.style.setProperty('--travel-x', `${target.x - center.x}px`);
@@ -112,6 +130,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
     const update = () => {
       frame = 0;
       if (root.dataset.entering === 'true') return;
+      // Only the landing page's header folds into the Explore disc as you scroll.
       const raw = theme ? 0 : Math.min(1, Math.max(0, (window.scrollY - 24) / 160));
       const progress = reducedMotion.matches ? (raw > 0.08 ? 1 : 0) : raw;
       if (progress === lastProgress || (progress > 0 && progress < 1 && Math.abs(progress - lastProgress) < 0.0001)) return;
@@ -123,12 +142,7 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
       const nextInactive = inactive ? progress > 0.02 : progress > 0.08;
       if (inactive === nextInactive) return;
       inactive = nextInactive;
-      if (inactive) {
-        if (root.querySelector('[data-nav-content]:focus-within')) {
-          explore.focus({ preventScroll: true });
-        }
-        setPlanetsOpen(false);
-      }
+      if (inactive && root.querySelector('[data-nav-content]:focus-within')) explore.focus({ preventScroll: true });
       setAbsorbing(inactive);
     };
 
@@ -149,114 +163,127 @@ function NavigationBar({ pathname, onBegin, onNavigate, onComplete, onCancel }: 
     };
   }, [theme]);
 
+  // The ruler magnifies around the pointer, dock-style. Only transforms and an opacity change.
   useEffect(() => {
-    if (!planetsOpen) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setPlanetsOpen(false);
+    const ruler = rulerRef.current;
+    if (!ruler || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let frame = 0;
+    let pointerX = 0;
+    const apply = (reset: boolean) => {
+      frame = 0;
+      const centers = itemRefs.current.map((item) => {
+        if (!item) return Infinity;
+        const rect = item.getBoundingClientRect();
+        return rect.left + rect.width / 2;
+      });
+      let hot = -1;
+      let hotDistance = Infinity;
+      centers.forEach((center, index) => {
+        const distance = Math.abs(pointerX - center);
+        if (distance < hotDistance) { hotDistance = distance; hot = index; }
+      });
+      const engaged = !reset && hot >= 0 && hotDistance < 34;
+      itemRefs.current.forEach((item, index) => {
+        if (!item) return;
+        const distance = Math.abs(pointerX - centers[index]);
+        item.style.setProperty('--near', reset ? '0' : Math.exp(-((distance / 46) ** 2)).toFixed(3));
+        item.toggleAttribute('data-hot', engaged && index === hot);
+      });
+      ruler.toggleAttribute('data-hot', engaged);
     };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      setPlanetsOpen(false);
-      triggerRef.current?.focus();
+    const onMove = (event: PointerEvent) => {
+      pointerX = event.clientX;
+      if (!frame) frame = requestAnimationFrame(() => apply(false));
     };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    const onLeave = () => {
+      if (frame) cancelAnimationFrame(frame);
+      apply(true);
+    };
+    ruler.addEventListener('pointermove', onMove);
+    ruler.addEventListener('pointerleave', onLeave);
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      ruler.removeEventListener('pointermove', onMove);
+      ruler.removeEventListener('pointerleave', onLeave);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [planetsOpen]);
+  }, []);
 
   return (<>
     <header
-      className={`${styles.header} ${theme === 'venus' ? venusDisplay.variable : theme === 'earth' ? earthDisplay.variable : theme === 'mars' ? marsDisplay.variable : theme === 'jupiter' ? jupiterDisplay.variable : theme === 'saturn' ? saturnDisplay.variable : theme === 'uranus' ? uranusDisplay.variable : theme === 'neptune' ? neptuneDisplay.variable : ''}`}
+      className={styles.header}
       ref={rootRef}
       data-theme={theme}
       data-absorbing={absorbing}
       aria-busy={entering}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPlanetsOpen(false);
-      }}
     >
       <div className={styles.rule} aria-hidden="true" />
       <nav className={styles.bar} aria-label="Main navigation">
         <div className={`${styles.absorb} ${styles.brandSlot}`} data-absorb data-nav-content inert={absorbing || entering}>
-          <Link href="/" className={styles.brand} aria-label="Thessaris home" onClick={() => setPlanetsOpen(false)}>
+          <Link href="/" className={styles.brand} aria-label="Thessaris home">
             <span className={styles.sealSlot} data-orbit-piece="emblem">
-            {theme === 'uranus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="16"/><path d="M1 29 51 23M25 6l3 40"/><circle cx="47" cy="23.5" r="2.5" fill="currentColor"/></svg> : theme === 'neptune' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><path d="M1 33C15 33 19 15 34 21S46 26 51 22M1 40C15 40 19 22 34 28S46 33 51 29"/><circle cx="34" cy="21" r="6"/><path d="M34 5v7m0 18v7M18 21h7m18 0h7"/></svg> : theme === 'saturn' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="12"/><ellipse cx="26" cy="26" rx="24" ry="7" transform="rotate(-22 26 26)"/><path d="M4 35 48 17" strokeOpacity=".42"/></svg> : theme === 'jupiter' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 14h40m-35 6h30M6 28h40m-35 6h9m17 0h4M6 41h40" strokeWidth="1.5"/><ellipse cx="29" cy="34" rx="8" ry="4" strokeWidth="1.5"/></svg> : theme === 'mars' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20" strokeWidth="1.2" /><path d="M6 24h40M8 31h36M12 37h28M10 18h32" strokeWidth="1.1" /><circle cx="26" cy="12" r="2.5" fill="currentColor" strokeWidth="0" /></svg> : theme === 'earth' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><ellipse cx="26" cy="26" rx="9" ry="20"/><path d="M6 26h40M10 14h32M10 38h32"/></svg> : theme === 'venus' ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="26" cy="26" r="20"/><path d="M8 18c13-7 23 7 36 0M6 26c14-7 26 7 40 0M8 34c13-7 23 7 36 0"/></svg> : theme ? <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="26" cy="26" r="19" stroke="currentColor" strokeWidth="1"/><path d="M26 7a19 19 0 0 0 0 38V7Z" fill="currentColor"/><path d="M26 0v5m0 42v5" stroke="currentColor"/></svg> : <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
-              <circle cx="26" cy="26" r="17" stroke="currentColor" strokeWidth=".8" />
-              <ellipse cx="26" cy="26" rx="25" ry="8" transform="rotate(-38 26 26)" stroke="currentColor" strokeWidth=".8" />
-              <path d="M26 2v8m0 32v8M2 26h8m32 0h8" stroke="currentColor" strokeWidth=".6" />
-              <circle cx="26" cy="26" r="3" fill="var(--color-accent-hover)" />
-              <circle cx="39.4" cy="15.6" r="2" fill="currentColor" />
-            </svg>}
+              <svg className={styles.seal} viewBox="0 0 52 52" fill="none" aria-hidden="true">
+                <circle cx="26" cy="26" r="17" stroke="currentColor" strokeWidth=".9" />
+                <ellipse cx="26" cy="26" rx="25" ry="8" transform="rotate(-38 26 26)" stroke="currentColor" strokeWidth=".9" />
+                <path d="M26 2v8m0 32v8M2 26h8m32 0h8" stroke="currentColor" strokeWidth=".6" />
+                <circle cx="26" cy="26" r="3" fill="var(--nav-accent)" />
+                <circle cx="39.4" cy="15.6" r="2" fill="currentColor" />
+              </svg>
             </span>
             <span className={styles.brandType} data-orbit-piece="wordmark">
               <span className={styles.wordmark}>Thessaris<span className={styles.brandDot}>.</span></span>
-              <span className={styles.brandCaption}>{theme === 'neptune' ? 'Neptune / Before it was seen' : theme === 'uranus' ? 'Uranus / A different orientation' : theme === 'saturn' ? 'Saturn / Through the ring plane' : theme === 'jupiter' ? 'Jupiter / Stir the weather' : theme === 'mars' ? 'Mars / Read the rock' : theme === 'earth' ? 'Earth / You are here' : theme === 'venus' ? 'Venus / Seen only by radar' : theme ? 'Mercury / A world cut by light' : 'An independent observatory'}</span>
+              <span className={styles.brandCaption}>{themeInfo ? `${themeInfo.name} / ${themeInfo.caption}` : 'An independent observatory'}</span>
             </span>
           </Link>
         </div>
 
         <div className={styles.destinations} data-nav-content inert={absorbing || entering}>
-          <div className={styles.absorb} data-absorb style={{ '--lag': 0.035 } as CSSProperties}>
-            <Link href="/" className={styles.key} data-orbit-piece="home" aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setPlanetsOpen(false)}>
-              <span className={styles.navIndex} aria-hidden="true">01</span>
+          <div className={`${styles.absorb} ${styles.homeSlot}`} data-absorb style={{ '--lag': 0.035 } as CSSProperties}>
+            <Link href="/" className={styles.key} data-orbit-piece="home" aria-current={pathname === '/' ? 'page' : undefined}>
               <span className={styles.navText}>{theme ? 'Portfolio' : 'Home'}</span>
             </Link>
           </div>
-          <div className={`${styles.absorb} ${styles.planetNavigation}`} data-absorb style={{ '--lag': 0.07 } as CSSProperties}>
-            <button type="button" ref={triggerRef} className={styles.key} data-orbit-piece="planets"
-              aria-expanded={planetsOpen} aria-controls="navbar-planets"
-              data-active={onPlanetPage || undefined} onClick={() => setPlanetsOpen((open) => !open)}>
-              <span className={styles.navIndex} aria-hidden="true">02</span>
-              <span className={styles.navText}>{theme ? themeName : 'Planets'} <span className={styles.toggleGlyph} aria-hidden="true" /></span>
-            </button>
-            {planetsOpen && (
-              <div className={styles.planetPanel} id="navbar-planets" data-lenis-prevent>
-                <div className={styles.panelHeading}>
-                  <span>The planetary atlas<span className={styles.panelDot}>.</span></span>
-                  <span className={styles.panelEdition}>Our solar system<br />01 — 08</span>
-                </div>
-                <nav className={styles.planetGrid} aria-label="Planetary index">
-                  {planets.map((planet, index) => {
-                    const href = `/planets/${planet.name.toLowerCase()}`;
-                    return (
-                      <Link key={planet.name} href={href} className={styles.planetLink} onClick={() => setPlanetsOpen(false)}
-                        aria-current={pathname === href ? 'page' : undefined}
-                        style={{ '--planet-color': planet.fallbackColor } as CSSProperties}>
-                        <span className={styles.planetOrdinal} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                        <span className={styles.planetSphere} aria-hidden="true" style={{ backgroundImage: `url(${planet.textureFile})` }} />
-                        <span className={styles.planetText}>
-                          <span>{planet.name}</span>
-                          <span>{planet.facts.distance.replace(' from the Sun', '')}</span>
-                        </span>
-                        <Arrow className={styles.planetArrow} />
+
+          <div className={`${styles.absorb} ${styles.rulerSlot}`} data-absorb style={{ '--lag': 0.07 } as CSSProperties}>
+            <div ref={rulerRef} className={styles.ruler} data-has-current={theme ? true : undefined}>
+              <nav aria-label="Planets, placed by distance from the Sun">
+                <span className={styles.rulerTrack} aria-hidden="true" />
+                <span className={styles.rulerSun} aria-hidden="true" />
+                {TICKS.map((tick) => (
+                  <span key={tick.label} className={styles.rulerTick} aria-hidden="true" style={{ '--x': rulerX(tick.au) } as CSSProperties}>{tick.label}</span>
+                ))}
+                <ol className={styles.rulerList}>
+                  {RULER.map(({ planet, au, href }, index) => (
+                    <li
+                      key={planet.name}
+                      ref={(node) => { itemRefs.current[index] = node; }}
+                      className={styles.rulerItem}
+                      style={{ '--x': rulerX(au), '--planet': planet.fallbackColor } as CSSProperties}
+                    >
+                      <Link href={href} className={styles.rulerLink} aria-current={pathname === href ? 'page' : undefined} aria-label={`${planet.name}, ${planet.facts.distance}`}>
+                        <span className={styles.sphere} data-orbit-piece={`planet-${planet.name.toLowerCase()}`} style={{ backgroundImage: `url(${planet.textureFile})` }} />
+                        <span className={styles.rulerName}>{planet.name} <i>{planet.facts.distance.replace(' from the Sun', '')}</i></span>
                       </Link>
-                    );
-                  })}
-                </nav>
-                <Link href="/explore" className={styles.panelExplore} onClick={() => setPlanetsOpen(false)}>
-                  <span>See it all in motion</span><Arrow />
-                </Link>
-              </div>
-            )}
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+              <span className={styles.rulerHint} aria-hidden="true">Eight worlds · log scale</span>
+            </div>
           </div>
+
           <div className={styles.absorb} data-absorb style={{ '--lag': 0.105 } as CSSProperties}>
-            <Link href="/contact" className={styles.key} data-orbit-piece="contact" aria-current={pathname === '/contact' ? 'page' : undefined} onClick={() => setPlanetsOpen(false)}>
-              <span className={styles.navIndex} aria-hidden="true">03</span>
+            <Link href="/contact" className={styles.key} data-orbit-piece="contact" aria-current={pathname === '/contact' ? 'page' : undefined}>
               <span className={styles.navText}>Contact</span>
             </Link>
           </div>
           {!theme && <div className={styles.absorb} data-absorb style={{ '--lag': 0.14 } as CSSProperties}>
-            <Link href="/admin" className={`${styles.key} ${styles.adminKey}`} data-orbit-piece="admin" onClick={() => setPlanetsOpen(false)}>
-              <span className={styles.navIndex} aria-hidden="true">04</span>
+            <Link href="/admin" className={`${styles.key} ${styles.adminKey}`} data-orbit-piece="admin">
               <span className={styles.navText}>Admin</span>
             </Link>
           </div>}
         </div>
 
-        <Link ref={exploreRef} href={theme ? `/explore?focus=${themeName}` : '/explore'} className={styles.exploreKey} aria-label={theme ? `Explore ${themeName}` : 'Explore'} onClick={() => setPlanetsOpen(false)}>
+        <Link ref={exploreRef} href={themeInfo ? `/explore?focus=${themeInfo.name}` : '/explore'} className={styles.exploreKey} aria-label={themeInfo ? `Explore ${themeInfo.name}` : 'Explore'}>
           <span className={styles.exploreLabel}>Explore</span>
           <span className={styles.exploreArrow}><Arrow /></span>
         </Link>
