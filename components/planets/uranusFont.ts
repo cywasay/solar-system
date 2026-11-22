@@ -1,6 +1,7 @@
-import { Manrope } from 'next/font/google';
+import { Unbounded } from 'next/font/google';
 
-export const uranusDisplay = Manrope({
+/** Wide, geometric display type for the sideways chapter titles. */
+export const uranusDisplay = Unbounded({
   subsets: ['latin'],
   weight: 'variable',
   display: 'swap',
