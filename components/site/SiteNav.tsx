@@ -25,7 +25,7 @@ const THEMES: Record<Theme, { name: string; caption: string }> = {
   jupiter: { name: 'Jupiter', caption: 'Stir the weather' },
   saturn: { name: 'Saturn', caption: 'Moons sculpt the rings' },
   uranus: { name: 'Uranus', caption: 'The planet on its side' },
-  neptune: { name: 'Neptune', caption: 'Before it was seen' },
+  neptune: { name: 'Neptune', caption: 'One pass' },
 };
 const themeFor = (pathname: string): Theme | undefined => {
   const slug = pathname.startsWith('/planets/') ? pathname.slice('/planets/'.length).split('/')[0] : '';

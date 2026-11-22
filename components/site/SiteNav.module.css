@@ -32,7 +32,7 @@
 }
 
 /* Planet palettes. */
-.header[data-theme] { top: 0; margin-top: 0; }
+.header[data-theme] { top: 0; margin-top: 0; overflow-x: clip; overflow-clip-margin: 28px; } /* decorations near the right edge must not widen the page */
 .header[data-theme='mercury'] { --nav-surface: #111214f5; --nav-ink: #ded9cf; --nav-soft: #a99f8e; --nav-accent: #bda68a; --nav-line: #ded9cf2e; --nav-cta: #ded9cf; --nav-cta-ink: #111214; }
 .header[data-theme='venus'] { --nav-surface: #f1e5befa; --nav-ink: #231c12; --nav-soft: #705d29; --nav-accent: #705d29; --nav-line: #231c1229; --nav-cta: #231c12; --nav-cta-ink: #f1e5be; }
 .header[data-theme='earth'] { --nav-surface: #eef2eefa; --nav-ink: #0b2533; --nav-soft: #3d6478; --nav-accent: #1d6a93; --nav-line: #0b25332b; --nav-cta: #0b2533; --nav-cta-ink: #eef2ee; }
@@ -40,7 +40,7 @@
 .header[data-theme='jupiter'] { --nav-surface: #0b0f15fa; --nav-ink: #f3e6cf; --nav-soft: #93a8ba; --nav-accent: #e8a557; --nav-line: #f3e6cf2e; --nav-cta: #e8a557; --nav-cta-ink: #0b0f15; }
 .header[data-theme='saturn'] { --nav-surface: #ece3cffa; --nav-ink: #1b1710; --nav-soft: #5a4f3a; --nav-accent: #8a2e1f; --nav-line: #1b171033; --nav-cta: #1b1710; --nav-cta-ink: #ece3cf; }
 .header[data-theme='uranus'] { --nav-surface: #030d10f5; --nav-ink: #dff3f1; --nav-soft: #86a9a8; --nav-accent: #7fe6df; --nav-line: #bff3ef2b; --nav-cta: #bff3ef; --nav-cta-ink: #030d10; }
-.header[data-theme='neptune'] { --nav-surface: #101d2cfa; --nav-ink: #dfecee; --nav-soft: #9bbfce; --nav-accent: #9bbfce; --nav-line: #9bbfce42; --nav-cta: #dfecee; --nav-cta-ink: #101d2c; }
+.header[data-theme='neptune'] { --nav-surface: #050b1cf5; --nav-ink: #e7edf7; --nav-soft: #7f93b8; --nav-accent: #f3c76b; --nav-line: #9fb7e62e; --nav-cta: #f3c76b; --nav-cta-ink: #050b1c; }
 
 /* The full-width plate on planet pages. */
 .header[data-theme]:not([data-entering='true'])::before {
